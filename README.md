@@ -2,13 +2,13 @@
 MTGA Pro Tracker is advanced Magic The Gathering Arena tracking tool designed to automatically upload collection, decks, battles, draft and inventory from your game client to our server. No manual collection input, no manual uploads. New cards, battles, drafts are added immediately after events are happening in the game.
 
 ## What can I do with MTGA Pro Tracker?
-* Real Time Collection & Decks Import\
-* Share Progress and Wins/Losses\
-* Track your Wildcards, Boosters and Vault\
-* Deckbuild using your current collection\
+* Real Time Collection & Decks Import
+* Share Progress and Wins/Losses
+* Track your Wildcards, Boosters and Vault
+* Deckbuild using your current collection
 
 ## INSTALLATION STEP-BY-STEP GUIDE
-IMPORTANT! Program needs .NET 4.6.2 or higher to work. If app doesn't start on your PC (no interface shows up after you launch EXE) you should install .NET from here!\
+IMPORTANT! Program needs .NET 4.6.2 or higher to work. If app doesn't start on your PC (no interface shows up after you launch EXE) you should install .NET from here!
 
 * Download MTGA Pro Tracker (currect version is v.1.3.1) from our github here: https://github.com/Razviar/mtga-pro-tracker/raw/master/MTGApro.zip Some antivirus software could be alarmed because of the app's ability to upload data to remote server and automatic update feature. So if Antivirus is alarmed, you should add this App to exceptions.
 * Unpack it and launch MSI Installer.
