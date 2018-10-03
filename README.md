@@ -28,3 +28,32 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 4. Try to reboot your PC
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception
 6. Write a letter to admin@mtgarena.pro with details, we'll try to help
+
+## Changelog
+v.1.3.2 released 03/10/2018 (Google Cloud):
+* Server load moved on Google Cloud
+
+v.1.3.1 released 01/10/2018 (Server Load Reduce and Stability Fixes):
+* Maintenance update designed to reduce server load.
+* Added MTGA player nicks recognition.
+* Fixed several bugs and improved stability.
+
+v.1.3.0 released 31/08/2018 (Multiaccount Fix & better bug tracker embeded):
+* Now Multiaccount function works as it should: when you change accounts in a game, traker will switch tokens or request new token
+* Better bugtracking system will help me to intercept tiny glitches in tracking process and make respective fixes.
+
+v.1.2.9 released 17/08/2018 (MTGA v.818_646046 compatibility):
+* Updated log format
+
+v.1.2.7 released 08/08/2018 (Dynamic Monitoring):
+* Now you don't need to update app in order to get new tracking tools. App loads monitoring patterns dynamically from server.
+* Some bug fixes
+
+v.1.2.6 released 06/08/2018 (Maintenance Release):
+* Fixed bugs
+* Resolved compatibility problems with Win7 & Win8
+
+v.1.2.5 released 03/08/2018 (Optimization and fixes):
+* Better MSI installer (no cab-files and directory selector added)
+* Better string processing (thanks to u/Spongman)
+* Improved log processing (app will not re-scan the whole log on startup if it isn't changed)
