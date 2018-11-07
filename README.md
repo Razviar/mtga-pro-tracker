@@ -31,7 +31,7 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 
 ## Changelog
 v.1.3.3 released 07/11/2018 (Big Update!):
-* Data extraction from log even if tracker was not running.
+* Data extraction from latest log even if tracker was not running. Important: if the game was restarted for several times, only data from the latest session without tracker will survive.
 * Better logs parsing system which opens the way directly to full match replay function (not implemented yet on MTGArena.pro, but client-side is fully ready)
 * Upload success control and local data storage during server downtime. So no lost tracking matches because of server maintenance.
 * Fixed multiple accounts: now this function is working properly.
