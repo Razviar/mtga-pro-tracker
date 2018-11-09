@@ -30,6 +30,11 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Write a letter to admin@mtgarena.pro with details, we'll try to help
 
 ## Changelog
+v.1.3.6 released 09/11/2018 (Hpopefully final hotfix):
+* Fixed error with "Client needs update" message
+* Fixed date/time bugs
+* Done some tiny improvements
+
 v.1.3.5 released 07/11/2018 (Hotfix):
 * Fixed client-side data storage system
 * Added nice banner
