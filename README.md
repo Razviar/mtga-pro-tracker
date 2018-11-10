@@ -30,7 +30,7 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Write a letter to admin@mtgarena.pro with details, we'll try to help
 
 ## Changelog
-v.1.4.0 released 09/11/2018 (Better data delivery system):
+v.1.4.1 released 09/11/2018 (Better data delivery system):
 * Data transmission format from client to server reworked in order to provide more stability and reduce server load
 
 v.1.3.7 released 09/11/2018 (Hopefully final hotfix):
