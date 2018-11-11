@@ -30,8 +30,9 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Write a letter to admin@mtgarena.pro with details, we'll try to help
 
 ## Changelog
-v.1.4.4 released 11/11/2018 (Hotfix)
+v.1.4.5 released 11/11/2018 (Hotfix)
 * Hotfix: Protection of server from uploads-induced DDOS
+* Numerous tiny bugfixes
 
 v.1.4.3 released 09/11/2018 (Better data delivery system):
 * Data transmission format from client to server reworked in order to provide more stability and reduce server load
