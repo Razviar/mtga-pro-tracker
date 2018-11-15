@@ -30,6 +30,10 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Write a letter to admin@mtgarena.pro with details, we'll try to help
 
 ## Changelog
+v.1.4.7 released 15/11/2018 (Hotfix)
+* Fixed possible issues with collections and decks sync
+* Some interface improvements and more stability
+
 v.1.4.6 released 11/11/2018 (Hotfix)
 * Hotfix: Protection of server from uploads-induced DDOS
 * Hotfix: German users log parser
