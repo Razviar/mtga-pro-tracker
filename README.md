@@ -30,6 +30,13 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Write a letter to admin@mtgarena.pro with details, we'll try to help
 
 ## Changelog
+v.1.5.0 released 15/11/2018 (Catch-up Mode)
+* NEW: introduced manual re-sync and old logs reading
+* Improved data delivery on server leading to more stable data uploads
+* Now tracker gets all battles from latest log even if it wasn't running
+* Fixed time. Finally users will get time recorded according to their timezones
+* Backlog: still no direct challenges decks detection. Will add this feature later. 
+
 v.1.4.8 released 15/11/2018 (Hotfix)
 * Fixed possible issues with collections and decks sync
 * Some interface improvements and more stability
