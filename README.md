@@ -30,7 +30,7 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Write a letter to admin@mtgarena.pro with details, we'll try to help
 
 ## Changelog
-v.1.5.0 released 15/11/2018 (Catch-up Mode)
+v.1.5.0 released 21/11/2018 (Catch-up Mode)
 * NEW: introduced manual re-sync and old logs reading
 * Improved data delivery on server leading to more stable data uploads
 * Now tracker gets all battles from latest log even if it wasn't running
