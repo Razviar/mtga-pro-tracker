@@ -30,6 +30,9 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Write a letter to admin@mtgarena.pro with details, we'll try to help
 
 ## Changelog
+v.1.5.2 released 23/11/2018 (No initial upload)
+* Fix of unwanted behaviour when app uploads old data from the log on every startup, even if that data already was uploaded.
+
 v.1.5.1 released 21/11/2018 (Better UX)
 * Data upload progress bar shows process of big logs uploads
 * Buttons are being disabled when they are useless anyway or shouldn't be pressed
