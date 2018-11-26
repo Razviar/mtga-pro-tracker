@@ -24,10 +24,9 @@ When you get mesage "Windows protected your PC", you should click "More Info..."
 App crashes or not starting? No recent updates uploaded? Follow steps:
 1. Make sure you have latest version v.1.5.1. It's updated to be compatible with latest MTGA version.
 2. Be sure that you have .NET 4.6.2 or higher
-3. If you are able to see app interface, just click MANUAL RESET button, then re-input new token.
+3. If you are able to see app interface, just click FULL RESET button, then re-input new token.
 4. Try to reboot your PC
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception
-6. Write a letter to admin@mtgarena.pro with details, we'll try to help
 
 ## Changelog
 v.1.5.2 released 23/11/2018 (No initial upload)
