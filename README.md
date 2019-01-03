@@ -10,7 +10,7 @@ MTGA Pro Tracker is advanced Magic The Gathering Arena tracking tool designed to
 ## INSTALLATION STEP-BY-STEP GUIDE
 IMPORTANT! Program needs .NET 4.6.2 or higher to work. If app doesn't start on your PC (no interface shows up after you launch EXE) you should install .NET from here!
 
-* Download MTGA Pro Tracker (currect version is v.1.5.1) from our github. Antivirus software (including Windows Defender) could be alarmed because of the app's ability to upload data to remote server and automatic update feature. So if Antivirus is alarmed, you should add this App to exceptions.
+* Download MTGA Pro Tracker (currect version is v.1.5.3) from our github. Antivirus software (including Windows Defender) could be alarmed because of the app's ability to upload data to remote server and automatic update feature. So if Antivirus is alarmed, you should add this App to exceptions.
 * Unpack it and launch MSI Installer.
 * Get your token from widget on this page: https://mtgarena.pro/mtga-pro-tracker/ You must be registered user to get token!
 * Copy this digit-letter code and paste it to input field of Tracker app.
@@ -22,13 +22,22 @@ When you get mesage "Windows protected your PC", you should click "More Info..."
 
 ## TRACKER IS NOT UPDATING?
 App crashes or not starting? No recent updates uploaded? Follow steps:
-1. Make sure you have latest version v.1.5.1. It's updated to be compatible with latest MTGA version.
+1. Make sure you have latest version v.1.5.3. It's updated to be compatible with latest MTGA version.
 2. Be sure that you have .NET 4.6.2 or higher
 3. If you are able to see app interface, just click FULL RESET button, then re-input new token.
 4. Try to reboot your PC
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception
 
 ## Changelog
+v.1.5.3 released 03/01/2019 (New Year Update)
+* Notifications from developers in the app. So you will not need to look for info about tracking issues on Twitter or Reddit. 
+* Better update notifications. You will see update button right after update is out.
+* More stable matches tracking. No opponent's cards from previous matches will get into next match. 
+* Remote restart. Now tracker will restart itself when needed. So new features will be available without action required from user. 
+* Protection from log overgrowing. Now if your MTGA log grows huge, app deals with it properly. 
+* More stable uploads. Risk of tracker get stuck so you need manual full reset is minimal.
+* In-game time counter. You will now how much time you spent on MTGA on daily basis. 
+
 v.1.5.2 released 23/11/2018 (No initial upload)
 * Fix of unwanted behaviour when app uploads old data from the log on every startup, even if that data already was uploaded.
 
