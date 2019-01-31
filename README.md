@@ -8,6 +8,12 @@ MTGA Pro Tracker is advanced Magic The Gathering Arena tracking tool designed to
 * Deckbuild using your current collection
 * Get in-game hep with matches and draft using Overlay tool
 
+## Hotkeys
+* Alt+Q to see your cards
+* Alt+W to see opponent
+* Alt+~ to collapse/expand the overlay.
+* Alt+O (not zero, letter O) - to completely hide overlay or show it back.
+
 ## INSTALLATION STEP-BY-STEP GUIDE
 IMPORTANT! Program needs .NET 4.6.2 or higher to work. If app doesn't start on your PC (no interface shows up after you launch EXE) you should install .NET from here!
 
