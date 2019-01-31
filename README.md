@@ -29,7 +29,7 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception
 
 ## Changelog
-v.1.5.6 released 03/01/2019 (In-game Overlay)
+v.1.5.6 released 31/01/2019 (In-game Overlay)
 * Added in-game overlay with 3 modes: matches, decks and draft helper
 * Added detailed settings for overlay
 * Improved app interface
