@@ -17,7 +17,7 @@ MTGA Pro Tracker is advanced Magic The Gathering Arena tracking tool designed to
 ## INSTALLATION STEP-BY-STEP GUIDE
 IMPORTANT! Program needs .NET 4.6.2 or higher to work. If app doesn't start on your PC (no interface shows up after you launch EXE) you should install .NET from here!
 
-* Download MTGA Pro Tracker (currect version is v.1.5.9) from our github. Antivirus software (including Windows Defender) could be alarmed because of the app's ability to upload data to remote server and automatic update feature. So if Antivirus is alarmed, you should add this App to exceptions.
+* Download MTGA Pro Tracker (currect version is v.1.6.0) from our github. Antivirus software (including Windows Defender) could be alarmed because of the app's ability to upload data to remote server and automatic update feature. So if Antivirus is alarmed, you should add this App to exceptions.
 * Unpack it and launch MSI Installer.
 * Get your token from widget on this page: https://mtgarena.pro/mtga-pro-tracker/ You must be registered user to get token!
 * Copy this digit-letter code and paste it to input field of Tracker app.
@@ -29,13 +29,17 @@ When you get mesage "Windows protected your PC", you should click "More Info..."
 
 ## TRACKER IS NOT UPDATING?
 App crashes or not starting? No recent updates uploaded? Follow steps:
-1. Make sure you have latest version v.1.5.9. It's updated to be compatible with latest MTGA version.
+1. Make sure you have latest version v.1.6.0. It's updated to be compatible with latest MTGA version.
 2. Be sure that you have .NET 4.6.2 or higher
 3. If you are able to see app interface, just click FULL RESET button, then re-input new token.
 4. Try to reboot your PC
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception
 
 ## Changelog
+v.1.6.0 released 04/02/2019 (In-game Overlay fixes)
+* Overlay bugs fixes according to users reports
+* New settings, giving even more customization to overlay
+
 v.1.5.9 released 31/01/2019 (In-game Overlay)
 * Added in-game overlay with 3 modes: matches, decks and draft helper
 * Added detailed settings for overlay
