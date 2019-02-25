@@ -1,0 +1,107 @@
+﻿<Window x:Name="Settings" x:Class="MTGApro.Window1"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MTGApro"
+        mc:Ignorable="d"
+        Title="Settings" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" MinHeight="361" Height="451.92">
+    <Grid>
+        <TabControl HorizontalAlignment="Left" Height="380" VerticalAlignment="Top" Width="258" Margin="0,0,-0.4,0">
+            <TabItem Header="General Settings">
+                <Grid x:Name="General" Background="#FFE5E5E5">
+                    <CheckBox x:Name="Minimizedchk" Content="Run minimized" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <CheckBox x:Name="Startupchk" Content="Launch at Windows startup" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="Uploads" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top" Width="229" SelectedIndex="0">
+                        <TextBlock Text="5000ms"/>
+                        <TextBlock Text="7000ms"/>
+                        <TextBlock Text="9000ms"/>
+                        <TextBlock Text="10000ms"/>
+                    </ComboBox>
+                    <TextBlock Text="Uploads timeout" HorizontalAlignment="Left" Margin="10,51,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.513,0.121"/>
+                    <ComboBox x:Name="Icoselector" HorizontalAlignment="Left" Margin="10,112,0,0" VerticalAlignment="Top" Width="229" SelectedIndex="0">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/icon0.ico" Width="18" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" />
+                            <TextBlock Text="White" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Padding="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/icon1.ico" Width="18" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" />
+                            <TextBlock Text="Red" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Padding="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/icon2.ico" Width="18" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" />
+                            <TextBlock Text="Blue" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Padding="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/icon3.ico" Width="18" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" />
+                            <TextBlock Text="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Padding="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/icon4.ico" Width="18" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" />
+                            <TextBlock Text="Green" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Padding="5,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/icon5.ico" Width="18" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" />
+                            <TextBlock Text="MTGA" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Padding="5,0,0,0"/>
+                        </StackPanel>
+                    </ComboBox>
+                    <TextBlock Text="App Icon" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.513,0.121"/>
+                    <Button x:Name="LocateBtn" Content="Locate Game Log..." HorizontalAlignment="Left" Margin="10,186,0,0" VerticalAlignment="Top" Width="229" Click="Button_Click_1"/>
+                    <TextBlock Text="Use this tool ONLY if your log is not being &#xD;&#xA;located automatically" HorizontalAlignment="Left" Margin="10,152,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.513,0.121"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Overlay">
+                <Grid x:Name="Overlay" Background="#FFE5E5E5" Margin="0,0,0,0.2">
+                    <ComboBox x:Name="DigitsToShow_left" HorizontalAlignment="Left" Margin="10,20,0,0" VerticalAlignment="Top" Width="229" SelectedIndex="0">
+                        <TextBlock Text="Cards left in Deck" Selector.IsSelected="True"/>
+                        <TextBlock Text="Cards total in Deck"/>
+                        <TextBlock Text="Draw probability"/>
+                        <TextBlock Text="Disable"/>
+                    </ComboBox>
+                    <ComboBox x:Name="DigitsToShow_right" HorizontalAlignment="Left" Margin="10,58,0,0" VerticalAlignment="Top" Width="229" SelectedIndex="0">
+                        <TextBlock Text="Cards left in Deck"/>
+                        <TextBlock Text="Cards total in Deck"/>
+                        <TextBlock Text="Draw probability" Selector.IsSelected="True"/>
+                        <TextBlock Text="Disable"/>
+                    </ComboBox>
+                    <TextBlock Text="Left digit in combat" HorizontalAlignment="Left" Margin="10,4,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.513,0.121"/>
+                    <TextBlock Text="Right digit in combat" HorizontalAlignment="Left" Margin="9,42,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.513,0.121"/>
+                    <CheckBox x:Name="Streamer" Content="Streamer Mode (don't hide overlay)" HorizontalAlignment="Left" Margin="11,208,0,0" VerticalAlignment="Top"/>
+                    <CheckBox x:Name="DeckList" Content="Show Decks List between battles" HorizontalAlignment="Left" Margin="11,228,0,0" VerticalAlignment="Top" IsChecked="True" />
+                    <ComboBox x:Name="DigitsToShow_left_draft" HorizontalAlignment="Left" Margin="11,100,0,0" VerticalAlignment="Top" Width="229" SelectedIndex="0">
+                        <TextBlock Text="Draft evaluation" Selector.IsSelected="True"/>
+                        <TextBlock Text="Cards in collection" />
+                        <TextBlock Text="Disable"/>
+                    </ComboBox>
+                    <ComboBox x:Name="DigitsToShow_right_draft" HorizontalAlignment="Left" Margin="11,138,0,0" VerticalAlignment="Top" Width="229" SelectedIndex="0">
+                        <TextBlock Text="Draft evaluation" />
+                        <TextBlock Text="Cards in collection" Selector.IsSelected="True"/>
+                        <TextBlock Text="Disable"/>
+                    </ComboBox>
+                    <TextBlock Text="Left digit in draft" HorizontalAlignment="Left" Margin="11,84,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.513,0.121"/>
+                    <TextBlock Text="Right digit in draft" HorizontalAlignment="Left" Margin="10,122,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.513,0.121"/>
+                    <CheckBox x:Name="Autoswitch" Content="Auto-switch between me and opponent" HorizontalAlignment="Left" Margin="11,248,0,0" VerticalAlignment="Top" IsChecked="True" />
+                    <CheckBox x:Name="Showcard" Content="Show card image on hover" HorizontalAlignment="Left" Margin="12,268,0,0" VerticalAlignment="Top" IsChecked="True" />
+                    <CheckBox x:Name="Showtimers" Content="Show timers" HorizontalAlignment="Left" Margin="12,288,0,0" VerticalAlignment="Top" IsChecked="True" />
+                    <ComboBox x:Name="Font_selector" HorizontalAlignment="Left" Margin="11,178,0,0" VerticalAlignment="Top" Width="229" SelectedIndex="0">
+                        <TextBlock Text="Magic Font" Selector.IsSelected="True"/>
+                        <TextBlock Text="Generic Sans-Serif" />
+                    </ComboBox>
+                    <TextBlock Text="Cards Font" HorizontalAlignment="Left" Margin="10,162,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.513,0.121"/>
+                    <CheckBox x:Name="Hotkeys" Content="Enable Hotkeys" HorizontalAlignment="Left" Margin="12,308,0,0" VerticalAlignment="Top" IsChecked="True" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Accounts">
+                <Grid x:Name="Accounts" Background="#FFE5E5E5">
+                    <ComboBox x:Name="AccountSelector"  HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="232" SelectionChanged="AccountSelector_SelectionChanged"/>
+                    <Label x:Name="Ingame_nick"  Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="104,49,0,0" FontWeight="Bold" Width="143" Height="23"/>
+                    <TextBlock x:Name="Ingame_nick_label" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,53,0,0" Width="90" Height="14"/>
+                    <Label x:Name="Acc_token"  Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="104,81,0,0" FontWeight="Bold" Width="143" Height="23"/>
+                    <TextBlock x:Name="Token_label" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,85,0,0" Width="90" Height="14"/>
+                    <Button Content="Remove Token-Account Link" HorizontalAlignment="Left" Margin="10,121,0,0" VerticalAlignment="Top" Width="232" Click="Button_Click_2"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Button Content="Save settings" HorizontalAlignment="Left" Margin="10,391,0,0" VerticalAlignment="Top" Width="234" Click="Button_Click"/>
+    </Grid>
+</Window>

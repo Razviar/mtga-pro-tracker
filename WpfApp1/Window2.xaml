@@ -1,0 +1,66 @@
+﻿<Window x:Class="MTGApro.Window2"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MTGApro"
+        mc:Ignorable="d"
+        Title="Tools" Height="437.22" Width="308.744" Icon="Resources/supercls0.png" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Grid Margin="0,0,-0.4,26">
+        <Button x:Name="decks" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="274" Height="70" Click="Button_Click">
+            <Grid>
+                <Image Source="Resources/1.jpg" Width="270.269" HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="False" Height="67.2" Stretch="UniformToFill" Margin="-14.798,0,-15.471,0" />
+                <TextBlock Text="Deck List Browser" HorizontalAlignment="Center" VerticalAlignment="Center" Width="240" Height="29" Margin="0,18,0,20.2" Padding="5,0,0,0" Panel.ZIndex="1" Foreground="White" FontWeight="Bold" FontSize="20" TextAlignment="Center">
+                    <TextBlock.BitmapEffect>
+                        <DropShadowBitmapEffect Color="Black" Direction="300" ShadowDepth="1" Opacity="1" Softness="0.1" />
+                    </TextBlock.BitmapEffect>
+                </TextBlock>
+            </Grid>
+        </Button>
+
+        <Button x:Name="mydecks" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top" Width="274" Height="70" Click="Button_Click">
+            <Grid>
+                <Image Source="Resources/2.jpg" Width="270.269" HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="False" Height="67.2" Stretch="UniformToFill" Margin="-14.798,0,-15.471,0" />
+                <TextBlock Text="My Decks" HorizontalAlignment="Center" VerticalAlignment="Center" Width="240" Height="29" Margin="0,18,0,20.2" Padding="5,0,0,0" Panel.ZIndex="1" Foreground="White" FontWeight="Bold" FontSize="20" TextAlignment="Center">
+                    <TextBlock.BitmapEffect>
+                        <DropShadowBitmapEffect Color="Black" Direction="300" ShadowDepth="1" Opacity="1" Softness="0.1" />
+                    </TextBlock.BitmapEffect>
+                </TextBlock>
+            </Grid>
+        </Button>
+
+        <Button x:Name="mycol" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top" Width="274" Height="70" Click="Button_Click">
+            <Grid>
+                <Image Source="Resources/3.jpg" Width="270.269" HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="False" Height="67.2" Stretch="UniformToFill" Margin="-14.798,0,-15.471,0" />
+                <TextBlock Text="My Collection" HorizontalAlignment="Center" VerticalAlignment="Center" Width="240" Height="29" Margin="0,18,0,20.2" Padding="5,0,0,0" Panel.ZIndex="1" Foreground="White" FontWeight="Bold" FontSize="20" TextAlignment="Center">
+                    <TextBlock.BitmapEffect>
+                        <DropShadowBitmapEffect Color="Black" Direction="300" ShadowDepth="1" Opacity="1" Softness="0.1" />
+                    </TextBlock.BitmapEffect>
+                </TextBlock>
+            </Grid>
+        </Button>
+
+        <Button x:Name="myprogr" HorizontalAlignment="Left" Margin="10,235,0,0" VerticalAlignment="Top" Width="274" Height="70" Click="Button_Click">
+            <Grid>
+                <Image Source="Resources/4.jpg" Width="270.269" HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="False" Height="67.2" Stretch="UniformToFill" Margin="-14.798,0,-15.471,0" />
+                <TextBlock Text="My Progress" HorizontalAlignment="Center" VerticalAlignment="Center" Width="240" Height="29" Margin="0,18,0,20.2" Padding="5,0,0,0" Panel.ZIndex="1" Foreground="White" FontWeight="Bold" FontSize="20" TextAlignment="Center">
+                    <TextBlock.BitmapEffect>
+                        <DropShadowBitmapEffect Color="Black" Direction="300" ShadowDepth="1" Opacity="1" Softness="0.1" />
+                    </TextBlock.BitmapEffect>
+                </TextBlock>
+            </Grid>
+        </Button>
+
+        <Button x:Name="deckbuilder" HorizontalAlignment="Left" Margin="10,310,0,0" VerticalAlignment="Top" Width="274" Height="70" Click="Button_Click">
+            <Grid>
+                <Image Source="Resources/5.jpg" Width="270.269" HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="False" Height="67.2" Stretch="UniformToFill" Margin="-14.798,0,-15.471,0" />
+                <TextBlock Text="Deckbuilder" HorizontalAlignment="Center" VerticalAlignment="Center" Width="240" Height="29" Margin="0,18,0,20.2" Padding="5,0,0,0" Panel.ZIndex="1" Foreground="White" FontWeight="Bold" FontSize="20" TextAlignment="Center">
+                    <TextBlock.BitmapEffect>
+                        <DropShadowBitmapEffect Color="Black" Direction="300" ShadowDepth="1" Opacity="1" Softness="0.1" />
+                    </TextBlock.BitmapEffect>
+                </TextBlock>
+            </Grid>
+        </Button>
+
+    </Grid>
+</Window>

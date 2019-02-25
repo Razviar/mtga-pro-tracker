@@ -1,0 +1,12 @@
+﻿<Application x:Class="MTGApro.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:MTGApro"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <FontFamily x:Key="Beleren">pack://application:,,,/Fonts/#Beleren</FontFamily>
+        <FontFamily x:Key="JaceBeleren">pack://application:,,,/Fonts/#JaceBeleren</FontFamily>
+        <FontFamily x:Key="mana">pack://application:,,,/Fonts/#mana</FontFamily>
+        <FontFamily x:Key="MPlantin">pack://application:,,,/Fonts/#MPlantin</FontFamily>
+    </Application.Resources>
+</Application>

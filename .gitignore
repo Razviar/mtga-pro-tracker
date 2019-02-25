@@ -1,0 +1,8 @@
+.vs/
+MTGApro Installer/bin/
+MTGApro Installer/obj/
+packages/
+*.p12
+*.pfx
+WpfApp1/bin/
+WpfApp1/obj/
