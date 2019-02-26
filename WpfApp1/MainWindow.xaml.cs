@@ -277,6 +277,8 @@ namespace MTGApro
             }
         }
 
+        //Load application settings
+
         public void GetAppData()
         {
             try
@@ -330,6 +332,8 @@ namespace MTGApro
             }
         }
 
+        //Sets application settings
+
         public void SetAppData()
         {
             try
@@ -367,6 +371,8 @@ namespace MTGApro
                // var responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, string> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", @"SetAppData" }, { @"cm_errreport", e.Message + e.InnerException + e.Source + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor } });
             }
         }
+
+        //remote server request conductor
 
         public static string MakeRequest(Uri uri, Dictionary<string, object> data)
         {
@@ -479,7 +485,7 @@ namespace MTGApro
         }
 
 
-        //Функция логопарсинга для извлечения коллекции пользователя
+        //Getting log parsed and data of current match updated
         public void ParseLog()
         {
             try
@@ -744,6 +750,8 @@ namespace MTGApro
                             }
 
                             int[] orderofactions = new int[] { 2, 4, 13, 16, 5, 7, 9, 18};
+                            
+                            //Partial local data parsing if overlay is active and needs updates
 
                             if (!juststarted && overlayactive)
                             {
@@ -1031,7 +1039,7 @@ namespace MTGApro
             });
         }
 
-
+        //Handling log sending and local storage (if needed)
         public void Sendlog(Dictionary<string, object> requestdict, bool juststash=false)
         {
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"MTGAproTracker");
@@ -1084,6 +1092,8 @@ namespace MTGApro
             }
             
         }
+
+        //Committing log sparses to server
 
         public bool Dispatchlog(Dictionary<string, object> requestdict, bool fromstash)
         {
@@ -1225,6 +1235,8 @@ namespace MTGApro
             return true;
         }
 
+        //Saving logs to local storage for futher commit
+
         public void Savetostorage(Dictionary<string, object> dictionary,int sparse=0)
         {
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"MTGAproTracker");
@@ -1312,6 +1324,8 @@ namespace MTGApro
             }
         }
 
+        //Checking if there's updates for the app
+
         public void Checkupdates()
         {
             try
@@ -1350,6 +1364,8 @@ namespace MTGApro
               //  var responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, string> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", @"Checkupdates" }, { @"cm_errreport", e.Message + e.InnerException + e.Source + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor } });
             }
         }
+
+        //Key processor of log
 
         public void Checklog()
         {
@@ -1764,6 +1780,8 @@ namespace MTGApro
             }
         }
 
+        //Operations conducted every 2 seconds
+
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
@@ -1938,7 +1956,7 @@ namespace MTGApro
             }
         }
 
-        //Обрабатываем событие изменения токена, получаем с сервера юзернейм, убеждаемся, что токен - ОК
+        //Checking token
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             var textBox = sender as TextBox;
@@ -1958,6 +1976,8 @@ namespace MTGApro
                 worker.RunWorkerAsync();
             }
         }
+
+        //Loading initial data on startup
 
         private void Workerloader_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -2075,7 +2095,7 @@ namespace MTGApro
             }
         }
 
-        //Открытие ссылки на сайт
+        //Open link
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));

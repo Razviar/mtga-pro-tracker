@@ -129,6 +129,7 @@ namespace MTGApro
             public float perswinratio { get; set; }
         }
 
+        //Load overlay settings
         public void GetOverlayData()
         {
             try
@@ -169,6 +170,8 @@ namespace MTGApro
             }
         }
 
+        //Set overlay settings
+
         public void SetOverlayData()
         {
             try
@@ -198,6 +201,8 @@ namespace MTGApro
             }
         }
 
+        //Load information about cards
+
         private void Loadcardsdb()
         {
             //
@@ -223,6 +228,8 @@ namespace MTGApro
                 }
             }
         }
+
+        //Render deck (for user or enemy)
 
         private void renderdeck(Dictionary<int, int> carray, int ncards, string curmode, Dictionary<int, int> Udecklive = null)
         {
@@ -524,6 +531,7 @@ namespace MTGApro
             }
         }
 
+        //Render decklist
 
         private void renderdecklist(Deck[] darray, string curmode)
         {
@@ -678,6 +686,8 @@ namespace MTGApro
             }
         }
 
+        //Set current mode: own cards, opponents, draft or list of decks
+
         public void Setmode(string modesetter)
         {
             mode = modesetter;
@@ -703,9 +713,12 @@ namespace MTGApro
             bottommenu.Margin = new Thickness(0, topmargin[mode], 0, 0);
         }
 
+        //update of overlay. Key function where all action happens.
+
         public void updatelive()
         {
             wasshown = true;
+            //Handling draft
             if (MainWindow.TheMatch.IsDrafting)
             {
                 string curdrft = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getlivedraft" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken }, {@"cardsquery", JsonConvert.SerializeObject(MainWindow.TheMatch.Draftdeck) } });
@@ -731,6 +744,7 @@ namespace MTGApro
                 Setmode(@"draft");
                 decksrendered = false;
             }
+            //Handling fight
             else if(MainWindow.TheMatch.IsFighting)
             {
                 string curbtl = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getlivematch" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken } });
@@ -953,6 +967,7 @@ namespace MTGApro
             }
             else
             {
+                //Handling decks list rendering
                 string decks = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getuserdecks" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken } });
                     Deck[] decksparsed = JsonConvert.DeserializeObject<Deck[]>(decks);
                     if (decksparsed.Length > 0)
@@ -1007,6 +1022,8 @@ namespace MTGApro
         {
             win5.Hide();
         }
+
+        //Display card on hover
 
         private void Mouse_overcard(object sender, MouseEventArgs e)
         {
@@ -1224,6 +1241,7 @@ namespace MTGApro
             }
         }
 
+        //Timer ticking
         private void Timer_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
@@ -1297,46 +1315,6 @@ namespace MTGApro
         {
             //GetOverlayData();
         }
-
-
-     /*   #region dragmove
-        private bool inDrag = false;
-        private Point anchorPoint;
-        private bool iscaptured = false;
-
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
-        {
-            anchorPoint = PointToScreen(e.GetPosition(this));
-            inDrag = true;
-        }
-
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            if (inDrag)
-            {
-                if (!iscaptured)
-                {
-                    CaptureMouse();
-                    iscaptured = true;
-                }
-                Point currentPoint = PointToScreen(e.GetPosition(this));
-                this.Left = this.Left + currentPoint.X - anchorPoint.X;
-                this.Top = this.Top + currentPoint.Y - anchorPoint.Y;
-                anchorPoint = currentPoint;
-            }
-        }
-
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
-        {
-            if (inDrag)
-            {
-                inDrag = false;
-                iscaptured = false;
-                ReleaseMouseCapture();
-            }
-        }
-
-        #endregion*/
         
         #region Hotkeys
         
