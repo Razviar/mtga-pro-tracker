@@ -93,18 +93,18 @@ namespace MTGApro
                 {
                     appsettings = Newtonsoft.Json.JsonConvert.DeserializeObject<AppSettingsStorage>(RkTokens.GetValue("appsettings").ToString());
                 }
-                catch (Exception)
+                catch (Exception ee)
                 {
-
+                    MainWindow.ErrReport(ee);
                 }
 
                 try
                 {
                     ovlsettings = Newtonsoft.Json.JsonConvert.DeserializeObject<OverlaySettingsStorage>(RkTokens.GetValue("ovlsettings").ToString());
                 }
-                catch (Exception)
+                catch (Exception ee)
                 {
-
+                    MainWindow.ErrReport(ee);
                 }
 
                 if (appsettings.Minimized)
@@ -291,34 +291,41 @@ namespace MTGApro
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dlg = new OpenFileDialog
+            try
             {
-                DefaultExt = ".txt",
-                FileName = "output_log.txt",
-                Filter= "MTGA Logs|output_log.txt"
-            };
+                OpenFileDialog dlg = new OpenFileDialog
+                {
+                    DefaultExt = ".txt",
+                    FileName = "output_log.txt",
+                    Filter = "MTGA Logs|output_log.txt"
+                };
 
-            string path = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
-            if (Environment.OSVersion.Version.Major >= 6)
-            {
-                path = Directory.GetParent(path).ToString();
+                string path = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
+                if (Environment.OSVersion.Version.Major >= 6)
+                {
+                    path = Directory.GetParent(path).ToString();
+                }
+
+                path += @"\AppData\LocalLow\Wizards Of The Coast\MTGA\";
+                if (Directory.Exists(path))
+                {
+                    dlg.InitialDirectory = path;
+                }
+
+                var result = dlg.ShowDialog();
+
+
+                // Get the selected file name and display in a TextBox 
+                if (result == true)
+                {
+                    // Open document 
+                    filename = dlg.FileName;
+                    LocateBtn.Content = @"Log Located!";
+                }
             }
-
-            path += @"\AppData\LocalLow\Wizards Of The Coast\MTGA\";
-            if (Directory.Exists(path))
+            catch (Exception ee)
             {
-                dlg.InitialDirectory = path;
-            }
-
-            var result = dlg.ShowDialog();
-
-
-            // Get the selected file name and display in a TextBox 
-            if (result == true)
-            {
-                // Open document 
-                filename = dlg.FileName;
-                LocateBtn.Content = @"Log Located!";
+                MainWindow.ErrReport(ee);
             }
         }
 

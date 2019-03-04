@@ -56,9 +56,9 @@ namespace MTGApro
                     Process.Start(new ProcessStartInfo(link.AbsoluteUri));
                 }
             }
-            catch(Exception)
+            catch (Exception ee)
             {
-
+                MainWindow.ErrReport(ee);
             }
         }
     }

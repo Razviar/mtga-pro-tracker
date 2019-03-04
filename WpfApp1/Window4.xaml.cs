@@ -163,10 +163,9 @@ namespace MTGApro
                     RkApp.Close();
                 }
             }
-            catch (Exception e)
+            catch (Exception ee)
             {
-                string report = e.TargetSite + "//" + e.Message + "//" + e.InnerException + "//" + e.Source + "//" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
-                var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report } });
+                MainWindow.ErrReport(ee);
             }
         }
 
@@ -194,10 +193,9 @@ namespace MTGApro
 
                 RkApp.Close();
             }
-            catch (Exception e)
+            catch (Exception ee)
             {
-                string report = e.TargetSite + "//" + e.Message + "//" + e.InnerException + "//" + e.Source + "//" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
-                var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report } });
+                MainWindow.ErrReport(ee);
             }
         }
 
@@ -222,9 +220,9 @@ namespace MTGApro
                     }
                     
                 }
-                catch (Exception e)
+                catch (Exception ee)
                 {
-
+                    MainWindow.ErrReport(ee);
                 }
             }
         }
@@ -247,10 +245,9 @@ namespace MTGApro
                     {
                         manaparsed = JsonConvert.DeserializeObject<Dictionary<string, int>>(cdb[ucard.Key].Mana);
                     }
-                    catch (Exception e)
+                    catch (Exception ee)
                     {
-                        /*string report = e.TargetSite + "//" + e.Message + "//" + e.InnerException + "//" + e.Source + "//" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
-                        var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report }, { @"version", MainWindow.version }, { @"function", @"manaparsed" } });*/
+                        MainWindow.ErrReport(ee);
                     }
 
                     DropShadowEffect myDropShadowEffect = new DropShadowEffect()
@@ -417,10 +414,9 @@ namespace MTGApro
                                 }
                             }
                         }
-                        catch (Exception e)
+                        catch (Exception ee)
                         {
-                            /*string report = e.TargetSite + "//" + e.Message + "//" + e.InnerException + "//" + e.Source + "//" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
-                            var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report }, { @"version", MainWindow.version }, { @"function", @"manaparsed_deck" } });*/
+                            MainWindow.ErrReport(ee);
                         }
                     }
                     else
@@ -461,9 +457,9 @@ namespace MTGApro
                             }
                             brush.GradientStops = gradientStops;
                         }
-                        catch(Exception e)
+                        catch (Exception ee)
                         {
-
+                            MainWindow.ErrReport(ee);
                         }
                     }
 
@@ -734,9 +730,9 @@ namespace MTGApro
                 {
                     renderdeck(curdrftparsed["eval"], 0, @"draft");
                 }
-                catch(Exception ee)
+                catch (Exception ee)
                 {
-
+                    MainWindow.ErrReport(ee);
                 }
                 
                 melabel.Text = @"Pick: " + (PickMacking + 1).ToString();
@@ -782,9 +778,9 @@ namespace MTGApro
                                 mode = "me";
                                 setmode = @"me";
                             }
-                            catch(Exception ee)
+                            catch (Exception ee)
                             {
-
+                                MainWindow.ErrReport(ee);
                             }
                         }
                         else
@@ -896,9 +892,9 @@ namespace MTGApro
                             {
                                 renderdeck(curbtlparsed.Edeck, 0, @"opponent");
                             }
-                            catch(Exception ee)
+                            catch (Exception ee)
                             {
-
+                                MainWindow.ErrReport(ee);
                             }
                             setmode = "opponent";
                         }
@@ -917,7 +913,7 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-
+                                            MainWindow.ErrReport(ee);
                                         }
                                         highlight = ucard.Key;
                                     }
@@ -982,7 +978,7 @@ namespace MTGApro
                         }
                         catch (Exception ee)
                         {
-
+                            MainWindow.ErrReport(ee);
                         }
                         decksrendered = true;
                     }
@@ -1055,10 +1051,9 @@ namespace MTGApro
                         myWebClient.DownloadFileAsync(new Uri(@"https://mtgarena.pro/mtg/pict/" + cardname), path + @"\Cards\" + cardname);
                         myWebClient.DownloadFileCompleted += MyWebClient_DownloadCardCompleted;
                     }
-                    catch(Exception ee)
+                    catch (Exception ee)
                     {
-                        string report = ee.TargetSite + "//" + ee.Message + "//" + ee.InnerException + "//" + ee.Source + "//" + ee.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
-                        var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report }, { @"version", MainWindow.version }, { @"function", @"Mouse_overcard" } });
+                        MainWindow.ErrReport(ee);
                     }
                 }
             }
@@ -1094,8 +1089,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                string report = ee.TargetSite + "//" + ee.Message + "//" + ee.InnerException + "//" + ee.Source + "//" + ee.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
-                var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report }, { @"version", MainWindow.version }, { @"function", @"MyWebClient_DownloadCardCompleted" } });
+                MainWindow.ErrReport(ee);
             }
         }
 
@@ -1294,8 +1288,7 @@ namespace MTGApro
                         }
                         catch (Exception ee)
                         {
-                            string report = ee.TargetSite + "//" + ee.Message + "//" + ee.InnerException + "//" + ee.Source + "//" + ee.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
-                            var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report }, { @"version", MainWindow.version }, { @"function", @"Cardloader_DoWork" } });
+                            MainWindow.ErrReport(ee);
                         }
                     }
                     Thread.Sleep(500);

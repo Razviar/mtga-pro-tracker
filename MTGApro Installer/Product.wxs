@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="MTGA Pro Tracker" Language="1033" Version="1.6.1.0" Manufacturer="Razviar" UpgradeCode="5134c97f-353e-4e39-8784-d0912955bc85">
+	<Product Id="*" Name="MTGA Pro Tracker" Language="1033" Version="1.6.2.0" Manufacturer="Razviar" UpgradeCode="5134c97f-353e-4e39-8784-d0912955bc85">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of MTGA Pro Tracker is already installed." />
@@ -25,17 +25,22 @@
            Description="MTGA Pro Tracker"
             Target="[INSTALLFOLDER]MTGAPro.exe"
                   WorkingDirectory="INSTALLFOLDER">
-          <ShortcutProperty Key="System.AppUserModel.ID" Value="MTGApro"/>
-          <ShortcutProperty Key="System.AppUserModel.ToastActivatorCLSID" Value="{c0a76b5a-12ab-45c5-b9d9-d693faa6e7b9}"/>
         </Shortcut>
         <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
         <RegistryValue Root="HKCU" Key="Software\Microsoft\MTGAProTracker" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+        <RemoveRegistryKey Id="CleanupRegistry"
+                           Root="HKCU"
+                           Key="Software\MTGAProtracker"
+                           Action="removeOnUninstall"/>
       </Component>
     </DirectoryRef>
 
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component Id="ProductComponent">
         <File Source="$(var.MTGApro.TargetPath)" />
+      </Component>
+      <Component Id="Debugging">
+        <File KeyPath="yes" Source="$(var.MTGApro.TargetDir)\MTGApro.pdb" />
       </Component>
     </ComponentGroup>
    

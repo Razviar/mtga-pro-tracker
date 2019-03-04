@@ -17,7 +17,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using Windows.UI.Notifications;
+//using Windows.UI.Notifications;
 
 namespace DesktopNotifications
 {
@@ -96,7 +96,7 @@ namespace DesktopNotifications
         /// Creates a toast notifier. You must have called <see cref="RegisterActivator{T}"/> first (and also <see cref="RegisterAumidAndComServer(string)"/> if you're a classic Win32 app), or this will throw an exception.
         /// </summary>
         /// <returns></returns>
-        public static ToastNotifier CreateToastNotifier()
+        /*public static ToastNotifier CreateToastNotifier()
         {
             EnsureRegistered();
 
@@ -110,7 +110,7 @@ namespace DesktopNotifications
                 // Desktop Bridge
                 return ToastNotificationManager.CreateToastNotifier();
             }
-        }
+        }*/
 
         /// <summary>
         /// Gets the <see cref="DesktopNotificationHistoryCompat"/> object. You must have called <see cref="RegisterActivator{T}"/> first (and also <see cref="RegisterAumidAndComServer(string)"/> if you're a classic Win32 app), or this will throw an exception.
@@ -211,7 +211,7 @@ namespace DesktopNotifications
     public sealed class DesktopNotificationHistoryCompat
     {
         private string _aumid;
-        private ToastNotificationHistory _history;
+        //private ToastNotificationHistory _history;
 
         /// <summary>
         /// Do not call this. Instead, call <see cref="DesktopNotificationManagerCompat.History"/> to obtain an instance.
@@ -220,7 +220,7 @@ namespace DesktopNotifications
         internal DesktopNotificationHistoryCompat(string aumid)
         {
             _aumid = aumid;
-            _history = ToastNotificationManager.History;
+           // _history = ToastNotificationManager.History;
         }
 
         /// <summary>
@@ -230,11 +230,11 @@ namespace DesktopNotifications
         {
             if (_aumid != null)
             {
-                _history.Clear(_aumid);
+               // _history.Clear(_aumid);
             }
             else
             {
-                _history.Clear();
+               // _history.Clear();
             }
         }
 
@@ -242,16 +242,16 @@ namespace DesktopNotifications
         /// Gets all notifications sent by this app that are currently still in Action Center.
         /// </summary>
         /// <returns>A collection of toasts.</returns>
-        public IReadOnlyList<ToastNotification> GetHistory(string tag=null)
+        /*public IReadOnlyList<ToastNotification> GetHistory(string tag=null)
         {
             return _aumid != null ? _history.GetHistory(_aumid) : (tag==null ? _history.GetHistory() : _history.GetHistory(tag));
-        }
+        }*/
 
         /// <summary>
         /// Removes an individual toast, with the specified tag label, from action center.
         /// </summary>
         /// <param name="tag">The tag label of the toast notification to be removed.</param>
-        public void Remove(string tag)
+       /* public void Remove(string tag)
         {
             if (_aumid != null)
             {
@@ -261,14 +261,14 @@ namespace DesktopNotifications
             {
                 _history.Remove(tag);
             }
-        }
+        }*/
 
         /// <summary>
         /// Removes a toast notification from the action using the notification's tag and group labels.
         /// </summary>
         /// <param name="tag">The tag label of the toast notification to be removed.</param>
         /// <param name="group">The group label of the toast notification to be removed.</param>
-        public void Remove(string tag, string group)
+       /* public void Remove(string tag, string group)
         {
             if (_aumid != null)
             {
@@ -278,13 +278,13 @@ namespace DesktopNotifications
             {
                 _history.Remove(tag, group);
             }
-        }
+        }*/
 
         /// <summary>
         /// Removes a group of toast notifications, identified by the specified group label, from action center.
         /// </summary>
         /// <param name="group">The group label of the toast notifications to be removed.</param>
-        public void RemoveGroup(string group)
+        /*public void RemoveGroup(string group)
         {
             if (_aumid != null)
             {
@@ -294,7 +294,7 @@ namespace DesktopNotifications
             {
                 _history.RemoveGroup(group);
             }
-        }
+        }*/
     }
 
     /// <summary>

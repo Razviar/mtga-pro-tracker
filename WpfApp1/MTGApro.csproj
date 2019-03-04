@@ -80,7 +80,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>certificate.p12</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>false</DelaySign>
@@ -191,6 +192,9 @@
     <Compile Include="Window2.xaml.cs">
       <DependentUpon>Window2.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WindowErr.xaml.cs">
+      <DependentUpon>WindowErr.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Window3.xaml.cs">
       <DependentUpon>Window3.xaml</DependentUpon>
     </Compile>
@@ -224,6 +228,10 @@
     <Page Include="Window2.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WindowErr.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Window3.xaml">
       <SubType>Designer</SubType>
@@ -265,7 +273,6 @@
     <Resource Include="Fonts\MPlantin-Italic.ttf" />
     <Resource Include="Fonts\MPlantin.ttf" />
     <Resource Include="CardsDB\cards_db_app.json" />
-    <None Include="certificate.p12" />
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
