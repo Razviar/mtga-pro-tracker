@@ -17,7 +17,7 @@ MTGA Pro Tracker is an advanced Magic the Gathering: Arena tracking tool that au
 ## INSTALLATION STEP-BY-STEP GUIDE
 IMPORTANT! Program needs .NET 4.6.2 or higher to work. If app doesn't start on your PC (no interface shows up after you launch EXE) you should install .NET from here!
 
-* Download MTGA Pro Tracker (current version is v.1.6.2) from our Github repo. Antivirus software (including Windows Defender) could be alarmed because of the app's ability to upload data to remote server and automatic update feature. So if Antivirus is alarmed, you should add this App to exceptions.
+* Download MTGA Pro Tracker (current version is v.1.6.3) from our Github repo. Antivirus software (including Windows Defender) could be alarmed because of the app's ability to upload data to remote server and automatic update feature. So if Antivirus is alarmed, you should add this App to exceptions.
 * Unpack it and launch MSI Installer.
 * Get your token from widget on this page: https://mtgarena.pro/mtga-pro-tracker/ You must be registered user to get token!
 * Copy this digit-letter code and paste it to input field of Tracker app.
@@ -30,7 +30,7 @@ When you get mesage "Windows protected your PC", you should click "More Info..."
 ## TRACKER IS NOT UPDATING?
 App crashes or not starting? No recent updates uploaded? Follow steps:
 
-1. Make sure you have latest version v.1.6.2. It's updated to be compatible with latest MTGA version.
+1. Make sure you have latest version v.1.6.3. It's updated to be compatible with latest MTGA version.
 2. Be sure that you have .NET 4.6.2 or higher.
 
 3. If you are able to see app interface, just click FULL RESET button, then re-input new token.
@@ -38,7 +38,7 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
-v.1.6.2 released 04/03/2019 (Maintenance Release)
+v.1.6.3 released 04/03/2019 (Maintenance Release)
 * Significantly improved crashes tracking, which will let us to improve stability in the next releases.
 
 v.1.6.1 released 19/02/2019 (Maintenance Release)
