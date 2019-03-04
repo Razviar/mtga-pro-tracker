@@ -38,6 +38,9 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.1.6.2 released 04/03/2019 (Maintenance Release)
+* Significantly improved crashes tracking, which will let us to improve stability in the next releases.
+
 v.1.6.1 released 19/02/2019 (Maintenance Release)
 * Overlay bugs fixes according to users reports. Now decks are rendering properly after first match played.
 * Option to disable hotkeys (if they overlap with other software you use).
