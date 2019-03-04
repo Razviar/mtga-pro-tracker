@@ -45,7 +45,7 @@ namespace MTGApro
         public static long loglen = 0;
         public static bool isrestarting = false;
         public static string tokeninput = "";
-        public static int version = 62;
+        public static int version = 63;
         public static bool hasnewmessage = false;
         public static int gamerunningtimer =0;
         public static int runtime = 0;
@@ -303,12 +303,12 @@ namespace MTGApro
 
                         if(overlayactive) ovactbut.Text = "Disable In-game overlay";
 
-                        if (RkApp.GetValue("parsedtill") != null)
+                        try
                         {
                             object pt = RkApp.GetValue("parsedtill");
                             parsedtill = Double.Parse(RkApp.GetValue("parsedtill").ToString());
                         }
-                        else
+                        catch(Exception)
                         {
                             parsedtill = 0;
                         }
@@ -382,7 +382,7 @@ namespace MTGApro
             int col = frame.GetFileColumnNumber();
             string func = frame.GetMethod().Name;
             string file = frame.GetFileName();
-            Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor } };
+            Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", e.Message+"///"+e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor } };
             var responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), report);
             if (responseString == "ERRCONN")
             {
@@ -546,7 +546,7 @@ namespace MTGApro
                     path = Directory.GetParent(path).ToString();
                 }
 
-                path += @"\AppData\LocalLow\Wizards Of The Coast\MTGA\" + ((dir) ? (@"") : (@"output_log.txt"));
+                path += @"\AppData\LocalLow\Wizards Of The Coast\MTGA\" + (dir ? @"" : @"output_log.txt");
             }
             else 
             {
@@ -1025,7 +1025,7 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            ErrReport(ee);
+                                            //ErrReport(ee);
                                             TheMatch.Hasnewdata = true;
                                             TheMatch.IsDrafting = false;
                                         }
@@ -2002,7 +2002,7 @@ namespace MTGApro
                             }
                             catch (Exception ee)
                             {
-                                ErrReport(ee);
+                                //ErrReport(ee);
                             }
 
                             try

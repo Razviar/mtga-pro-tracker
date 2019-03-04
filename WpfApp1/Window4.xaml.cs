@@ -247,7 +247,7 @@ namespace MTGApro
                     }
                     catch (Exception ee)
                     {
-                        MainWindow.ErrReport(ee);
+                       // MainWindow.ErrReport(ee);
                     }
 
                     DropShadowEffect myDropShadowEffect = new DropShadowEffect()
@@ -416,7 +416,7 @@ namespace MTGApro
                         }
                         catch (Exception ee)
                         {
-                            MainWindow.ErrReport(ee);
+                            //MainWindow.ErrReport(ee);
                         }
                     }
                     else
