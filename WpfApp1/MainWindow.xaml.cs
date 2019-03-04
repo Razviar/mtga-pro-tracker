@@ -301,7 +301,10 @@ namespace MTGApro
                         if (lasttokenload != null && !playerswith) Usertoken = lasttokenload.ToString();
                         if (ovact!=null) overlayactive = Convert.ToBoolean(ovact.ToString());
 
-                        if(overlayactive) ovactbut.Text = "Disable In-game overlay";
+                        Dispatcher.BeginInvoke(new ThreadStart(delegate
+                        {
+                            if (overlayactive) ovactbut.Text = "Disable In-game overlay";
+                        }));
 
                         try
                         {
