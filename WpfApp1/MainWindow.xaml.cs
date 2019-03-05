@@ -45,7 +45,7 @@ namespace MTGApro
         public static long loglen = 0;
         public static bool isrestarting = false;
         public static string tokeninput = "";
-        public static int version = 63;
+        public static int version = 64;
         public static bool hasnewmessage = false;
         public static int gamerunningtimer =0;
         public static int runtime = 0;
@@ -80,6 +80,7 @@ namespace MTGApro
         public static BackgroundWorker workerloader = new BackgroundWorker();
         public static readonly Encoding encoding = Encoding.UTF8;
         public static string errreport = @"";
+        public static bool uploadingfromstash = false;
 
         //-----
         public static Curmatch TheMatch = new Curmatch();
@@ -385,7 +386,8 @@ namespace MTGApro
             int col = frame.GetFileColumnNumber();
             string func = frame.GetMethod().Name;
             string file = frame.GetFileName();
-            Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", e.Message+"///"+e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor } };
+            
+            Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", e.Message+"///"+e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + e.TargetSite+"///"+ Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor+"///"+ e.ToString() } };
             var responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), report);
             if (responseString == "ERRCONN")
             {
@@ -470,7 +472,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                //ErrReport(ee);
                 return "ERRCONN";
             }
         }
@@ -1134,32 +1136,45 @@ namespace MTGApro
                     {
                         NumericalSort(files);
                         var n = 0;
+                        uploadingfromstash = true;
 
                         foreach (string f in files)
                         {
-                            var lrd = Loadfromstorage(f);
-                            Dispatcher.BeginInvoke(new ThreadStart(delegate
+                            try
                             {
-                                Uplprogress.Maximum = files.Length;
-                                Uplprogress.Visibility = Visibility.Visible;
-                                Resyncbut.IsEnabled = false;
-                                Scanbut.IsEnabled = false;
-                            }));
-                            n++;
-                            if (Dispatchlog(lrd, true) || lrd == null)
-                            {
-                                File.Delete(f);
+                                var lrd = Loadfromstorage(f);
                                 Dispatcher.BeginInvoke(new ThreadStart(delegate
                                 {
-                                    Uplprogress.Value = n;
+                                    Uplprogress.Maximum = files.Length;
+                                    Uplprogress.Visibility = Visibility.Visible;
+                                    Resyncbut.IsEnabled = false;
+                                    Scanbut.IsEnabled = false;
                                 }));
+                                n++;
+                                if (lrd == null)
+                                {
+                                    File.Delete(f);
+                                }
+                                else if (Dispatchlog(lrd, true))
+                                {
+                                    File.Delete(f);
+                                    Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                    {
+                                        Uplprogress.Value = n;
+                                    }));
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
-                            else
+                            catch(Exception ee)
                             {
-                                break;
+                                ErrReport(ee);
                             }
-                            Thread.Sleep(upltimerOverride);
+                            Thread.Sleep(1000);
                         }
+                        uploadingfromstash = false;
 
                         Dispatcher.BeginInvoke(new ThreadStart(delegate
                         {
@@ -1188,7 +1203,13 @@ namespace MTGApro
 
         public bool Dispatchlog(Dictionary<string, object> requestdict, bool fromstash)
         {
-            if (Int32.Parse(requestdict[@"version"].ToString()) != version)
+            if (requestdict.ContainsKey(@"version")) {
+                if (Int32.Parse(requestdict[@"version"].ToString()) != version)
+                {
+                    return true;
+                }
+            }
+            else
             {
                 return true;
             }
@@ -1244,9 +1265,76 @@ namespace MTGApro
                 return true;
             }
 
-               var upload = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), requestdict);
-               if (upload == "ERRCONN")
+            string upload = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), requestdict);
+            if (upload == "ERRCONN")
+            {
+                if (!fromstash)
                 {
+                    Savetostorage(requestdict);
+                    Showmsg(Colors.Orange, @"Game info found", @"Saved locally: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
+                }
+                return false;
+            }
+            else
+            {
+                try
+                {
+                    var info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(upload);
+                    if (info.Status == @"ok")
+                    {
+                        if (fromstash)
+                        {
+                            Showmsg(Colors.Green, @"Uploading data...", @"Last upload: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
+                        }
+                        else
+                        {
+                            Showmsg(Colors.Green, @"Game info found.", @"Last upload: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
+                        }
+                            
+                        chunk = info.Chunk;
+                        upltimerOverride = info.Timer;
+
+                    if (info.Data == "restart")
+                    {
+                        ni.Visible = false;
+                        ni.Dispose();
+                        Process.Start(Application.ResourceAssembly.Location, "restarting");
+                        Environment.Exit(0);
+                    }
+                    else if(info.Data == "has_update" && !fromstash)
+                    {
+                        if (!updatenotified)
+                        {
+                            updatenotified = true;
+                            Dispatcher.BeginInvoke(new ThreadStart(delegate
+                            {
+                                Updater.Visibility = Visibility.Visible;
+                                ToastShowCheck("Update of MTGA Pro Tracker is ready to be installed!");
+                            }));
+                        }
+                    }
+                    else if (info.Data == "has_message" && !fromstash)
+                    {
+                        Dispatcher.BeginInvoke(new ThreadStart(delegate {
+                            Messenger.Visibility = Visibility.Visible;
+                            ToastShowCheck(@"You've got new notification!");
+                        }));
+                    }
+
+                        return true;
+                    }
+                    else if (info.Status == @"NEED_UPDATE" && !fromstash)
+                    {
+                        Showmsg(Colors.Red, @"Upload failed: update tracker to resume", @"CLR", false, @"attention");
+                        ToastShowCheck(@"Upload failed: update tracker to resume");
+                        needsupdate = true;
+                        worker.CancelAsync();
+                        return false;
+                    }
+                }
+                catch (Exception ee)
+                {
+                    ErrReport(ee);
                     if (!fromstash)
                     {
                         Savetostorage(requestdict);
@@ -1254,74 +1342,7 @@ namespace MTGApro
                     }
                     return false;
                 }
-                else
-                {
-                    try
-                    {
-                        var info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(upload);
-                        if (info.Status == @"ok")
-                        {
-                            if (fromstash)
-                            {
-                                Showmsg(Colors.Green, @"Uploading data...", @"Last upload: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
-                            }
-                            else
-                            {
-                                Showmsg(Colors.Green, @"Game info found.", @"Last upload: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
-                            }
-                            
-                            chunk = info.Chunk;
-                            upltimerOverride = info.Timer;
-
-                        if (info.Data == "restart")
-                        {
-                            ni.Visible = false;
-                            ni.Dispose();
-                            Process.Start(Application.ResourceAssembly.Location, "restarting");
-                            Environment.Exit(0);
-                        }
-                        else if(info.Data == "has_update" && !fromstash)
-                        {
-                            if (!updatenotified)
-                            {
-                                updatenotified = true;
-                                Dispatcher.BeginInvoke(new ThreadStart(delegate
-                                {
-                                    Updater.Visibility = Visibility.Visible;
-                                    ToastShowCheck("Update of MTGA Pro Tracker is ready to be installed!");
-                                }));
-                            }
-                        }
-                        else if (info.Data == "has_message" && !fromstash)
-                        {
-                            Dispatcher.BeginInvoke(new ThreadStart(delegate {
-                                Messenger.Visibility = Visibility.Visible;
-                                ToastShowCheck(@"You've got new notification!");
-                            }));
-                        }
-
-                            return true;
-                        }
-                        else if (info.Status == @"NEED_UPDATE" && !fromstash)
-                        {
-                            Showmsg(Colors.Red, @"Upload failed: update tracker to resume", @"CLR", false, @"attention");
-                            ToastShowCheck(@"Upload failed: update tracker to resume");
-                            needsupdate = true;
-                            worker.CancelAsync();
-                            return false;
-                        }
-                    }
-                    catch (Exception ee)
-                    {
-                        ErrReport(ee);
-                        if (!fromstash)
-                        {
-                            Savetostorage(requestdict);
-                            Showmsg(Colors.Orange, @"Game info found", @"Saved locally: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
-                        }
-                        return false;
-                    }
-                }
+            }
 
 
             return true;
@@ -1397,7 +1418,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                //ErrReport(ee);
                 return null;
             }
         }
@@ -1894,152 +1915,157 @@ namespace MTGApro
                 {
                     try
                     {
-                        if (!trawarn)
+                        if (!uploadingfromstash)
                         {
-                            string[] enemies = { "LotusTracker", "MTGATracker", "MTG-Arena-Tool", "MTG Arena Tool" };
-                            bool warn = false;
-                            for (var i = 0; i < enemies.Length; i++)
+                            if (!trawarn)
                             {
-                                Process[] enemylocator = Process.GetProcessesByName(enemies[i]);
-                                if (enemylocator.Length > 1)
+                                string[] enemies = { "LotusTracker", "MTGATracker", "MTG-Arena-Tool", "MTG Arena Tool" };
+                                bool warn = false;
+                                for (var i = 0; i < enemies.Length; i++)
                                 {
-                                    warn = true;
-                                    break;
-                                }
-                            }
-
-                            if (warn)
-                            {
-                                MessageBox.Show("Another MTGA tracker detected! Simultaneous use of several trackers may cause all of them work inconsistently and/or break normal game log cleanup process leading to log file bloating. We recommend you to use only one tracker to make records more accurate and tracking process more safe. You can continue to use several trackers, but you have been warned. Any bugreports related to tracking software coexistence will be ignored.","MTGA Pro Notice");
-                                trawarn = true;
-                            }
-                        }
-
-                        Process[] locator = Process.GetProcessesByName("MTGA");
-
-                        Dispatcher.BeginInvoke(new ThreadStart(delegate
-                        {
-                            var activatedHandle = GetForegroundWindow();
-                            gamefocused = false;
-
-                            WindowInteropHelper wih = new WindowInteropHelper(win4);
-                            IntPtr Handle = wih.Handle;
-
-                            foreach (Process p in locator)
-                            {
-                                if (activatedHandle == p.MainWindowHandle || activatedHandle == Handle)
-                                {
-                                    gamefocused = true;
-                                }
-                            }
-                        }));
-
-                        if (locator.Length > 0)
-                        {
-                            if (gamestarted == false)
-                            {
-                                juststarted = true;
-                                runtime = Convert.ToInt32(tmstmp());
-                            }
-                            gamestarted = true;
-                            Showmsg(Colors.YellowGreen, @"Awaiting for updates...", @"", false, @"icon" + appsettings.Icon.ToString());
-
-                            if ((gamefocused || ovlsettings.Streamer) && overlayactive && (ovlsettings.Decklist || TheMatch.IsDrafting || TheMatch.IsFighting))
-                            {
-                                Dispatcher.BeginInvoke(new ThreadStart(delegate
-                                {
-                                    try
+                                    Process[] enemylocator = Process.GetProcessesByName(enemies[i]);
+                                    if (enemylocator.Length > 1)
                                     {
-                                        if (overlayactive && !juststarted && !Window4.windowhidden && (ovlsettings.Decklist || TheMatch.IsDrafting || TheMatch.IsFighting))
+                                        warn = true;
+                                        break;
+                                    }
+                                }
+
+                                if (warn)
+                                {
+                                    MessageBox.Show("Another MTGA tracker detected! Simultaneous use of several trackers may cause all of them work inconsistently and/or break normal game log cleanup process leading to log file bloating. We recommend you to use only one tracker to make records more accurate and tracking process more safe. You can continue to use several trackers, but you have been warned. Any bugreports related to tracking software coexistence will be ignored.", "MTGA Pro Notice");
+                                    trawarn = true;
+                                }
+                            }
+
+                            Process[] locator = Process.GetProcessesByName("MTGA");
+
+                            Dispatcher.BeginInvoke(new ThreadStart(delegate
+                            {
+                                var activatedHandle = GetForegroundWindow();
+                                gamefocused = false;
+
+                                WindowInteropHelper wih = new WindowInteropHelper(win4);
+                                IntPtr Handle = wih.Handle;
+
+                                foreach (Process p in locator)
+                                {
+                                    if (activatedHandle == p.MainWindowHandle || activatedHandle == Handle)
+                                    {
+                                        gamefocused = true;
+                                    }
+                                }
+                            }));
+
+                            if (locator.Length > 0)
+                            {
+                                if (gamestarted == false)
+                                {
+                                    juststarted = true;
+                                    runtime = Convert.ToInt32(tmstmp());
+                                }
+                                gamestarted = true;
+                                Showmsg(Colors.YellowGreen, @"Awaiting for updates...", @"", false, @"icon" + appsettings.Icon.ToString());
+
+                                if ((gamefocused || ovlsettings.Streamer) && overlayactive && (ovlsettings.Decklist || TheMatch.IsDrafting || TheMatch.IsFighting))
+                                {
+                                    Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                    {
+                                        try
                                         {
-                                            if (win4.IsVisible == false)
+                                            if (overlayactive && !juststarted && !Window4.windowhidden && (ovlsettings.Decklist || TheMatch.IsDrafting || TheMatch.IsFighting))
                                             {
-                                                win4.Show();
+                                                if (win4.IsVisible == false)
+                                                {
+                                                    win4.Show();
+                                                }
+                                                if (TheMatch.Hasnewdata || !Window4.wasshown) win4.updatelive();
+                                                TheMatch.Hasnewdata = false;
                                             }
-                                            if (TheMatch.Hasnewdata || !Window4.wasshown) win4.updatelive();
-                                            TheMatch.Hasnewdata = false;
                                         }
-                                    }
-                                    catch (Exception ee)
+                                        catch (Exception ee)
+                                        {
+                                            ErrReport(ee);
+                                        }
+                                    }));
+                                }
+                                else
+                                {
+                                    Dispatcher.BeginInvoke(new ThreadStart(delegate
                                     {
-                                        ErrReport(ee);
-                                    }
-                                }));
+                                        try
+                                        {
+                                            if (win4.IsVisible == true)
+                                            {
+                                                win4.Hide();
+                                            }
+                                        }
+                                        catch (Exception ee)
+                                        {
+                                            ErrReport(ee);
+                                        }
+                                    }));
+                                }
                             }
                             else
                             {
-                                Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                if (runtime > 0)
                                 {
-                                    try
+                                    gamerunningtimer = (Convert.ToInt32(tmstmp()) - runtime);
+                                }
+                                runtime = 0;
+                                gamestarted = false;
+
+                                try
+                                {
+                                    FileInfo nfo = new FileInfo(GenPath(false));
+                                    long curloglen = nfo.Length;
+                                    if (curloglen > 314572800 && parsedtill > 0)
+                                    {
+                                        File.Delete(GenPath(false));
+                                        juststarted = false;
+                                    }
+                                }
+                                catch (Exception ee)
+                                {
+                                    //ErrReport(ee);
+                                }
+
+                                try
+                                {
+                                    Dispatcher.BeginInvoke(new ThreadStart(delegate
                                     {
                                         if (win4.IsVisible == true)
                                         {
                                             win4.Hide();
                                         }
-                                    }
-                                    catch (Exception ee)
-                                    {
-                                        ErrReport(ee);
-                                    }
-                                }));
-                            }
-                        }
-                        else
-                        {
-                            if (runtime > 0)
-                            {
-                                gamerunningtimer = (Convert.ToInt32(tmstmp()) - runtime);
-                            }
-                            runtime = 0;
-                            gamestarted = false;
-
-                            try
-                            {
-                                FileInfo nfo = new FileInfo(GenPath(false));
-                                long curloglen = nfo.Length;
-                                if (curloglen > 314572800 && parsedtill > 0)
+                                    }));
+                                }
+                                catch (Exception ee)
                                 {
-                                    File.Delete(GenPath(false));
-                                    juststarted = false;
+                                    ErrReport(ee);
+                                }
+                                if (appsettings != null)
+                                {
+                                    Showmsg(Colors.Yellow, @"MTGA is not running!", @"CLR", false, @"icon" + appsettings.Icon.ToString());
                                 }
                             }
-                            catch (Exception ee)
-                            {
-                                //ErrReport(ee);
-                            }
 
-                            try
+
+                            if (indicators.Length > 0)
                             {
-                                Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                if (!playerswith)
                                 {
-                                    if (win4.IsVisible == true)
+                                    if (juststarted || gamestarted)
                                     {
-                                        win4.Hide();
+                                        Checklog();
                                     }
-                                }));
-                            }
-                            catch (Exception ee)
-                            {
-                                ErrReport(ee);
-                            }
-
-                            Showmsg(Colors.Yellow, @"MTGA is not running!", @"CLR", false, @"icon" + appsettings.Icon.ToString());
-                        }
-                        
-
-                        if (indicators.Length > 0)
-                        {
-                            if (!playerswith)
-                            {
-                                if (juststarted || gamestarted)
-                                {
-                                    Checklog();
                                 }
                             }
-                        }
-                        else
-                        {
-                            Getindicators();
+                            else
+                            {
+                                Getindicators();
+                            }
                         }
                     }
                     catch (Exception ee)

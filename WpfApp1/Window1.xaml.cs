@@ -95,7 +95,7 @@ namespace MTGApro
                 }
                 catch (Exception ee)
                 {
-                    MainWindow.ErrReport(ee);
+                    //MainWindow.ErrReport(ee);
                 }
 
                 try
@@ -104,7 +104,7 @@ namespace MTGApro
                 }
                 catch (Exception ee)
                 {
-                    MainWindow.ErrReport(ee);
+                    //MainWindow.ErrReport(ee);
                 }
 
                 if (appsettings.Minimized)

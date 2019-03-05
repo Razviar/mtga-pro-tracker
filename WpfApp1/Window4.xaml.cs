@@ -459,7 +459,7 @@ namespace MTGApro
                         }
                         catch (Exception ee)
                         {
-                            MainWindow.ErrReport(ee);
+                            //MainWindow.ErrReport(ee);
                         }
                     }
 
@@ -718,27 +718,30 @@ namespace MTGApro
             if (MainWindow.TheMatch.IsDrafting)
             {
                 string curdrft = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getlivedraft" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken }, {@"cardsquery", JsonConvert.SerializeObject(MainWindow.TheMatch.Draftdeck) } });
-                Dictionary<string, Dictionary<int, int>> curdrftparsed = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, int>>>(curdrft);
-                collection = curdrftparsed["col"];
-                PackOpening = MainWindow.TheMatch.DraftPack;
-                PickMacking = MainWindow.TheMatch.DraftPick;
-                overlayme.Children.Clear();
-                topmargin[@"draft"] = 20;
-                cnums[@"draft"].Clear();
-                borders[@"draft"].Clear();
-                try
+                if (curdrft != @"ERRCONN")
                 {
-                    renderdeck(curdrftparsed["eval"], 0, @"draft");
+                    Dictionary<string, Dictionary<int, int>> curdrftparsed = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, int>>>(curdrft);
+                    collection = curdrftparsed["col"];
+                    PackOpening = MainWindow.TheMatch.DraftPack;
+                    PickMacking = MainWindow.TheMatch.DraftPick;
+                    overlayme.Children.Clear();
+                    topmargin[@"draft"] = 20;
+                    cnums[@"draft"].Clear();
+                    borders[@"draft"].Clear();
+                    try
+                    {
+                        renderdeck(curdrftparsed["eval"], 0, @"draft");
+                    }
+                    catch (Exception ee)
+                    {
+                        MainWindow.ErrReport(ee);
+                    }
+
+                    melabel.Text = @"Pick: " + (PickMacking + 1).ToString();
+                    opponentlabel.Text = @"Pack: " + (PackOpening + 1).ToString();
+                    Setmode(@"draft");
+                    decksrendered = false;
                 }
-                catch (Exception ee)
-                {
-                    MainWindow.ErrReport(ee);
-                }
-                
-                melabel.Text = @"Pick: " + (PickMacking + 1).ToString();
-                opponentlabel.Text = @"Pack: " + (PackOpening + 1).ToString();
-                Setmode(@"draft");
-                decksrendered = false;
             }
             //Handling fight
             else if(MainWindow.TheMatch.IsFighting)
@@ -965,6 +968,8 @@ namespace MTGApro
             {
                 //Handling decks list rendering
                 string decks = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getuserdecks" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken } });
+                if (decks != @"ERRCONN")
+                {
                     Deck[] decksparsed = JsonConvert.DeserializeObject<Deck[]>(decks);
                     if (decksparsed.Length > 0)
                     {
@@ -982,14 +987,16 @@ namespace MTGApro
                         }
                         decksrendered = true;
                     }
-                
-                Setmode(@"decks");
+
+                    Setmode(@"decks");
+                }
             }
         }
 
         public Window4()
         {
             InitializeComponent();
+            Closing += Window4_Closing;
             StreamResourceInfo sriCurs = Application.GetResourceStream(
             new Uri("pack://application:,,,/Resources/testcur.cur"));
             Cursor = new Cursor(sriCurs.Stream);
@@ -1012,6 +1019,12 @@ namespace MTGApro
             {
                 Cardloader.RunWorkerAsync();
             }*/
+        }
+
+        private void Window4_Closing(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            Visibility = Visibility.Hidden;
         }
 
         private void Mouse_offcard(object sender, MouseEventArgs e)
@@ -1089,7 +1102,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                MainWindow.ErrReport(ee);
+               // MainWindow.ErrReport(ee);
             }
         }
 
@@ -1308,9 +1321,9 @@ namespace MTGApro
         {
             //GetOverlayData();
         }
-        
+
         #region Hotkeys
-        
+
         [DllImport("User32.dll")]
         private static extern bool RegisterHotKey(
         [In] IntPtr hWnd,
