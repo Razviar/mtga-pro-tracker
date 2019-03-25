@@ -61,7 +61,6 @@ namespace MTGApro
         public static Dictionary<string, string> colors = new Dictionary<string, string>{{ "White", "bfb66b" }, { "Blue", "4693b9" }, { "Black", "4e4442" }, { "Red", "c35d3a" }, { "Green", "448359" }, { "Multicolor", "d6be73" }, { "Colorless", "7a7777" } };
         public static Dictionary<string, string> colors_light = new Dictionary<string, string> { { "White", "bfb66b" }, { "Blue", "8fbdd3" }, { "Black", "726360" }, { "Red", "da8b70" }, { "Green", "92d1a7" }, { "Multicolor", "d6be73" }, { "Colorless", "7a7777" } };
         public static Dictionary<string, string> colors_dark = new Dictionary<string, string> { { "White", "7f7947" }, { "Blue", "28556b" }, { "Black", "4e4442" }, { "Red", "7c3b25" }, { "Green", "2d563a" }, { "Multicolor", "6c5611" }, { "Colorless", "7a7777" } };
-        public static Dictionary<string, string> colors_font = new Dictionary<string, string> { { "White", "BDffffff" }, { "Blue", "BDffffff" }, { "Black", "BDffffff" }, { "Red", "BDffffff" }, { "Green", "BDffffff" }, { "Multicolor", "BDffffff" }, { "Colorless", "BDffffff" } };
         public static Dictionary<string, string> icons_mana = new Dictionary<string, string> { { "White", "\ue600" }, { "Blue", "\ue601" }, { "Black", "\ue602" }, { "Red", "\ue603" }, { "Green", "\ue604" }, { "1", "\ue606" }, { "2", "\ue607" }, { "3", "\ue608" }, { "4", "\ue609" }, { "5", "\ue60a" }, { "6", "\ue60b" }, { "7", "\ue60c" }, { "8", "\ue60d" }, { "9", "\ue60e" }, { "10", "\ue60f" }, { "11", "\ue610" }, { "12", "\ue611" }, { "13", "\ue612" }, { "14", "\ue613" }, { "15", "\ue614" }, { "16", "\ue62a" }, { "17", "\ue62b" }, { "18", "\ue62c" }, { "19", "\ue62d" }, { "20", "\ue62e" }, { "X", "\ue615" } };
 
 
@@ -262,7 +261,7 @@ namespace MTGApro
                     TextBlock txt = new TextBlock()
                     {
                         FontWeight = FontWeights.Bold,
-                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#"+ colors_font[cdb[ucard.Key].Colorindicator])),
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
                         Text = cdb[ucard.Key].Name,
                         FontSize = 14,
                         HorizontalAlignment = HorizontalAlignment.Left,
@@ -284,7 +283,7 @@ namespace MTGApro
                     {
                         FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Mana"),
                         HorizontalAlignment = HorizontalAlignment.Right,
-                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#" + colors_font[cdb[ucard.Key].Colorindicator])),
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
                         TextAlignment = TextAlignment.Right,
                         VerticalAlignment = VerticalAlignment.Center,
                     };
@@ -559,13 +558,14 @@ namespace MTGApro
                         Opacity = 0.9
                     };
 
+                
                  TextBlock txt = new TextBlock()
                  {
                      FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#JaceBeleren"),
                      FontWeight = FontWeights.Bold,
-                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#" + colors_font[Colorindicator])),
                      Text = udeck.Humanname,
                      FontSize = 14,
+                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
                      HorizontalAlignment = HorizontalAlignment.Left,
                      VerticalAlignment = VerticalAlignment.Center,
                      Margin = new Thickness(5, 0, 0, 0),
@@ -586,7 +586,7 @@ namespace MTGApro
                  {
                      FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Mana"),
                      HorizontalAlignment = HorizontalAlignment.Right,
-                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#" + colors_font[Colorindicator])),
+                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
                      TextAlignment = TextAlignment.Right,
                      VerticalAlignment = VerticalAlignment.Center,
                      Width = 35,
@@ -832,8 +832,15 @@ namespace MTGApro
                                             break;
                                     }
 
-                                    borders[@"me"][ucard.Key].Opacity = 1;
-                                    cnums[@"me"][ucard.Key].Text = output;
+                                    if (borders[@"me"].ContainsKey(ucard.Key))
+                                    {
+                                        borders[@"me"][ucard.Key].Opacity = 1;
+                                    }
+
+                                    if (cnums[@"me"].ContainsKey(ucard.Key))
+                                    {
+                                        cnums[@"me"][ucard.Key].Text = output;
+                                    }
 
                                     if (curbtlparsed.Udecklive.ContainsKey(ucard.Key))
                                     {

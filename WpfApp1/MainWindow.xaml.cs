@@ -1203,6 +1203,11 @@ namespace MTGApro
 
         public bool Dispatchlog(Dictionary<string, object> requestdict, bool fromstash)
         {
+            if (requestdict == null)
+            {
+                return true;
+            }
+
             if (requestdict.ContainsKey(@"version")) {
                 if (Int32.Parse(requestdict[@"version"].ToString()) != version)
                 {
@@ -1343,8 +1348,6 @@ namespace MTGApro
                     return false;
                 }
             }
-
-
             return true;
         }
 
@@ -1760,7 +1763,7 @@ namespace MTGApro
             //throw new Exception();
 
             Checkupdates();
-            Getindicators();
+            //Getindicators();
 
             /*if (Environment.OSVersion.Version.Major == 10 || (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1))
             {
@@ -2052,7 +2055,7 @@ namespace MTGApro
                             }
 
 
-                            if (indicators.Length > 0)
+                            if (indicators!=null)
                             {
                                 if (!playerswith)
                                 {
