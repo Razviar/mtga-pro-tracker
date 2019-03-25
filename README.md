@@ -17,7 +17,7 @@ MTGA Pro Tracker is an advanced Magic the Gathering: Arena tracking tool that au
 ## INSTALLATION STEP-BY-STEP GUIDE
 IMPORTANT! Program needs .NET 4.6.2 or higher to work. If app doesn't start on your PC (no interface shows up after you launch EXE) you should install .NET from here!
 
-* Download MTGA Pro Tracker (current version is v.1.6.4) from our Github repo. Antivirus software (including Windows Defender) could be alarmed because of the app's ability to upload data to remote server and automatic update feature. So if Antivirus is alarmed, you should add this App to exceptions.
+* Download MTGA Pro Tracker (current version is v.1.6.4) from our Github repo Releases section (https://github.com/Razviar/mtga-pro-tracker/releases ). Antivirus software (including Windows Defender) could be alarmed because of the app's ability to upload data to remote server and automatic update feature. So if Antivirus is alarmed, you should add this App to exceptions.
 * Unpack it and launch MSI Installer.
 * Get your token from widget on this page: https://mtgarena.pro/mtga-pro-tracker/ You must be registered user to get token!
 * Copy this digit-letter code and paste it to input field of Tracker app.
