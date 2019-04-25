@@ -1,5 +1,5 @@
-﻿using DesktopNotifications;
-using Microsoft.Toolkit.Uwp.Notifications;
+﻿//using DesktopNotifications;
+//using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using System;
@@ -45,7 +45,7 @@ namespace MTGApro
         public static long loglen = 0;
         public static bool isrestarting = false;
         public static string tokeninput = "";
-        public static int version = 64;
+        public static int version = 66;
         public static bool hasnewmessage = false;
         public static int gamerunningtimer =0;
         public static int runtime = 0;
@@ -72,6 +72,7 @@ namespace MTGApro
         public static Dictionary<string, string> Utokens = new Dictionary<string, string>();
         public static Dictionary<string, string> ParsedCreds = new Dictionary<string, string>();
         public static Dictionary<double, string[]> parsed = new Dictionary<double, string[]>();
+       // public static Dictionary<double, Curmatchforupload> matchdetails = new Dictionary<double, Curmatchforupload>();
         public static string[] hashes;
         public static double parsedtill = 0;
         public static Window1.AppSettingsStorage appsettings = new Window1.AppSettingsStorage();
@@ -173,6 +174,24 @@ namespace MTGApro
                 DraftPick = 0;
                 TurnNumber = 0;
                 DecisionPlayer = 0;
+            }
+        }
+
+
+        public class Curmatchforupload
+        {
+            public int Teamid { get; set; }
+            public string Matchid { get; set; }
+            public int TurnNumber { get; set; }
+            public int DecisionPlayer { get; set; }
+
+
+            public Curmatchforupload(int teamid = 0, string matchid = @"", int turnNumber=0, int desPla=0)
+            {
+                Teamid = teamid;
+                Matchid = matchid;
+                TurnNumber = turnNumber;
+                DecisionPlayer = desPla;
             }
         }
 
@@ -811,7 +830,8 @@ namespace MTGApro
                             }
                         }
 
-                        foreach (var output in builders) {
+                        foreach (KeyValuePair<double, StringBuilder[]> output in builders)
+                        {
                             if (!parsed.ContainsKey(output.Key))
                             {
                                 parsed.Add(output.Key, new string[indicators.Length]);
@@ -1036,6 +1056,10 @@ namespace MTGApro
                                         }
                                     }
                                 }
+                                /*if (!matchdetails.ContainsKey(output.Key))
+                                {
+                                    matchdetails.Add(output.Key, new Curmatchforupload(TheMatch.Teamid, TheMatch.Matchid, TheMatch.TurnNumber, TheMatch.DecisionPlayer));
+                                }*/
                             }
                         }
 
@@ -1593,15 +1617,18 @@ namespace MTGApro
 
                     if (credok && !needsupdate && !playerswith)
                     {
-                        foreach (var writing in parsed)
+                        foreach (KeyValuePair<double, string[]> writing in parsed)
                         {
-                            for (var j = 0; j < indicators.Length; j++)
+                            for (int j = 0; j < indicators.Length; j++)
                             {
-                                if(writing.Value[j]!=@"" && writing.Value[j] !=null)
+                                if (writing.Value[j] != @"" && writing.Value[j] != null)
                                 {
                                     if (indicators[j].Send && ((manualresync && indicators[j].Addup) || (writing.Key > parsedtill && (indicators[j].Addup || (!indicators[j].Addup && writing.Value[j] != hashes[j])))) && (indicators[j].Needtohave == @"" || writing.Value[j].IndexOf(indicators[j].Needtohave) > -1))
                                     {
                                         requestdict.Add(@"cm_uploadpack["+writing.Key+"][" + j.ToString() + "]", Zip(writing.Value[j]));
+                                        /*requestdict.Add(@"cm_matchespack[" + writing.Key + "][matchid]", Zip(writing.Value[j]));
+                                        requestdict.Add(@"cm_matchespack[" + writing.Key + "][turn]", Zip(writing.Value[j]));
+                                        requestdict.Add(@"cm_matchespack[" + writing.Key + "][descision]", Zip(writing.Value[j]));*/
                                         if (!requestdict.ContainsKey(@"setdate")) requestdict.Add(@"setdate", tmstmp());
                                         somethingnew = true;
                                         hashes[j] = writing.Value[j];
