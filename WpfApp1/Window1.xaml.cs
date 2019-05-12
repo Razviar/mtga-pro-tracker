@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 
 namespace MTGApro
 {
-   
+
 
     public partial class Window1 : Window
     {
@@ -54,7 +54,7 @@ namespace MTGApro
             public bool Showtimers { get; set; }
             public bool Hotkeys { get; set; }
 
-            public OverlaySettingsStorage(int leftdigit=0,int rightdigit=2,int leftdigitdraft=0,int rightdigitdraft=1,bool streamer=false,bool decklist=true, bool autoswitch = true, bool showcard = true, bool showtimers=true, int font = 0, bool hotkeys=true)
+            public OverlaySettingsStorage(int leftdigit = 0, int rightdigit = 2, int leftdigitdraft = 0, int rightdigitdraft = 1, bool streamer = false, bool decklist = true, bool autoswitch = true, bool showcard = true, bool showtimers = true, int font = 0, bool hotkeys = true)
             {
                 Leftdigit = leftdigit;
                 Rightdigit = rightdigit;
@@ -179,7 +179,7 @@ namespace MTGApro
                 Utokens = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(RkTokens.GetValue("utokens").ToString());
                 Credentials = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(RkTokens.GetValue("credentials").ToString());
 
-                foreach (var tkn in Usermtgaid)
+                foreach (KeyValuePair<string, string> tkn in Usermtgaid)
                 {
                     AccountSelector.Items.Add(tkn.Value);
                 }
@@ -187,7 +187,7 @@ namespace MTGApro
                 RkTokens.Close();
             }
 
-            }
+        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -215,7 +215,7 @@ namespace MTGApro
             appsettings.Path = filename;
 
             string output = Newtonsoft.Json.JsonConvert.SerializeObject(appsettings);
-            RegistryKey RkTokens = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\\MTGAProtracker",true);
+            RegistryKey RkTokens = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\\MTGAProtracker", true);
             RkTokens.SetValue("appsettings", output);
             //RkTokens.Close();
 
@@ -312,7 +312,7 @@ namespace MTGApro
                     dlg.InitialDirectory = path;
                 }
 
-                var result = dlg.ShowDialog();
+                bool? result = dlg.ShowDialog();
 
 
                 // Get the selected file name and display in a TextBox 
@@ -333,12 +333,12 @@ namespace MTGApro
         {
             selid = AccountSelector.SelectedIndex;
             string nick = AccountSelector.SelectedItem.ToString();
-           /* Usermtgaid = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(RkTokens.GetValue("nicks").ToString());
-            Utokens = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(RkTokens.GetValue("utokens").ToString());*/
+            /* Usermtgaid = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(RkTokens.GetValue("nicks").ToString());
+             Utokens = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(RkTokens.GetValue("utokens").ToString());*/
 
-            foreach (var tkn in Usermtgaid)
+            foreach (KeyValuePair<string, string> tkn in Usermtgaid)
             {
-                if(tkn.Value == nick)
+                if (tkn.Value == nick)
                 {
                     Ingame_nick.Content = nick;
                     Acc_token.Content = Utokens[tkn.Key].ToString();
@@ -351,7 +351,7 @@ namespace MTGApro
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            MainWindow mainWindow=new MainWindow();
+            MainWindow mainWindow = new MainWindow();
 
             if (mainWindow.TokenInput.Text == Utokens[selectedacc])
             {

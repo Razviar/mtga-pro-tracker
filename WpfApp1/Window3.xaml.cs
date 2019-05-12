@@ -37,14 +37,14 @@ namespace MTGApro
 
         public Window3()
         {
-            var notif = MainWindow.MakeRequest(new Uri(@"https://remote.mtgarena.pro/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getpush" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken } });
-            var notifparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Notifi[]>(notif);
+            string notif = MainWindow.MakeRequest(new Uri(@"https://remote.mtgarena.pro/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getpush" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken } });
+            Notifi[] notifparsed = Newtonsoft.Json.JsonConvert.DeserializeObject<Notifi[]>(notif);
             string output = @"";
-            for(int i=0; i<=(notifparsed.Length-1); i++)
+            for (int i = 0; i <= (notifparsed.Length - 1); i++)
             {
-                var date = MainWindow.tmstmptodate(notifparsed[i].Date);
-                var txt = notifparsed[i].Txt;
-                output += @"------------------------"+ Environment.NewLine+date.ToString() + @":"+ Environment.NewLine + txt + Environment.NewLine+ @"------------------------";
+                DateTime date = MainWindow.tmstmptodate(notifparsed[i].Date);
+                string txt = notifparsed[i].Txt;
+                output += @"------------------------" + Environment.NewLine + date.ToString() + @":" + Environment.NewLine + txt + Environment.NewLine + @"------------------------";
             }
             Dispatcher.BeginInvoke(new ThreadStart(delegate
             {

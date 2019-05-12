@@ -29,14 +29,14 @@ namespace MTGApro
 
         private Window5 win5 = new Window5();
 
-        public static bool windowhidden=false;
+        public static bool windowhidden = false;
         public static string deckplaying;
         public static string matchplayingwe;
         public static string matchplayingthey;
-        public static int PackOpening =-1;
-        public static int PickMacking =-1;
+        public static int PackOpening = -1;
+        public static int PickMacking = -1;
         public static string downloading;
-        public static bool decksrendered=false;
+        public static bool decksrendered = false;
 
         public static bool wasshown = false;
 
@@ -53,12 +53,12 @@ namespace MTGApro
         public static Dictionary<int, int> cdb_mtga_id = new Dictionary<int, int>();
         public static Dictionary<int, int> collection = new Dictionary<int, int>();
 
-        public static Dictionary<int,int> oldUdecklive = new Dictionary<int, int>();
+        public static Dictionary<int, int> oldUdecklive = new Dictionary<int, int>();
         public static Dictionary<int, int> oldEdecklive = new Dictionary<int, int>();
 
         public static Dictionary<string, Dictionary<int, TextBlock>> cnums = new Dictionary<string, Dictionary<int, TextBlock>> { { "me", new Dictionary<int, TextBlock>() }, { "opponent", new Dictionary<int, TextBlock>() }, { "draft", new Dictionary<int, TextBlock>() }, { "decks", new Dictionary<int, TextBlock>() } };
-        public static Dictionary<string, Dictionary<int, Border>> borders = new Dictionary<string, Dictionary<int, Border>> { {"me", new Dictionary<int, Border>()}, { "opponent", new Dictionary<int, Border>()}, { "draft", new Dictionary<int, Border>() }, { "decks", new Dictionary<int, Border>() } };
-        public static Dictionary<string, string> colors = new Dictionary<string, string>{{ "White", "bfb66b" }, { "Blue", "4693b9" }, { "Black", "4e4442" }, { "Red", "c35d3a" }, { "Green", "448359" }, { "Multicolor", "d6be73" }, { "Colorless", "7a7777" } };
+        public static Dictionary<string, Dictionary<int, Border>> borders = new Dictionary<string, Dictionary<int, Border>> { { "me", new Dictionary<int, Border>() }, { "opponent", new Dictionary<int, Border>() }, { "draft", new Dictionary<int, Border>() }, { "decks", new Dictionary<int, Border>() } };
+        public static Dictionary<string, string> colors = new Dictionary<string, string> { { "White", "bfb66b" }, { "Blue", "4693b9" }, { "Black", "4e4442" }, { "Red", "c35d3a" }, { "Green", "448359" }, { "Multicolor", "d6be73" }, { "Colorless", "7a7777" } };
         public static Dictionary<string, string> colors_light = new Dictionary<string, string> { { "White", "bfb66b" }, { "Blue", "8fbdd3" }, { "Black", "726360" }, { "Red", "da8b70" }, { "Green", "92d1a7" }, { "Multicolor", "d6be73" }, { "Colorless", "7a7777" } };
         public static Dictionary<string, string> colors_dark = new Dictionary<string, string> { { "White", "7f7947" }, { "Blue", "28556b" }, { "Black", "4e4442" }, { "Red", "7c3b25" }, { "Green", "2d563a" }, { "Multicolor", "6c5611" }, { "Colorless", "7a7777" } };
         public static Dictionary<string, string> icons_mana = new Dictionary<string, string> { { "White", "\ue600" }, { "Blue", "\ue601" }, { "Black", "\ue602" }, { "Red", "\ue603" }, { "Green", "\ue604" }, { "1", "\ue606" }, { "2", "\ue607" }, { "3", "\ue608" }, { "4", "\ue609" }, { "5", "\ue60a" }, { "6", "\ue60b" }, { "7", "\ue60c" }, { "8", "\ue60d" }, { "9", "\ue60e" }, { "10", "\ue60f" }, { "11", "\ue610" }, { "12", "\ue611" }, { "13", "\ue612" }, { "14", "\ue613" }, { "15", "\ue614" }, { "16", "\ue62a" }, { "17", "\ue62b" }, { "18", "\ue62c" }, { "19", "\ue62d" }, { "20", "\ue62e" }, { "X", "\ue615" } };
@@ -108,7 +108,7 @@ namespace MTGApro
             public string Edeckname { get; set; }
             public string Humanname { get; set; }
 
-            public Battle(Dictionary<int, int> deckstruct, string udeck_fp, string humanname = @"", string edeckname=@"")
+            public Battle(Dictionary<int, int> deckstruct, string udeck_fp, string humanname = @"", string edeckname = @"")
             {
                 Udecklive = new Dictionary<int, int>();
                 Edeck = new Dictionary<int, int>();
@@ -144,10 +144,10 @@ namespace MTGApro
                         string posX = RkApp.GetValue("posX").ToString();
                         string posY = RkApp.GetValue("posY").ToString();
                         rendering = true;
-                        if (!String.IsNullOrWhiteSpace(op)) Opacity=Convert.ToDouble(op);
-                        if (!String.IsNullOrWhiteSpace(size)) ScaleValue=Convert.ToDouble(op);
-                        if (!String.IsNullOrWhiteSpace(posX)) Left=Convert.ToDouble(posX);
-                        if (!String.IsNullOrWhiteSpace(posY)) Top=Convert.ToDouble(posY);
+                        if (!String.IsNullOrWhiteSpace(op)) Opacity = Convert.ToDouble(op);
+                        if (!String.IsNullOrWhiteSpace(size)) ScaleValue = Convert.ToDouble(op);
+                        if (!String.IsNullOrWhiteSpace(posX)) Left = Convert.ToDouble(posX);
+                        if (!String.IsNullOrWhiteSpace(posY)) Top = Convert.ToDouble(posY);
                         win5.Opacity = Opacity;
                         win5.ApplicationScaleTransform.ScaleX = ScaleValue;
                         win5.ApplicationScaleTransform.ScaleY = ScaleValue;
@@ -156,7 +156,7 @@ namespace MTGApro
                     catch (Exception e)
                     {
                         string report = e.TargetSite + "//" + e.Message + "//" + e.InnerException + "//" + e.Source + "//" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
-                        var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report } });
+                        string responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report } });
                     }
 
                     RkApp.Close();
@@ -212,12 +212,12 @@ namespace MTGApro
                     {
                         string cards_db = reader.ReadToEnd();
                         cdb = JsonConvert.DeserializeObject<Dictionary<int, Card>>(cards_db);
-                        foreach (var cid in cdb)
+                        foreach (KeyValuePair<int, Card> cid in cdb)
                         {
                             if (!cdb_mtga_id.ContainsKey(cid.Value.Mtga_id)) cdb_mtga_id.Add(cid.Value.Mtga_id, cid.Key);
                         }
                     }
-                    
+
                 }
                 catch (Exception ee)
                 {
@@ -235,18 +235,18 @@ namespace MTGApro
                 Udecklive = new Dictionary<int, int>();
             }
 
-            foreach (var ucard in carray)
+            foreach (KeyValuePair<int, int> ucard in carray)
             {
                 if (ucard.Key != -1)
                 {
-                    var manaparsed = new Dictionary<string, int>();
+                    Dictionary<string, int> manaparsed = new Dictionary<string, int>();
                     try
                     {
                         manaparsed = JsonConvert.DeserializeObject<Dictionary<string, int>>(cdb[ucard.Key].Mana);
                     }
                     catch (Exception ee)
                     {
-                       // MainWindow.ErrReport(ee);
+                        // MainWindow.ErrReport(ee);
                     }
 
                     DropShadowEffect myDropShadowEffect = new DropShadowEffect()
@@ -292,7 +292,8 @@ namespace MTGApro
 
                     if (curmode == "me")
                     {
-                        switch (MainWindow.ovlsettings.Leftdigit){
+                        switch (MainWindow.ovlsettings.Leftdigit)
+                        {
                             case 0:
                                 output += (ucard.Value - (Udecklive.ContainsKey(ucard.Key) ? Udecklive[ucard.Key] : 0)).ToString();
                                 break;
@@ -337,7 +338,8 @@ namespace MTGApro
                                 output += ucard.Value;
                                 break;
                             case 1:
-                                if (collection.ContainsKey(ucard.Key)) {
+                                if (collection.ContainsKey(ucard.Key))
+                                {
                                     output += collection[ucard.Key];
                                 }
                                 else
@@ -402,11 +404,11 @@ namespace MTGApro
                                 manatext.Text += icons_mana[manaparsed["Colorless"].ToString()];
                             }
 
-                            foreach (var m in manaparsed)
+                            foreach (KeyValuePair<string, int> m in manaparsed)
                             {
                                 if (m.Key != "Colorless")
                                 {
-                                    for (var mnum = 0; mnum < m.Value; mnum++)
+                                    for (int mnum = 0; mnum < m.Value; mnum++)
                                     {
                                         manatext.Text += icons_mana[m.Key];
                                     }
@@ -421,17 +423,17 @@ namespace MTGApro
                     else
                     {
                         GradientStopCollection gradientStops = new GradientStopCollection();
-                        var n = 0;
+                        int n = 0;
                         try
                         {
                             if (manaparsed.ContainsKey("Colorless"))
                             {
                                 manatext.Text += icons_mana[manaparsed["Colorless"].ToString()];
                             }
-                            foreach (var m in manaparsed)
+                            foreach (KeyValuePair<string, int> m in manaparsed)
                             {
                                 string[] mkeys = m.Key.Split('/');
-                                foreach (var mk in mkeys)
+                                foreach (string mk in mkeys)
                                 {
                                     if (mk != "Colorless")
                                     {
@@ -446,8 +448,8 @@ namespace MTGApro
                                             gradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(@"#" + colors_dark[mk]), 0.6));
                                             gradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(@"#" + colors_dark[mk]), 1));
                                         }
-                                        
-                                        for (var mnum = 0; mnum < m.Value; mnum++)
+
+                                        for (int mnum = 0; mnum < m.Value; mnum++)
                                         {
                                             manatext.Text += icons_mana[mk];
                                         }
@@ -464,8 +466,8 @@ namespace MTGApro
 
                     manatext.Width = manatext.Text.Length * 12;
                     txt.Width = 185 - manatext.Width;
-                    manatext.Margin = new Thickness(txt.Width+2, 2, 0, 0);
-                    
+                    manatext.Margin = new Thickness(txt.Width + 2, 2, 0, 0);
+
                     LinearGradientBrush grbr = new LinearGradientBrush((Color)ColorConverter.ConvertFromString(@"#" + colors_light[cdb[ucard.Key].Colorindicator]), (Color)ColorConverter.ConvertFromString(@"#" + colors_dark[cdb[ucard.Key].Colorindicator]), 90);
 
                     borders[curmode].Add(ucard.Key, new Border()
@@ -520,7 +522,7 @@ namespace MTGApro
                     {
                         overlayopp.Children.Add(borders[curmode][ucard.Key]);
                     }
-                    if(MainWindow.ovlsettings.Showcard) borders[curmode][ucard.Key].MouseEnter += new MouseEventHandler(Mouse_overcard);
+                    if (MainWindow.ovlsettings.Showcard) borders[curmode][ucard.Key].MouseEnter += new MouseEventHandler(Mouse_overcard);
 
                 }
             }
@@ -531,47 +533,47 @@ namespace MTGApro
         private void renderdecklist(Deck[] darray, string curmode)
         {
 
-            foreach (var udeck in darray)
+            foreach (Deck udeck in darray)
             {
-                    var manaparsed = new Dictionary<string, int>();
-                    var Colorindicator = @"";
-                    try
+                Dictionary<string, int> manaparsed = new Dictionary<string, int>();
+                string Colorindicator = @"";
+                try
+                {
+                    manaparsed = JsonConvert.DeserializeObject<Dictionary<string, int>>(udeck.Classstruct);
+                    if (Colorindicator == @"")
                     {
-                        manaparsed = JsonConvert.DeserializeObject<Dictionary<string, int>>(udeck.Classstruct);
-                        if (Colorindicator == @"")
-                        {
-                            Colorindicator = manaparsed.Keys.First();
-                        }
+                        Colorindicator = manaparsed.Keys.First();
                     }
-                    catch (Exception e)
-                    {
-                        /*string report = e.TargetSite + "//" + e.Message + "//" + e.InnerException + "//" + e.Source + "//" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
-                        var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report }, { @"version", MainWindow.version }, { @"function", @"manaparsed" } });*/
+                }
+                catch (Exception e)
+                {
+                    /*string report = e.TargetSite + "//" + e.Message + "//" + e.InnerException + "//" + e.Source + "//" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
+                    var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report }, { @"version", MainWindow.version }, { @"function", @"manaparsed" } });*/
                 }
 
-                    DropShadowEffect myDropShadowEffect = new DropShadowEffect()
-                    {
-                        Color = (Color)ColorConverter.ConvertFromString(@"#FF000000"),
-                        BlurRadius = 1,
-                        ShadowDepth = 1,
-                        Direction = 320,
-                        Opacity = 0.9
-                    };
+                DropShadowEffect myDropShadowEffect = new DropShadowEffect()
+                {
+                    Color = (Color)ColorConverter.ConvertFromString(@"#FF000000"),
+                    BlurRadius = 1,
+                    ShadowDepth = 1,
+                    Direction = 320,
+                    Opacity = 0.9
+                };
 
-                
-                 TextBlock txt = new TextBlock()
-                 {
-                     FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#JaceBeleren"),
-                     FontWeight = FontWeights.Bold,
-                     Text = udeck.Humanname,
-                     FontSize = 14,
-                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
-                     HorizontalAlignment = HorizontalAlignment.Left,
-                     VerticalAlignment = VerticalAlignment.Center,
-                     Margin = new Thickness(5, 0, 0, 0),
-                     Width = 150,
-                     TextTrimming = TextTrimming.CharacterEllipsis
-                 };
+
+                TextBlock txt = new TextBlock()
+                {
+                    FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#JaceBeleren"),
+                    FontWeight = FontWeights.Bold,
+                    Text = udeck.Humanname,
+                    FontSize = 14,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(5, 0, 0, 0),
+                    Width = 150,
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                };
 
                 if (Window1.ovlsettings.Font == 1)
                 {
@@ -583,102 +585,102 @@ namespace MTGApro
                 }
 
                 TextBlock manatext = new TextBlock()
-                 {
-                     FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Mana"),
-                     HorizontalAlignment = HorizontalAlignment.Right,
-                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
-                     TextAlignment = TextAlignment.Right,
-                     VerticalAlignment = VerticalAlignment.Center,
-                     Width = 35,
-                     Margin = new Thickness(155, 2, 0, 0)
-                 };
+                {
+                    FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Mana"),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
+                    TextAlignment = TextAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Width = 35,
+                    Margin = new Thickness(155, 2, 0, 0)
+                };
 
-                 string output = "";
+                string output = "";
 
 
-                 output = udeck.perswinratio.ToString()+@" | "+udeck.wlnratio.ToString();
-                 
+                output = udeck.perswinratio.ToString() + @" | " + udeck.wlnratio.ToString();
 
-                 cnums[curmode].Add(udeck.Id, new TextBlock()
-                 {
-                     Name = @"cnum_" + udeck.Id.ToString(),
-                     Text = output,
-                     FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Beleren"),
-                     Effect = myDropShadowEffect,
-                     HorizontalAlignment = HorizontalAlignment.Left,
-                     VerticalAlignment = VerticalAlignment.Center,
-                     TextAlignment = TextAlignment.Center,
-                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#FFFFFFFF")),
-                     Width = 45,
-                     Margin = new Thickness(205, 0, 0, 0),
-                     Padding = new Thickness(0, 2, 2, 0)
-                 });
 
-                var n = 0;
-                foreach (var m in manaparsed)
+                cnums[curmode].Add(udeck.Id, new TextBlock()
+                {
+                    Name = @"cnum_" + udeck.Id.ToString(),
+                    Text = output,
+                    FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Beleren"),
+                    Effect = myDropShadowEffect,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    TextAlignment = TextAlignment.Center,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#FFFFFFFF")),
+                    Width = 45,
+                    Margin = new Thickness(205, 0, 0, 0),
+                    Padding = new Thickness(0, 2, 2, 0)
+                });
+
+                int n = 0;
+                foreach (KeyValuePair<string, int> m in manaparsed)
                 {
                     string[] mkeys = m.Key.Split('/');
-                    foreach (var mk in mkeys)
+                    foreach (string mk in mkeys)
                     {
-                        if (mk != "Colorless" && mk!="Multicolor")
+                        if (mk != "Colorless" && mk != "Multicolor")
                         {
-                            manatext.Text += icons_mana[mk];
+                            if (icons_mana.ContainsKey(mk)) manatext.Text += icons_mana[mk];
                         }
                     }
                 }
-                 
 
 
-                 LinearGradientBrush grbr = new LinearGradientBrush((Color)ColorConverter.ConvertFromString(@"#" + colors_light[Colorindicator]), (Color)ColorConverter.ConvertFromString(@"#" + colors_dark[Colorindicator]), 90);
 
-                 borders[curmode].Add(udeck.Id, new Border()
-                 {
-                     Name = @"C_" + udeck.Id.ToString(),
-                     Width = 252,
-                     Height = 27,
-                     Background = new SolidColorBrush()
-                     {
-                         Color = (Color)ColorConverter.ConvertFromString(@"#36221e")
-                     },
-                     BorderThickness = new Thickness(0, 0, 0, 0),
-                     CornerRadius = new CornerRadius(5),
-                     Margin = new Thickness(0, topmargin[curmode], 0, 0),
-                     Padding = new Thickness(2, 2, 2, 2),
-                     VerticalAlignment = VerticalAlignment.Top,
-                     HorizontalAlignment = HorizontalAlignment.Left
-                 });
+                LinearGradientBrush grbr = new LinearGradientBrush((Color)ColorConverter.ConvertFromString(@"#" + colors_light[Colorindicator]), (Color)ColorConverter.ConvertFromString(@"#" + colors_dark[Colorindicator]), 90);
 
-                 Border recinner = new Border()
-                 {
-                     Width = 200,
-                     Height = 22,
-                     Background = new SolidColorBrush()
-                     {
-                         Color = (Color)ColorConverter.ConvertFromString(@"#22FFFFFF")
-                     },
-                     BorderBrush = grbr,
-                     BorderThickness = new Thickness(2, 2, 2, 2),
-                     CornerRadius = new CornerRadius(5),
-                     Padding = new Thickness(2, 0, 0, 0),
-                     VerticalAlignment = VerticalAlignment.Center,
-                     HorizontalAlignment = HorizontalAlignment.Left
-                 };
+                borders[curmode].Add(udeck.Id, new Border()
+                {
+                    Name = @"C_" + udeck.Id.ToString(),
+                    Width = 252,
+                    Height = 27,
+                    Background = new SolidColorBrush()
+                    {
+                        Color = (Color)ColorConverter.ConvertFromString(@"#36221e")
+                    },
+                    BorderThickness = new Thickness(0, 0, 0, 0),
+                    CornerRadius = new CornerRadius(5),
+                    Margin = new Thickness(0, topmargin[curmode], 0, 0),
+                    Padding = new Thickness(2, 2, 2, 2),
+                    VerticalAlignment = VerticalAlignment.Top,
+                    HorizontalAlignment = HorizontalAlignment.Left
+                });
 
-                 Canvas cnvas = new Canvas();
-                 Canvas cnvas_outer = new Canvas();
+                Border recinner = new Border()
+                {
+                    Width = 200,
+                    Height = 22,
+                    Background = new SolidColorBrush()
+                    {
+                        Color = (Color)ColorConverter.ConvertFromString(@"#22FFFFFF")
+                    },
+                    BorderBrush = grbr,
+                    BorderThickness = new Thickness(2, 2, 2, 2),
+                    CornerRadius = new CornerRadius(5),
+                    Padding = new Thickness(2, 0, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
 
-                 cnvas.Children.Add(txt);
-                 cnvas.Children.Add(manatext);
-                 recinner.Child = cnvas;
+                Canvas cnvas = new Canvas();
+                Canvas cnvas_outer = new Canvas();
 
-                 cnvas_outer.Children.Add(recinner);
-                 cnvas_outer.Children.Add(cnums[curmode][udeck.Id]);
+                cnvas.Children.Add(txt);
+                cnvas.Children.Add(manatext);
+                recinner.Child = cnvas;
 
-                 borders[curmode][udeck.Id].Child = cnvas_outer;
+                cnvas_outer.Children.Add(recinner);
+                cnvas_outer.Children.Add(cnums[curmode][udeck.Id]);
 
-                 topmargin[curmode] += 27;
+                borders[curmode][udeck.Id].Child = cnvas_outer;
 
-                 overlayme.Children.Add(borders[curmode][udeck.Id]);
+                topmargin[curmode] += 27;
+
+                overlayme.Children.Add(borders[curmode][udeck.Id]);
             }
         }
 
@@ -687,11 +689,11 @@ namespace MTGApro
         public void Setmode(string modesetter)
         {
             mode = modesetter;
-            if (mode == @"me" || mode == @"draft" || mode==@"decks")
+            if (mode == @"me" || mode == @"draft" || mode == @"decks")
             {
                 overlayme.Visibility = Visibility.Visible;
                 overlayopp.Visibility = Visibility.Hidden;
-                if(mode == @"me" || mode == @"draft")
+                if (mode == @"me" || mode == @"draft")
                 {
                     bottommenu.Visibility = Visibility.Visible;
                 }
@@ -700,7 +702,7 @@ namespace MTGApro
                     bottommenu.Visibility = Visibility.Hidden;
                 }
             }
-            else if(mode == @"opponent")
+            else if (mode == @"opponent")
             {
                 overlayme.Visibility = Visibility.Hidden;
                 overlayopp.Visibility = Visibility.Visible;
@@ -717,7 +719,7 @@ namespace MTGApro
             //Handling draft
             if (MainWindow.TheMatch.IsDrafting)
             {
-                string curdrft = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getlivedraft" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken }, {@"cardsquery", JsonConvert.SerializeObject(MainWindow.TheMatch.Draftdeck) } });
+                string curdrft = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getlivedraft" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken }, { @"cardsquery", JsonConvert.SerializeObject(MainWindow.TheMatch.Draftdeck) } });
                 if (curdrft != @"ERRCONN")
                 {
                     Dictionary<string, Dictionary<int, int>> curdrftparsed = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, int>>>(curdrft);
@@ -744,7 +746,7 @@ namespace MTGApro
                 }
             }
             //Handling fight
-            else if(MainWindow.TheMatch.IsFighting)
+            else if (MainWindow.TheMatch.IsFighting)
             {
                 string curbtl = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getlivematch" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken } });
                 if (curbtl != @"ERRCONN")
@@ -788,7 +790,7 @@ namespace MTGApro
                         }
                         else
                         {
-                            foreach (var ucard in curbtlparsed.Deckstruct)
+                            foreach (KeyValuePair<int, int> ucard in curbtlparsed.Deckstruct)
                             {
                                 if (ucard.Key != -1)
                                 {
@@ -806,7 +808,7 @@ namespace MTGApro
                                             output += nc.ToString();
                                             break;
                                         case 2:
-                                            nc = (int)Math.Round((double)100 * (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0)) / ncards) ;
+                                            nc = (int)Math.Round((double)100 * (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0)) / ncards);
                                             output += nc.ToString() + @"%";
                                             break;
                                         case 3:
@@ -825,7 +827,7 @@ namespace MTGApro
                                             output += ucard.Value;
                                             break;
                                         case 2:
-                                            output += Convert.ToString(Math.Round((double)100 * (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0)) / ncards) ) + @"%";
+                                            output += Convert.ToString(Math.Round((double)100 * (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0)) / ncards)) + @"%";
                                             break;
                                         case 3:
                                             output += "";
@@ -859,7 +861,7 @@ namespace MTGApro
 
                                     if (needanimate)
                                     {
-                                            
+
                                         ColorAnimation animation = new ColorAnimation()
                                         {
                                             To = (Color)ColorConverter.ConvertFromString("#f9f5ec"),
@@ -910,7 +912,7 @@ namespace MTGApro
                         }
                         else
                         {
-                            foreach (var ucard in curbtlparsed.Edeck)
+                            foreach (KeyValuePair<int, int> ucard in curbtlparsed.Edeck)
                             {
                                 if (ucard.Key != -1)
                                 {
@@ -928,30 +930,30 @@ namespace MTGApro
                                         highlight = ucard.Key;
                                     }
 
-                                        string oldtext = cnums[@"opponent"][ucard.Key].Text;
+                                    string oldtext = cnums[@"opponent"][ucard.Key].Text;
 
-                                        cnums[@"opponent"][ucard.Key].Text = ucard.Value.ToString();
-                                        if (oldtext != ucard.Value.ToString() || highlight == ucard.Key)
+                                    cnums[@"opponent"][ucard.Key].Text = ucard.Value.ToString();
+                                    if (oldtext != ucard.Value.ToString() || highlight == ucard.Key)
+                                    {
+                                        Brush oldbg = borders[@"opponent"][ucard.Key].Background;
+                                        ColorAnimation animation = new ColorAnimation()
                                         {
-                                            var oldbg = borders[@"opponent"][ucard.Key].Background;
-                                            ColorAnimation animation = new ColorAnimation()
-                                            {
-                                                To = (Color)ColorConverter.ConvertFromString("#f9f5ec"),
-                                                Duration = TimeSpan.FromSeconds(0.4),
-                                                AutoReverse = true,
-                                            };
+                                            To = (Color)ColorConverter.ConvertFromString("#f9f5ec"),
+                                            Duration = TimeSpan.FromSeconds(0.4),
+                                            AutoReverse = true,
+                                        };
 
-                                            animation.Completed += (s, e) =>
-                                            {
-                                                borders[@"opponent"][ucard.Key].Background = oldbg;
-                                            };
-                                            borders[@"opponent"][ucard.Key].Background = new SolidColorBrush()
-                                            {
-                                                Color = (Color)ColorConverter.ConvertFromString(@"#" + colors[cdb[ucard.Key].Colorindicator])
-                                            };
-                                            borders[@"opponent"][ucard.Key].Background.BeginAnimation(SolidColorBrush.ColorProperty, animation);
-                                            setmode = @"opponent";
-                                        }
+                                        animation.Completed += (s, e) =>
+                                        {
+                                            borders[@"opponent"][ucard.Key].Background = oldbg;
+                                        };
+                                        borders[@"opponent"][ucard.Key].Background = new SolidColorBrush()
+                                        {
+                                            Color = (Color)ColorConverter.ConvertFromString(@"#" + colors[cdb[ucard.Key].Colorindicator])
+                                        };
+                                        borders[@"opponent"][ucard.Key].Background.BeginAnimation(SolidColorBrush.ColorProperty, animation);
+                                        setmode = @"opponent";
+                                    }
                                 }
                             }
                         }
@@ -1044,9 +1046,9 @@ namespace MTGApro
         private void Mouse_overcard(object sender, MouseEventArgs e)
         {
             Border sndr = sender as Border;
-            cidover = Convert.ToInt32(sndr.Name.Replace(@"C_",@""));
+            cidover = Convert.ToInt32(sndr.Name.Replace(@"C_", @""));
             location = sndr.PointToScreen(new Point(0, 0));
-            location.X += (sndr.ActualWidth+50) * ScaleValue;
+            location.X += (sndr.ActualWidth + 50) * ScaleValue;
             string cardname = cdb[cidover].Pict;
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"MTGAproTracker");
 
@@ -1059,7 +1061,7 @@ namespace MTGApro
             FileInfo nfo = new FileInfo(path + @"\Cards\" + cardname);
             if (!nfo.Exists || nfo.Length == 0)
             {
-                if(!Directory.Exists(path + @"\Cards\"))
+                if (!Directory.Exists(path + @"\Cards\"))
                 {
                     Directory.CreateDirectory(path + @"\Cards\");
                 }
@@ -1095,7 +1097,7 @@ namespace MTGApro
             {
                 string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"MTGAproTracker");
                 string cardname = cdb[cidover].Pict;
-                
+
 
                 BitmapImage src = new BitmapImage();
                 src.BeginInit();
@@ -1109,7 +1111,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-               // MainWindow.ErrReport(ee);
+                // MainWindow.ErrReport(ee);
             }
         }
 
@@ -1117,7 +1119,7 @@ namespace MTGApro
         {
             if (e.ChangedButton == MouseButton.Left)
                 DragMove();
-            
+
             //e.Handled = false;
         }
 
@@ -1215,7 +1217,7 @@ namespace MTGApro
             if (overlay.IsVisible)
             {
                 overlay.Visibility = Visibility.Hidden;
-               // overlay.Height = 0;
+                // overlay.Height = 0;
                 collapser.Text = @"+";
                 //collapser_name.Text = @"MTGA Pro Tracker";
                 sizegrid.Visibility = Visibility.Hidden;
@@ -1260,40 +1262,40 @@ namespace MTGApro
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
-                while (!worker.CancellationPending)
+            while (!worker.CancellationPending)
+            {
+                if (MainWindow.TheMatch.IsFighting && MainWindow.TheMatch.DecisionPlayer != 0)
                 {
-                    if (MainWindow.TheMatch.IsFighting && MainWindow.TheMatch.DecisionPlayer!=0)
+                    MainWindow.TheMatch.Timers[MainWindow.TheMatch.DecisionPlayer]++;
+                    Dispatcher.BeginInvoke(new ThreadStart(delegate
                     {
-                        MainWindow.TheMatch.Timers[MainWindow.TheMatch.DecisionPlayer]++;
-                        Dispatcher.BeginInvoke(new ThreadStart(delegate
+                        int minutes = (int)Math.Floor((double)MainWindow.TheMatch.Timers[MainWindow.TheMatch.DecisionPlayer] / 60);
+                        int seconds = MainWindow.TheMatch.Timers[MainWindow.TheMatch.DecisionPlayer] % 60;
+                        string timer = ((minutes < 10) ? "0" : "") + Convert.ToString(minutes) + ":" + ((seconds < 10) ? "0" : "") + Convert.ToString(seconds);
+                        if (MainWindow.TheMatch.DecisionPlayer == MainWindow.TheMatch.Teamid)
                         {
-                            int minutes = (int)Math.Floor((double)MainWindow.TheMatch.Timers[MainWindow.TheMatch.DecisionPlayer] / 60);
-                            int seconds = MainWindow.TheMatch.Timers[MainWindow.TheMatch.DecisionPlayer] % 60;
-                            string timer = ((minutes < 10) ? "0" : "") + Convert.ToString(minutes) + ":" + ((seconds < 10) ? "0" : "") + Convert.ToString(seconds);
-                            if (MainWindow.TheMatch.DecisionPlayer == MainWindow.TheMatch.Teamid)
-                            {
-                                melabel.Text = @"Me "+timer;
-                            }
-                            else
-                            {
-                                opponentlabel.Text = timer+@" Them";
-                            }
-                        }));
-                    }
-
-                    Thread.Sleep(1000);
+                            melabel.Text = @"Me " + timer;
+                        }
+                        else
+                        {
+                            opponentlabel.Text = timer + @" Them";
+                        }
+                    }));
                 }
+
+                Thread.Sleep(1000);
+            }
 
         }
 
         private void Cardloader_DoWork(object sender, DoWorkEventArgs e)
         {
-            foreach (var ca in cdb)
+            foreach (KeyValuePair<int, Card> ca in cdb)
             {
                 string cardname = ca.Value.Pict;
                 string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"MTGAproTracker");
                 FileInfo nfo = new FileInfo(path + @"\Cards\" + cardname);
-                if (!nfo.Exists || nfo.Length==0)
+                if (!nfo.Exists || nfo.Length == 0)
                 {
                     if (!Directory.Exists(path + @"\Cards\"))
                     {
@@ -1312,7 +1314,7 @@ namespace MTGApro
                         }
                     }
                     Thread.Sleep(500);
-                } 
+                }
             }
         }
 
@@ -1352,7 +1354,7 @@ namespace MTGApro
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
-            var helper = new WindowInteropHelper(this);
+            WindowInteropHelper helper = new WindowInteropHelper(this);
             _source = HwndSource.FromHwnd(helper.Handle);
             _source.AddHook(HwndHook);
             if (MainWindow.ovlsettings.Hotkeys)
@@ -1371,7 +1373,7 @@ namespace MTGApro
 
         private void RegisterHotKey()
         {
-            var helper = new WindowInteropHelper(this);
+            WindowInteropHelper helper = new WindowInteropHelper(this);
             const uint VK_Q = 0x51;
             const uint VK_W = 0x57;
             const uint VK_T = 0xC0;
@@ -1385,7 +1387,7 @@ namespace MTGApro
 
         private void UnregisterHotKey()
         {
-            var helper = new WindowInteropHelper(this);
+            WindowInteropHelper helper = new WindowInteropHelper(this);
             UnregisterHotKey(helper.Handle, HOTKEY_Q);
             UnregisterHotKey(helper.Handle, HOTKEY_W);
             UnregisterHotKey(helper.Handle, HOTKEY_T);
@@ -1450,7 +1452,7 @@ namespace MTGApro
                         overlay.Visibility = Visibility.Visible;
                         //overlay.Height = topmargin[mode]+35;
                         collapser.Text = @"-";
-                       // collapser_name.Text = @"Collapse";
+                        // collapser_name.Text = @"Collapse";
                     }
                     break;
                 case HOTKEY_O:

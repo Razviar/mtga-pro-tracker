@@ -41,13 +41,13 @@ namespace MTGApro
         public static Parser[] indicators;
         public static bool juststarted = true;
         public static bool overlayactive = false;
-        public static int[] upltimers = {5000,7000,9000,10000};
+        public static int[] upltimers = { 5000, 7000, 9000, 10000 };
         public static long loglen = 0;
         public static bool isrestarting = false;
         public static string tokeninput = "";
         public static int version = 66;
         public static bool hasnewmessage = false;
-        public static int gamerunningtimer =0;
+        public static int gamerunningtimer = 0;
         public static int runtime = 0;
         public static int chunk = 50;
         public static int upltimerOverride = 0;
@@ -57,7 +57,7 @@ namespace MTGApro
         public static bool gamefocused = false;
         public static bool blkmsg = false;
         public static bool trawarn = false;
-        public static System.Windows.Forms.NotifyIcon ni=new System.Windows.Forms.NotifyIcon();
+        public static System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
         public static string Usertoken = "";
         public static string mtgauid = "";
         public static string mtganick = "";
@@ -67,12 +67,12 @@ namespace MTGApro
         public static string tmplog = "";
         public static bool playerswith = false;
         public static bool needtoken = false;
-        public static Dictionary<string, string> Usermtgaid = new Dictionary<string,string>();
+        public static Dictionary<string, string> Usermtgaid = new Dictionary<string, string>();
         public static Dictionary<string, string> Credentials = new Dictionary<string, string>();
         public static Dictionary<string, string> Utokens = new Dictionary<string, string>();
         public static Dictionary<string, string> ParsedCreds = new Dictionary<string, string>();
         public static Dictionary<double, string[]> parsed = new Dictionary<double, string[]>();
-       // public static Dictionary<double, Curmatchforupload> matchdetails = new Dictionary<double, Curmatchforupload>();
+        // public static Dictionary<double, Curmatchforupload> matchdetails = new Dictionary<double, Curmatchforupload>();
         public static string[] hashes;
         public static double parsedtill = 0;
         public static Window1.AppSettingsStorage appsettings = new Window1.AppSettingsStorage();
@@ -142,7 +142,7 @@ namespace MTGApro
         {
             public int Teamid { get; set; }
             public string Matchid { get; set; }
-            public Dictionary<int,int> Udeck { get; set; }
+            public Dictionary<int, int> Udeck { get; set; }
             public Dictionary<int, int> Udeckinst { get; set; }
             public Dictionary<int, int> Edeck { get; set; }
             public Dictionary<int, int> Edeckinst { get; set; }
@@ -166,7 +166,7 @@ namespace MTGApro
                 Edeck = new Dictionary<int, int>();
                 Edeckinst = new Dictionary<int, int>();
                 Draftdeck = new Dictionary<int, int>();
-                Timers = new Dictionary<int, int>() { {1,0},{2,0} };
+                Timers = new Dictionary<int, int>() { { 1, 0 }, { 2, 0 } };
                 Hasnewdata = false;
                 IsDrafting = false;
                 IsFighting = false;
@@ -186,7 +186,7 @@ namespace MTGApro
             public int DecisionPlayer { get; set; }
 
 
-            public Curmatchforupload(int teamid = 0, string matchid = @"", int turnNumber=0, int desPla=0)
+            public Curmatchforupload(int teamid = 0, string matchid = @"", int turnNumber = 0, int desPla = 0)
             {
                 Teamid = teamid;
                 Matchid = matchid;
@@ -206,7 +206,7 @@ namespace MTGApro
             public string Needtohave { get; set; }
             public string Ignore { get; set; }
 
-            public Parser(string indocators, bool send=true, bool needrunning=false, bool addup=false, string stopper= @"(Filename:", string needtohave=@"", string loginput = @"", string ignore=@"")
+            public Parser(string indocators, bool send = true, bool needrunning = false, bool addup = false, string stopper = @"(Filename:", string needtohave = @"", string loginput = @"", string ignore = @"")
             {
                 Send = send;
                 Indicators = indocators;
@@ -234,7 +234,7 @@ namespace MTGApro
             public int Timer { get; set; }
             public string Package { get; set; }
 
-            public Response(string status, string data, int chunk=50, int timer=0, string package=@"")
+            public Response(string status, string data, int chunk = 50, int timer = 0, string package = @"")
             {
                 Status = status;
                 Data = data;
@@ -282,12 +282,12 @@ namespace MTGApro
 
         public static byte[] Zip(string str)
         {
-            var bytes = Encoding.UTF8.GetBytes(str);
+            byte[] bytes = Encoding.UTF8.GetBytes(str);
 
-            using (var msi = new MemoryStream(bytes))
-            using (var mso = new MemoryStream())
+            using (MemoryStream msi = new MemoryStream(bytes))
+            using (MemoryStream mso = new MemoryStream())
             {
-                using (var gs = new GZipStream(mso, CompressionMode.Compress))
+                using (GZipStream gs = new GZipStream(mso, CompressionMode.Compress))
                 {
                     //msi.CopyTo(gs);
                     CopyTo(msi, gs);
@@ -309,17 +309,17 @@ namespace MTGApro
 
                     try
                     {
-                        var credload = RkApp.GetValue("credentials");
-                        var umtgaidload = RkApp.GetValue("nicks");
-                        var utokensload = RkApp.GetValue("utokens");
-                        var lasttokenload = RkApp.GetValue("lasttoken");
-                        var ovact = RkApp.GetValue("overlayactive");
+                        object credload = RkApp.GetValue("credentials");
+                        object umtgaidload = RkApp.GetValue("nicks");
+                        object utokensload = RkApp.GetValue("utokens");
+                        object lasttokenload = RkApp.GetValue("lasttoken");
+                        object ovact = RkApp.GetValue("overlayactive");
 
                         if (credload != null) Credentials = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(credload.ToString());
                         if (umtgaidload != null) Usermtgaid = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(umtgaidload.ToString());
                         if (utokensload != null) Utokens = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(utokensload.ToString());
                         if (lasttokenload != null && !playerswith) Usertoken = lasttokenload.ToString();
-                        if (ovact!=null) overlayactive = Convert.ToBoolean(ovact.ToString());
+                        if (ovact != null) overlayactive = Convert.ToBoolean(ovact.ToString());
 
                         Dispatcher.BeginInvoke(new ThreadStart(delegate
                         {
@@ -331,12 +331,12 @@ namespace MTGApro
                             object pt = RkApp.GetValue("parsedtill");
                             parsedtill = Double.Parse(RkApp.GetValue("parsedtill").ToString());
                         }
-                        catch(Exception)
+                        catch (Exception)
                         {
                             parsedtill = 0;
                         }
 
-                        foreach (var crd in Utokens)
+                        foreach (KeyValuePair<string, string> crd in Utokens)
                         {
                             if (crd.Value == Usertoken) ouruid = crd.Key;
                         }
@@ -366,10 +366,10 @@ namespace MTGApro
                 string tokens = Newtonsoft.Json.JsonConvert.SerializeObject(Utokens);
                 //File.WriteAllText(@"dbg", ids);
 
-                RegistryKey RkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\\MTGAProtracker",true);
+                RegistryKey RkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\\MTGAProtracker", true);
                 if (RkApp == null)
                 {
-                    RkApp = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\\MTGAProtracker",true);
+                    RkApp = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\\MTGAProtracker", true);
                 }
 
                 RkApp.SetValue("parsedtill", parsedtill.ToString());
@@ -405,9 +405,9 @@ namespace MTGApro
             int col = frame.GetFileColumnNumber();
             string func = frame.GetMethod().Name;
             string file = frame.GetFileName();
-            
-            Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", e.Message+"///"+e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + e.TargetSite+"///"+ Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor+"///"+ e.ToString() } };
-            var responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), report);
+
+            Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", e.Message + "///" + e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + e.TargetSite + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor + "///" + e.ToString() } };
+            string responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), report);
             if (responseString == "ERRCONN")
             {
                 try
@@ -427,7 +427,7 @@ namespace MTGApro
             {
                 try
                 {
-                    var info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(responseString);
+                    Response info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(responseString);
                     if (info.Status != @"ok")
                     {
                         try
@@ -484,8 +484,8 @@ namespace MTGApro
                     requestStream.Close();
                 }
 
-                var response = (HttpWebResponse)httpWebRequest.GetResponse();
-                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                HttpWebResponse response = (HttpWebResponse)httpWebRequest.GetResponse();
+                string responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
                 response.Close();
                 return responseString;
             }
@@ -504,7 +504,7 @@ namespace MTGApro
                 Stream formDataStream = new MemoryStream();
                 bool needsCLRF = false;
 
-                foreach (var param in postParameters)
+                foreach (KeyValuePair<string, object> param in postParameters)
                 {
                     // Thanks to feedback from commenters, add a CRLF to allow multiple parameters to be added.
                     // Skip it on the first parameter, add it to subsequent parameters.
@@ -572,10 +572,10 @@ namespace MTGApro
 
                 path += @"\AppData\LocalLow\Wizards Of The Coast\MTGA\" + (dir ? @"" : @"output_log.txt");
             }
-            else 
+            else
             {
                 path = appsettings.Path;
-                if (dir) path=path.Replace(@"output_log.txt","");
+                if (dir) path = path.Replace(@"output_log.txt", "");
             }
 
             return path;
@@ -622,10 +622,10 @@ namespace MTGApro
                         {
                             if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 || line.IndexOf(@"[Client GRE]") > -1)
                             {
-                                 strdate = line;
+                                strdate = line;
                             }
 
-                            if (line.IndexOf("\"playerId\":") > -1 && line.IndexOf("null") == -1 && playerId=="")
+                            if (line.IndexOf("\"playerId\":") > -1 && line.IndexOf("null") == -1 && playerId == "")
                             {
                                 playerId = Cut(line, "\"playerId\": \"", "\"", false);
                             }
@@ -658,7 +658,7 @@ namespace MTGApro
                                 TheMatch.Hasnewdata = true;
                             }
 
-                        if (nowriting==-1)
+                            if (nowriting == -1)
                             {
                                 for (int j = 0; j < indicators.Length; j++)
                                 {
@@ -693,7 +693,7 @@ namespace MTGApro
 
                                             }
                                             else
-                                            { 
+                                            {
                                                 Showmsg(Colors.Red, @"Can't parse date from log! Please contact admin@mtgarena.pro", @"CLR", false, @"attention");
                                                 ToastShowCheck(@"Can't parse date from log! Please contact admin@mtgarena.pro");
                                             }
@@ -712,9 +712,9 @@ namespace MTGApro
 
                                         if (!indicators[j].Addup)
                                         {
-                                            foreach (var b in builders)
+                                            foreach (KeyValuePair<double, StringBuilder[]> b in builders)
                                             {
-                                                if (b.Value[j].Length>0)
+                                                if (b.Value[j].Length > 0)
                                                 {
                                                     builders[b.Key][j].Length = 0;
                                                 }
@@ -724,7 +724,7 @@ namespace MTGApro
                                         if (!builders.ContainsKey(timestamp))
                                         {
                                             builders.Add(timestamp, new StringBuilder[indicators.Length]);
-                                            for(int index = 0; index < indicators.Length; ++index)
+                                            for (int index = 0; index < indicators.Length; ++index)
                                             {
                                                 builders[timestamp][index] = new StringBuilder();
                                             }
@@ -746,7 +746,7 @@ namespace MTGApro
                                             lll = builders[timestamp][j].Length;
                                         }
                                         //builders[timestamp][j].Length=0;
-                                        
+
                                         nowriting = j;
 
                                         if (line.IndexOf(@"{") > -1)
@@ -793,7 +793,7 @@ namespace MTGApro
                                     bracketssq--;
                                 }
 
-                                if (brackets==0 && bracketssq==0)
+                                if (brackets == 0 && bracketssq == 0)
                                 {
                                     if (line.IndexOf(indicators[nowriting].Stopper) == -1)
                                     {
@@ -847,13 +847,14 @@ namespace MTGApro
                                 // if (output.Value[index].ToString() != @"") File.WriteAllText(@"parsed"+ output.Key + @"_" + index, output.Value[index].ToString());
                             }
 
-                            int[] orderofactions = new int[] { 2, 4, 13, 16, 5, 7, 9, 18};
-                            
+                            int[] orderofactions = new int[] { 2, 4, 13, 16, 5, 7, 9, 18 };
+
                             //Partial local data parsing if overlay is active and needs updates
 
                             if (!juststarted && overlayactive)
                             {
-                                foreach (var index in orderofactions) {
+                                foreach (int index in orderofactions)
+                                {
                                     if (index == 4 && parsed[output.Key][index] != @"")
                                     {
                                         try
@@ -861,7 +862,7 @@ namespace MTGApro
                                             dynamic stuff = JObject.Parse(parsed[output.Key][index]);
                                             if (stuff.matchGameRoomStateChangedEvent.gameRoomInfo.stateType == @"MatchGameRoomStateType_Playing")
                                             {
-                                                var resplay = stuff.matchGameRoomStateChangedEvent.gameRoomInfo.gameRoomConfig.reservedPlayers;
+                                                dynamic resplay = stuff.matchGameRoomStateChangedEvent.gameRoomInfo.gameRoomConfig.reservedPlayers;
                                                 for (int irp = 0; irp < resplay.Count; irp++)
                                                 {
                                                     if (resplay[irp].userId == playerId)
@@ -880,7 +881,7 @@ namespace MTGApro
                                                 TheMatch.DraftPack = 0;
                                                 TheMatch.Timers = new Dictionary<int, int>() { { 1, 0 }, { 2, 0 } };
                                             }
-                                            else if(stuff.matchGameRoomStateChangedEvent.gameRoomInfo.stateType == @"MatchGameRoomStateType_MatchCompleted")
+                                            else if (stuff.matchGameRoomStateChangedEvent.gameRoomInfo.stateType == @"MatchGameRoomStateType_MatchCompleted")
                                             {
                                                 TheMatch.IsFighting = false;
                                             }
@@ -1100,7 +1101,8 @@ namespace MTGApro
         {
             if (!blkmsg)
             {
-                Dispatcher.BeginInvoke(new ThreadStart(delegate {
+                Dispatcher.BeginInvoke(new ThreadStart(delegate
+                {
                     Status_light.Fill = new SolidColorBrush(color);
                     Status_light.Visibility = Visibility.Visible;
                     Status_msg.Text = msg;
@@ -1112,7 +1114,8 @@ namespace MTGApro
                 if (msgupl != @"" && msgupl != @"CLR")
                 {
                     Dispatcher.BeginInvoke(new ThreadStart(delegate { Status_lastupl.Text = msgupl; }));
-                }else if (msgupl==@"CLR")
+                }
+                else if (msgupl == @"CLR")
                 {
                     Dispatcher.BeginInvoke(new ThreadStart(delegate { Status_lastupl.Text = @""; }));
                 }
@@ -1129,8 +1132,8 @@ namespace MTGApro
             Regex rgx = new Regex("([^0-9]*)([0-9]+)");
             Array.Sort(ar, (a, b) =>
             {
-                var ma = rgx.Matches(a);
-                var mb = rgx.Matches(b);
+                MatchCollection ma = rgx.Matches(a);
+                MatchCollection mb = rgx.Matches(b);
                 for (int i = 0; i < ma.Count; ++i)
                 {
                     int ret = ma[i].Groups[1].Value.CompareTo(mb[i].Groups[1].Value);
@@ -1147,7 +1150,7 @@ namespace MTGApro
         }
 
         //Handling log sending and local storage (if needed)
-        public void Sendlog(Dictionary<string, object> requestdict, bool juststash=false)
+        public void Sendlog(Dictionary<string, object> requestdict, bool juststash = false)
         {
             try
             {
@@ -1159,14 +1162,14 @@ namespace MTGApro
                     if (files.Length > 0)
                     {
                         NumericalSort(files);
-                        var n = 0;
+                        int n = 0;
                         uploadingfromstash = true;
 
                         foreach (string f in files)
                         {
                             try
                             {
-                                var lrd = Loadfromstorage(f);
+                                Dictionary<string, object> lrd = Loadfromstorage(f);
                                 Dispatcher.BeginInvoke(new ThreadStart(delegate
                                 {
                                     Uplprogress.Maximum = files.Length;
@@ -1192,7 +1195,7 @@ namespace MTGApro
                                     break;
                                 }
                             }
-                            catch(Exception ee)
+                            catch (Exception ee)
                             {
                                 ErrReport(ee);
                             }
@@ -1232,7 +1235,8 @@ namespace MTGApro
                 return true;
             }
 
-            if (requestdict.ContainsKey(@"version")) {
+            if (requestdict.ContainsKey(@"version"))
+            {
                 if (Int32.Parse(requestdict[@"version"].ToString()) != version)
                 {
                     return true;
@@ -1243,13 +1247,13 @@ namespace MTGApro
                 return true;
             }
 
-            if (requestdict.Count > (chunk+8))
+            if (requestdict.Count > (chunk + 8))
             {
                 int sparsecounter = 0;
                 int elemcounter = 0;
-                Dictionary<string, object> requestdictsparse=new Dictionary<string, object>();
+                Dictionary<string, object> requestdictsparse = new Dictionary<string, object>();
 
-                foreach (var pair in requestdict)
+                foreach (KeyValuePair<string, object> pair in requestdict)
                 {
                     if (elemcounter == 0)
                     {
@@ -1268,7 +1272,7 @@ namespace MTGApro
 
                     if (pair.Key.IndexOf(@"cm_uploadpack[") > -1)
                     {
-                        requestdictsparse.Add(pair.Key,pair.Value);
+                        requestdictsparse.Add(pair.Key, pair.Value);
                         ++elemcounter;
                     }
 
@@ -1308,7 +1312,7 @@ namespace MTGApro
             {
                 try
                 {
-                    var info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(upload);
+                    Response info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(upload);
                     if (info.Status == @"ok")
                     {
                         if (fromstash)
@@ -1319,36 +1323,37 @@ namespace MTGApro
                         {
                             Showmsg(Colors.Green, @"Game info found.", @"Last upload: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
                         }
-                            
+
                         chunk = info.Chunk;
                         upltimerOverride = info.Timer;
 
-                    if (info.Data == "restart")
-                    {
-                        ni.Visible = false;
-                        ni.Dispose();
-                        Process.Start(Application.ResourceAssembly.Location, "restarting");
-                        Environment.Exit(0);
-                    }
-                    else if(info.Data == "has_update" && !fromstash)
-                    {
-                        if (!updatenotified)
+                        if (info.Data == "restart")
                         {
-                            updatenotified = true;
+                            ni.Visible = false;
+                            ni.Dispose();
+                            Process.Start(Application.ResourceAssembly.Location, "restarting");
+                            Environment.Exit(0);
+                        }
+                        else if (info.Data == "has_update" && !fromstash)
+                        {
+                            if (!updatenotified)
+                            {
+                                updatenotified = true;
+                                Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                {
+                                    Updater.Visibility = Visibility.Visible;
+                                    ToastShowCheck("Update of MTGA Pro Tracker is ready to be installed!");
+                                }));
+                            }
+                        }
+                        else if (info.Data == "has_message" && !fromstash)
+                        {
                             Dispatcher.BeginInvoke(new ThreadStart(delegate
                             {
-                                Updater.Visibility = Visibility.Visible;
-                                ToastShowCheck("Update of MTGA Pro Tracker is ready to be installed!");
+                                Messenger.Visibility = Visibility.Visible;
+                                ToastShowCheck(@"You've got new notification!");
                             }));
                         }
-                    }
-                    else if (info.Data == "has_message" && !fromstash)
-                    {
-                        Dispatcher.BeginInvoke(new ThreadStart(delegate {
-                            Messenger.Visibility = Visibility.Visible;
-                            ToastShowCheck(@"You've got new notification!");
-                        }));
-                    }
 
                         return true;
                     }
@@ -1377,7 +1382,7 @@ namespace MTGApro
 
         //Saving logs to local storage for futher commit
 
-        public void Savetostorage(Dictionary<string, object> dictionary,int sparse=0)
+        public void Savetostorage(Dictionary<string, object> dictionary, int sparse = 0)
         {
             try
             {
@@ -1393,7 +1398,7 @@ namespace MTGApro
                     // Put count.
                     writer.Write(dictionary.Count);
                     // Write pairs.
-                    foreach (var pair in dictionary)
+                    foreach (KeyValuePair<string, object> pair in dictionary)
                     {
                         writer.Write(pair.Key);
                         if (pair.Value is String)
@@ -1418,7 +1423,7 @@ namespace MTGApro
         {
             try
             {
-                var result = new Dictionary<string, object>();
+                Dictionary<string, object> result = new Dictionary<string, object>();
 
                 using (FileStream fs = File.OpenRead(f))
                 using (BinaryReader reader = new BinaryReader(fs))
@@ -1455,7 +1460,7 @@ namespace MTGApro
         {
             try
             {
-                var indic= MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getindicators" }, { @"cm_init", version.ToString() } });
+                string indic = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getindicators" }, { @"cm_init", version.ToString() } });
                 if (indic != @"ERRCONN")
                 {
                     indicators = Newtonsoft.Json.JsonConvert.DeserializeObject<Parser[]>(indic);
@@ -1478,17 +1483,17 @@ namespace MTGApro
         {
             try
             {
-                var checkver = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_init" }, { @"cm_init", version.ToString() } });
+                string checkver = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_init" }, { @"cm_init", version.ToString() } });
 
                 if (checkver != @"")
                 {
-                    var info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(checkver);
+                    Response info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(checkver);
                     if (info != null)
                     {
                         Dispatcher.BeginInvoke(new ThreadStart(delegate
                         {
-                            var decver = Math.Round(Convert.ToDouble(version / 10));
-                            var onever = version % 10;
+                            double decver = Math.Round(Convert.ToDouble(version / 10));
+                            int onever = version % 10;
                             Version.Text = @"v.1." + Convert.ToString(decver) + @"." + Convert.ToString(onever);
                         }));
 
@@ -1499,7 +1504,7 @@ namespace MTGApro
                         {
                             Dispatcher.BeginInvoke(new ThreadStart(delegate
                             {
-                                Updater.Visibility= Visibility.Visible;
+                                Updater.Visibility = Visibility.Visible;
                                 ToastShowCheck("Update of MTGA Pro Tracker is ready to be installed!");
                                 Version.Text = @"";
                             }));
@@ -1524,12 +1529,14 @@ namespace MTGApro
                 if (File.Exists(GenPath(false)) && Usertoken != null)
                 {
                     Showmsg(Colors.YellowGreen, @"Reading log...", @"", false, @"icon" + appsettings.Icon.ToString());
-                    Dispatcher.BeginInvoke(new ThreadStart(delegate {
+                    Dispatcher.BeginInvoke(new ThreadStart(delegate
+                    {
                         Resyncbut.IsEnabled = false;
                         Scanbut.IsEnabled = false;
                     }));
                     ParseLog();
-                    Dispatcher.BeginInvoke(new ThreadStart(delegate {
+                    Dispatcher.BeginInvoke(new ThreadStart(delegate
+                    {
                         Resyncbut.IsEnabled = true;
                         Scanbut.IsEnabled = true;
                     }));
@@ -1545,7 +1552,7 @@ namespace MTGApro
                         runtime = Convert.ToInt32(tmstmp());
                     }
 
-                    Dictionary<string, object> requestdict = new Dictionary<string, object> { { @"cmd", @"cm_uploadpackfile" }, { @"uid", ouruid }, { @"token", Usertoken }, { @"version", version.ToString() }, { @"runtime", gamerunningtimer.ToString() },{@"currentmatch", TheMatch.Matchid } };
+                    Dictionary<string, object> requestdict = new Dictionary<string, object> { { @"cmd", @"cm_uploadpackfile" }, { @"uid", ouruid }, { @"token", Usertoken }, { @"version", version.ToString() }, { @"runtime", gamerunningtimer.ToString() }, { @"currentmatch", TheMatch.Matchid } };
 
                     if (ParsedCreds.ContainsKey(@"screenName"))
                     {
@@ -1582,7 +1589,7 @@ namespace MTGApro
                                 playerswith = true;
                                 needtoken = true;
 
-                                foreach (var tkn in Credentials)
+                                foreach (KeyValuePair<string, string> tkn in Credentials)
                                 {
                                     if (tkn.Value == mtgauid && ouruid != tkn.Key)
                                     {
@@ -1591,7 +1598,7 @@ namespace MTGApro
 
                                         Dispatcher.BeginInvoke(new ThreadStart(delegate
                                         {
-                                        /*Token.Content = selnick;*/
+                                            /*Token.Content = selnick;*/
                                             Token_msg.Text = @"Detected user: ";
                                             TokenInput.Text = Usertoken;
                                         }));
@@ -1625,7 +1632,7 @@ namespace MTGApro
                                 {
                                     if (indicators[j].Send && ((manualresync && indicators[j].Addup) || (writing.Key > parsedtill && (indicators[j].Addup || (!indicators[j].Addup && writing.Value[j] != hashes[j])))) && (indicators[j].Needtohave == @"" || writing.Value[j].IndexOf(indicators[j].Needtohave) > -1))
                                     {
-                                        requestdict.Add(@"cm_uploadpack["+writing.Key+"][" + j.ToString() + "]", Zip(writing.Value[j]));
+                                        requestdict.Add(@"cm_uploadpack[" + writing.Key + "][" + j.ToString() + "]", Zip(writing.Value[j]));
                                         /*requestdict.Add(@"cm_matchespack[" + writing.Key + "][matchid]", Zip(writing.Value[j]));
                                         requestdict.Add(@"cm_matchespack[" + writing.Key + "][turn]", Zip(writing.Value[j]));
                                         requestdict.Add(@"cm_matchespack[" + writing.Key + "][descision]", Zip(writing.Value[j]));*/
@@ -1641,7 +1648,7 @@ namespace MTGApro
 
                         parsedtill = lastime;
 
-                        foreach (var del in todelete)
+                        foreach (double del in todelete)
                         {
                             parsed.Remove(del);
                         }
@@ -1678,7 +1685,7 @@ namespace MTGApro
                         Showmsg(Colors.Yellow, @"Another MTGA User! Switching tokens...", @"CLR", false, @"attention");
                         //ToastShowCheck(@"Another MTGA User! Awaiting different Token");
                     }
-                    
+
                     else if (Usertoken == null)
                     {
                         Showmsg(Colors.Red, @"No valid user token installed!", @"CLR", false, @"attention");
@@ -1690,7 +1697,7 @@ namespace MTGApro
                         ToastShowCheck(@"Game info NOT found!");
                     }
                 }
-                
+
             }
             catch (Exception ee)
             {
@@ -1698,7 +1705,7 @@ namespace MTGApro
             }
         }
 
-        
+
 
         public delegate void ToastShow(string msg);
 
@@ -1777,10 +1784,10 @@ namespace MTGApro
             }
             else
             {*/
-                ni.BalloonTipTitle = "MTGA Pro Tracker";
-                ni.BalloonTipText = msg;
-                ni.ShowBalloonTip(20000);
-           /* }*/
+            ni.BalloonTipTitle = "MTGA Pro Tracker";
+            ni.BalloonTipText = msg;
+            ni.ShowBalloonTip(20000);
+            /* }*/
         }
 
         public MainWindow()
@@ -1842,7 +1849,7 @@ namespace MTGApro
                     WindowState = WindowState.Normal;
                 };
 
-            var cm = new System.Windows.Forms.ContextMenu();
+            System.Windows.Forms.ContextMenu cm = new System.Windows.Forms.ContextMenu();
             System.Windows.Forms.MenuItem[] menuitems = { new System.Windows.Forms.MenuItem("Open App"), new System.Windows.Forms.MenuItem(@"-"), new System.Windows.Forms.MenuItem(@"My Decks"), new System.Windows.Forms.MenuItem(@"My Collection"), new System.Windows.Forms.MenuItem(@"My Progress"), new System.Windows.Forms.MenuItem(@"My Matches"), new System.Windows.Forms.MenuItem(@"Deckbuilder"), new System.Windows.Forms.MenuItem(@"Deck Converter"), new System.Windows.Forms.MenuItem(@"Deck List Browser"), new System.Windows.Forms.MenuItem(@"-"), new System.Windows.Forms.MenuItem(@"Exit") };
 
             menuitems[0].Click += delegate (object sender, EventArgs args)
@@ -1951,7 +1958,7 @@ namespace MTGApro
                             {
                                 string[] enemies = { "LotusTracker", "MTGATracker", "MTG-Arena-Tool", "MTG Arena Tool" };
                                 bool warn = false;
-                                for (var i = 0; i < enemies.Length; i++)
+                                for (int i = 0; i < enemies.Length; i++)
                                 {
                                     Process[] enemylocator = Process.GetProcessesByName(enemies[i]);
                                     if (enemylocator.Length > 1)
@@ -1972,7 +1979,7 @@ namespace MTGApro
 
                             Dispatcher.BeginInvoke(new ThreadStart(delegate
                             {
-                                var activatedHandle = GetForegroundWindow();
+                                IntPtr activatedHandle = GetForegroundWindow();
                                 gamefocused = false;
 
                                 WindowInteropHelper wih = new WindowInteropHelper(win4);
@@ -2082,7 +2089,7 @@ namespace MTGApro
                             }
 
 
-                            if (indicators!=null)
+                            if (indicators != null)
                             {
                                 if (!playerswith)
                                 {
@@ -2115,7 +2122,7 @@ namespace MTGApro
         //Checking token
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var textBox = sender as TextBox;
+            TextBox textBox = sender as TextBox;
             tokeninput = textBox.Text;
 
             if (!workerloader.IsBusy)
@@ -2126,7 +2133,7 @@ namespace MTGApro
 
         private void Workerloader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (!worker.IsBusy && Usertoken!=@"" && Usertoken != null)
+            if (!worker.IsBusy && Usertoken != @"" && Usertoken != null)
             {
                 Showmsg(Colors.Green, @"Monitoring is OK.", @"", false, @"icon" + appsettings.Icon.ToString());
                 worker.RunWorkerAsync();
@@ -2141,23 +2148,25 @@ namespace MTGApro
             DateTime currentDate = DateTime.Now;
             string currentOffset = localZone.GetUtcOffset(currentDate).TotalSeconds.ToString();
 
-            var responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_userbytokenid" }, { @"cm_userbytokenid", tokeninput }, { @"version", version.ToString() }, { @"usertime", currentOffset } });
+            string responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_userbytokenid" }, { @"cm_userbytokenid", tokeninput }, { @"version", version.ToString() }, { @"usertime", currentOffset } });
             if (responseString != @"ERRCONN")
             {
-                var info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(responseString);
-            
+                Response info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(responseString);
+
                 if (info != null)
                 {
                     if (info.Status == "NO_USER")
                     {
-                        Dispatcher.BeginInvoke(new ThreadStart(delegate {Token_msg.Text = @"User not found. Check your token";
+                        Dispatcher.BeginInvoke(new ThreadStart(delegate
+                        {
+                            Token_msg.Text = @"User not found. Check your token";
                             Token_msg.Width = 200;
                             Token.Content = "";
                             Stream iconStream = Application.GetResourceStream(new Uri(@"pack://application:,,,/Resources/attention.ico")).Stream;
                             Icon = new BitmapImage(new Uri(@"pack://application:,,,/Resources/attention.ico"));
                             ni.Icon = new System.Drawing.Icon(iconStream);
                         }));
-                        Usertoken="";
+                        Usertoken = "";
                         ouruid = "";
                     }
                     else if (info.Status == "DO_RESET")
@@ -2193,9 +2202,11 @@ namespace MTGApro
                             Environment.Exit(0);
                         }
                     }
-                    else if(info.Status == "BAD_TOKEN")
+                    else if (info.Status == "BAD_TOKEN")
                     {
-                        Dispatcher.BeginInvoke(new ThreadStart(delegate {Token_msg.Text = @"Check your token";
+                        Dispatcher.BeginInvoke(new ThreadStart(delegate
+                        {
+                            Token_msg.Text = @"Check your token";
                             Token_msg.Width = 200;
                             Token.Content = "";
                             Stream iconStream = Application.GetResourceStream(new Uri(@"pack://application:,,,/Resources/attention.ico")).Stream;
@@ -2208,10 +2219,10 @@ namespace MTGApro
                     {
                         Usertoken = tokeninput;
                         ouruid = info.Data;
-                        if(!Utokens.ContainsKey(ouruid))
+                        if (!Utokens.ContainsKey(ouruid))
                         {
                             Utokens.Add(ouruid, Usertoken);
-                            if (mtgauid!="")
+                            if (mtgauid != "")
                             {
                                 Usermtgaid.Add(ouruid, mtganick);
                                 Credentials.Add(ouruid, mtgauid);
@@ -2221,11 +2232,12 @@ namespace MTGApro
                         {
                             Utokens[ouruid] = Usertoken;
                         }
-                        
+
                         SetAppData();
                         playerswith = false;
 
-                        Dispatcher.BeginInvoke(new ThreadStart(delegate {
+                        Dispatcher.BeginInvoke(new ThreadStart(delegate
+                        {
                             Token.Content = info.Status;
                             Token_msg.Width = 103;
                             Token.Width = 163;
@@ -2233,13 +2245,14 @@ namespace MTGApro
                             Stream iconStream = Application.GetResourceStream(new Uri(@"pack://application:,,,/Resources/icon" + appsettings.Icon + ".ico")).Stream;
                             Icon = new BitmapImage(new Uri(@"pack://application:,,,/Resources/icon" + appsettings.Icon + ".ico"));
                             ni.Icon = new System.Drawing.Icon(iconStream);
-                        }));                      
+                        }));
                     }
                 }
             }
             else
             {
-                Dispatcher.BeginInvoke(new ThreadStart(delegate {
+                Dispatcher.BeginInvoke(new ThreadStart(delegate
+                {
                     Token_msg.Text = @"Error validating token";
                     Token_msg.Width = 200;
                     Token.Content = "";
@@ -2275,7 +2288,7 @@ namespace MTGApro
             base.OnStateChanged(e);
         }
 
-       
+
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
@@ -2321,9 +2334,9 @@ namespace MTGApro
                 ni.Visible = false;
                 ni.Dispose();
                 Process.Start(Application.ResourceAssembly.Location, "restarting");
-                Environment.Exit(0);                
+                Environment.Exit(0);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 MessageBox.Show("There is no app data stored, so no need to do reset!");
             }
@@ -2448,7 +2461,7 @@ namespace MTGApro
                 dlg.InitialDirectory = path;
             }
 
-            var result = dlg.ShowDialog();
+            bool? result = dlg.ShowDialog();
 
 
             // Get the selected file name and display in a TextBox 
@@ -2511,12 +2524,12 @@ namespace MTGApro
                 RkApp = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\\MTGAProtracker", true);
             }
 
-            var attempts = RkApp.GetValue("attempts").ToString();
+            string attempts = RkApp.GetValue("attempts").ToString();
             int at = 0;
             if (attempts != null)
             {
                 at = Int32.Parse(attempts);
-            } 
+            }
 
             if (at <= 3)
             {
