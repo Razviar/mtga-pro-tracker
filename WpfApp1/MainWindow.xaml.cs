@@ -45,7 +45,7 @@ namespace MTGApro
         public static long loglen = 0;
         public static bool isrestarting = false;
         public static string tokeninput = "";
-        public static int version = 66;
+        public static int version = 67;
         public static bool hasnewmessage = false;
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
@@ -82,6 +82,8 @@ namespace MTGApro
         public static readonly Encoding encoding = Encoding.UTF8;
         public static string errreport = @"";
         public static bool uploadingfromstash = false;
+        public static double lastime = 0;
+        public static bool errupload = false;
 
         //-----
         public static Curmatch TheMatch = new Curmatch();
@@ -413,14 +415,10 @@ namespace MTGApro
                 try
                 {
                     File.WriteAllText(@"upload_err_log.txt", Newtonsoft.Json.JsonConvert.SerializeObject(report));
-                    MessageBox.Show("Hi! App just crashed and we were unable to send automated report. Please send it manually to admin@mtgarena.pro. You can find upload_err_log.txt file in the app instalattion folder. Thanks for your help!");
                 }
                 catch (Exception)
                 {
-                    errreport = Newtonsoft.Json.JsonConvert.SerializeObject(report);
-                    MessageBox.Show("Hi! App just crashed and we were unable to send automated report. Moreover, you PC didn't let us to save report into the file. So please send it manually to admin@mtgarena.pro. You will see raw erorr report in the new window. Thanks for your help!");
-                    WindowErr windowErr = new WindowErr();
-                    windowErr.Show();
+                    
                 }
             }
             else
@@ -433,31 +431,16 @@ namespace MTGApro
                         try
                         {
                             File.WriteAllText(@"upload_err_log.txt", Newtonsoft.Json.JsonConvert.SerializeObject(report));
-                            MessageBox.Show("Hi! App just crashed and we were unable to send automated report. Please send it manually to admin@mtgarena.pro. You can find upload_err_log.txt file in the app instalattion folder. Thanks for your help!");
                         }
                         catch (Exception)
                         {
-                            errreport = Newtonsoft.Json.JsonConvert.SerializeObject(report);
-                            MessageBox.Show("Hi! App just crashed and we were unable to send automated report. Moreover, you PC didn't let us to save report into the file. So please send it manually to admin@mtgarena.pro. You will see raw erorr report in the new window. Thanks for your help!");
-                            WindowErr windowErr = new WindowErr();
-                            windowErr.Show();
+                            
                         }
                     }
                 }
                 catch (Exception)
                 {
-                    try
-                    {
-                        File.WriteAllText(@"upload_err_log.txt", Newtonsoft.Json.JsonConvert.SerializeObject(report));
-                        MessageBox.Show("Hi! App just crashed and we were unable to send automated report. Please send it manually to admin@mtgarena.pro. You can find upload_err_log.txt file in the app instalattion folder. Thanks for your help!");
-                    }
-                    catch (Exception)
-                    {
-                        errreport = Newtonsoft.Json.JsonConvert.SerializeObject(report);
-                        MessageBox.Show("Hi! App just crashed and we were unable to send automated report. Moreover, you PC didn't let us to save report into the file. So please send it manually to admin@mtgarena.pro. You will see raw erorr report in the new window. Thanks for your help!");
-                        WindowErr windowErr = new WindowErr();
-                        windowErr.Show();
-                    }
+                    
                 }
             }
         }
@@ -489,7 +472,7 @@ namespace MTGApro
                 response.Close();
                 return responseString;
             }
-            catch (Exception ee)
+            catch (Exception)
             {
                 //ErrReport(ee);
                 return "ERRCONN";
@@ -593,12 +576,10 @@ namespace MTGApro
                     if (juststarted || logFileStream.Length < loglen)
                     {
                         logFileStream.Position = 0;
-                        loglen = logFileStream.Length;
                     }
                     else if (logFileStream.Length >= loglen)
                     {
                         logFileStream.Position = loglen;
-                        loglen = logFileStream.Length;
                     }
 
                     //loglen = 0;
@@ -620,7 +601,16 @@ namespace MTGApro
 
                         while ((line = logFileReader.ReadLine()) != null)
                         {
-                            if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 || line.IndexOf(@"[Client GRE]") > -1)
+                            if (builders.Count <= chunk)
+                            {
+                                loglen = logFileStream.Position;
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                                if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 || line.IndexOf(@"[Client GRE]") > -1)
                             {
                                 strdate = line;
                             }
@@ -675,16 +665,15 @@ namespace MTGApro
                                                 strdate = Cut(strdate, @"]", @": ", false);
                                             }
 
+                                            strdate = strdate.Replace("a. m.", "AM");
+                                            strdate = strdate.Replace("p. m.", "PM");
+                                            strdate = strdate.Replace("a.m.", "AM");
+                                            strdate = strdate.Replace("p.m.", "PM");
+
                                             DateTime d = new DateTime();
-                                            if (DateTime.TryParseExact(strdate, "M/d/yyyy h:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
-                                            {
+                                            string[] formats = { "M/d/yyyy h:mm:ss tt", "dd/MM/yyyy HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "d/M/yyyy h:mm:ss tt" };
 
-                                            }
-                                            else if (DateTime.TryParseExact(strdate, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
-                                            {
-
-                                            }
-                                            else if (DateTime.TryParseExact(strdate, "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
+                                            if (DateTime.TryParseExact(strdate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
                                             {
 
                                             }
@@ -692,10 +681,13 @@ namespace MTGApro
                                             {
 
                                             }
+                                            else if (DateTime.TryParse(strdate, out d))
+                                            {
+
+                                            }
                                             else
                                             {
-                                                Showmsg(Colors.Red, @"Can't parse date from log! Please contact admin@mtgarena.pro", @"CLR", false, @"attention");
-                                                ToastShowCheck(@"Can't parse date from log! Please contact admin@mtgarena.pro");
+                                                continue;
                                             }
                                             double tst = ConvertToUnixTimestamp(d);
                                             if (laststamp != tst)
@@ -1150,162 +1142,20 @@ namespace MTGApro
         }
 
         //Handling log sending and local storage (if needed)
-        public void Sendlog(Dictionary<string, object> requestdict, bool juststash = false)
-        {
-            try
-            {
-                string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"MTGAproTracker");
-                if (Directory.Exists(path))
-                {
-                    string[] files = Directory.GetFiles(path, "storage*.mtg");
-
-                    if (files.Length > 0)
-                    {
-                        NumericalSort(files);
-                        int n = 0;
-                        uploadingfromstash = true;
-
-                        foreach (string f in files)
-                        {
-                            try
-                            {
-                                Dictionary<string, object> lrd = Loadfromstorage(f);
-                                Dispatcher.BeginInvoke(new ThreadStart(delegate
-                                {
-                                    Uplprogress.Maximum = files.Length;
-                                    Uplprogress.Visibility = Visibility.Visible;
-                                    Resyncbut.IsEnabled = false;
-                                    Scanbut.IsEnabled = false;
-                                }));
-                                n++;
-                                if (lrd == null)
-                                {
-                                    File.Delete(f);
-                                }
-                                else if (Dispatchlog(lrd, true))
-                                {
-                                    File.Delete(f);
-                                    Dispatcher.BeginInvoke(new ThreadStart(delegate
-                                    {
-                                        Uplprogress.Value = n;
-                                    }));
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                            catch (Exception ee)
-                            {
-                                ErrReport(ee);
-                            }
-                            Thread.Sleep(1000);
-                        }
-                        uploadingfromstash = false;
-
-                        Dispatcher.BeginInvoke(new ThreadStart(delegate
-                        {
-                            Uplprogress.Visibility = Visibility.Hidden;
-                            Resyncbut.IsEnabled = true;
-                            Scanbut.IsEnabled = true;
-                        }));
-                        Showmsg(Colors.Green, @"Upload complete!", @"Last upload: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
-                    }
-                }
-
-                //requestdict.Add(@"generror", "500");
-                if (!juststash)
-                {
-                    Dispatchlog(requestdict, false);
-                }
-
-            }
-            catch (Exception ee)
-            {
-                ErrReport(ee);
-            }
-        }
+        
 
         //Committing log sparses to server
 
-        public bool Dispatchlog(Dictionary<string, object> requestdict, bool fromstash)
+        public bool Dispatchlog(Dictionary<string, object> requestdict)
         {
             if (requestdict == null)
             {
                 return true;
             }
 
-            if (requestdict.ContainsKey(@"version"))
-            {
-                if (Int32.Parse(requestdict[@"version"].ToString()) != version)
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                return true;
-            }
-
-            if (requestdict.Count > (chunk + 8))
-            {
-                int sparsecounter = 0;
-                int elemcounter = 0;
-                Dictionary<string, object> requestdictsparse = new Dictionary<string, object>();
-
-                foreach (KeyValuePair<string, object> pair in requestdict)
-                {
-                    if (elemcounter == 0)
-                    {
-                        if (!requestdictsparse.ContainsKey(@"cmd"))
-                        {
-                            requestdictsparse.Add(@"cmd", requestdict[@"cmd"]);
-                            requestdictsparse.Add(@"uid", requestdict[@"uid"]);
-                            requestdictsparse.Add(@"token", requestdict[@"token"]);
-                            requestdictsparse.Add(@"version", requestdict[@"version"]);
-                            requestdictsparse.Add(@"mtganick", requestdict[@"mtganick"]);
-                            requestdictsparse.Add(@"mtgauid", requestdict[@"mtgauid"]);
-                            requestdictsparse.Add(@"language", requestdict[@"language"]);
-                            requestdictsparse.Add(@"setdate", requestdict[@"setdate"]);
-                        }
-                    }
-
-                    if (pair.Key.IndexOf(@"cm_uploadpack[") > -1)
-                    {
-                        requestdictsparse.Add(pair.Key, pair.Value);
-                        ++elemcounter;
-                    }
-
-                    if (elemcounter == chunk)
-                    {
-                        Savetostorage(requestdictsparse, sparsecounter);
-                        requestdictsparse.Clear();
-                        elemcounter = 0;
-                        ++sparsecounter;
-                    }
-                }
-
-                if (requestdictsparse.Count > 0)
-                {
-                    Savetostorage(requestdictsparse, sparsecounter);
-                    requestdictsparse.Clear();
-                    elemcounter = 0;
-                    ++sparsecounter;
-                }
-
-                Showmsg(Colors.Orange, @"Big log. Sparses: " + sparsecounter, @"Saved locally: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
-                Sendlog(null, true);
-                return true;
-            }
-
             string upload = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), requestdict);
             if (upload == "ERRCONN")
             {
-                if (!fromstash)
-                {
-                    Savetostorage(requestdict);
-                    Showmsg(Colors.Orange, @"Game info found", @"Saved locally: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
-                }
                 return false;
             }
             else
@@ -1315,15 +1165,8 @@ namespace MTGApro
                     Response info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(upload);
                     if (info.Status == @"ok")
                     {
-                        if (fromstash)
-                        {
-                            Showmsg(Colors.Green, @"Uploading data...", @"Last upload: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
-                        }
-                        else
-                        {
-                            Showmsg(Colors.Green, @"Game info found.", @"Last upload: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
-                        }
-
+                        Showmsg(Colors.Green, @"Game info found.", @"Last upload: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
+                        
                         chunk = info.Chunk;
                         upltimerOverride = info.Timer;
 
@@ -1334,7 +1177,7 @@ namespace MTGApro
                             Process.Start(Application.ResourceAssembly.Location, "restarting");
                             Environment.Exit(0);
                         }
-                        else if (info.Data == "has_update" && !fromstash)
+                        else if (info.Data == "has_update")
                         {
                             if (!updatenotified)
                             {
@@ -1346,7 +1189,7 @@ namespace MTGApro
                                 }));
                             }
                         }
-                        else if (info.Data == "has_message" && !fromstash)
+                        else if (info.Data == "has_message")
                         {
                             Dispatcher.BeginInvoke(new ThreadStart(delegate
                             {
@@ -1357,7 +1200,7 @@ namespace MTGApro
 
                         return true;
                     }
-                    else if (info.Status == @"NEED_UPDATE" && !fromstash)
+                    else if (info.Status == @"NEED_UPDATE")
                     {
                         Showmsg(Colors.Red, @"Upload failed: update tracker to resume", @"CLR", false, @"attention");
                         ToastShowCheck(@"Upload failed: update tracker to resume");
@@ -1369,11 +1212,6 @@ namespace MTGApro
                 catch (Exception ee)
                 {
                     ErrReport(ee);
-                    if (!fromstash)
-                    {
-                        Savetostorage(requestdict);
-                        Showmsg(Colors.Orange, @"Game info found", @"Saved locally: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
-                    }
                     return false;
                 }
             }
@@ -1381,81 +1219,6 @@ namespace MTGApro
         }
 
         //Saving logs to local storage for futher commit
-
-        public void Savetostorage(Dictionary<string, object> dictionary, int sparse = 0)
-        {
-            try
-            {
-                string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"MTGAproTracker");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-
-                using (FileStream fs = File.OpenWrite(path + @"\storage_" + dictionary[@"setdate"] + @"_" + sparse + @".mtg"))
-                using (BinaryWriter writer = new BinaryWriter(fs))
-                {
-                    // Put count.
-                    writer.Write(dictionary.Count);
-                    // Write pairs.
-                    foreach (KeyValuePair<string, object> pair in dictionary)
-                    {
-                        writer.Write(pair.Key);
-                        if (pair.Value is String)
-                        {
-                            writer.Write(pair.Value.ToString());
-                        }
-                        else if (pair.Value is byte[] bts)
-                        {
-                            writer.Write(Convert.ToBase64String(bts));
-                        }
-
-                    }
-                }
-            }
-            catch (Exception ee)
-            {
-                ErrReport(ee);
-            }
-        }
-
-        public Dictionary<string, object> Loadfromstorage(string f)
-        {
-            try
-            {
-                Dictionary<string, object> result = new Dictionary<string, object>();
-
-                using (FileStream fs = File.OpenRead(f))
-                using (BinaryReader reader = new BinaryReader(fs))
-                {
-                    // Get count.
-                    int count = reader.ReadInt32();
-                    // Read in all pairs.
-                    for (int i = 0; i < count; i++)
-                    {
-                        string key = reader.ReadString();
-                        object value;
-                        if (key.IndexOf(@"cm_uploadpack[") == -1)
-                        {
-                            value = reader.ReadString();
-                        }
-                        else
-                        {
-                            value = Convert.FromBase64String(reader.ReadString());
-                        }
-                        result[key] = value;
-                    }
-                }
-                return result;
-            }
-            catch (Exception ee)
-            {
-                //ErrReport(ee);
-                return null;
-            }
-        }
-
-
         public void Getindicators()
         {
             try
@@ -1485,7 +1248,7 @@ namespace MTGApro
             {
                 string checkver = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_init" }, { @"cm_init", version.ToString() } });
 
-                if (checkver != @"")
+                if (checkver != @"ERRCONN")
                 {
                     Response info = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(checkver);
                     if (info != null)
@@ -1511,6 +1274,10 @@ namespace MTGApro
                         }
                     }
                 }
+                else
+                {
+                    Showmsg(Colors.Red, @"No Internet Access...", @"", false, @"icon" + appsettings.Icon.ToString());
+                }
             }
             catch (Exception ee)
             {
@@ -1534,7 +1301,10 @@ namespace MTGApro
                         Resyncbut.IsEnabled = false;
                         Scanbut.IsEnabled = false;
                     }));
-                    ParseLog();
+                    if (!errupload)
+                    {
+                        ParseLog();
+                    }
                     Dispatcher.BeginInvoke(new ThreadStart(delegate
                     {
                         Resyncbut.IsEnabled = true;
@@ -1543,7 +1313,6 @@ namespace MTGApro
 
                     bool somethingnew = false;
                     bool credok = true;
-                    double lastime = 0;
                     List<double> todelete = new List<double>();
 
                     if (runtime > 0)
@@ -1630,7 +1399,7 @@ namespace MTGApro
                             {
                                 if (writing.Value[j] != @"" && writing.Value[j] != null)
                                 {
-                                    if (indicators[j].Send && ((manualresync && indicators[j].Addup) || (writing.Key > parsedtill && (indicators[j].Addup || (!indicators[j].Addup && writing.Value[j] != hashes[j])))) && (indicators[j].Needtohave == @"" || writing.Value[j].IndexOf(indicators[j].Needtohave) > -1))
+                                    if (indicators[j].Send && ((manualresync && indicators[j].Addup) || (writing.Key >= parsedtill && (indicators[j].Addup || (!indicators[j].Addup && writing.Value[j] != hashes[j])))) && (indicators[j].Needtohave == @"" || writing.Value[j].IndexOf(indicators[j].Needtohave) > -1))
                                     {
                                         requestdict.Add(@"cm_uploadpack[" + writing.Key + "][" + j.ToString() + "]", Zip(writing.Value[j]));
                                         /*requestdict.Add(@"cm_matchespack[" + writing.Key + "][matchid]", Zip(writing.Value[j]));
@@ -1646,7 +1415,7 @@ namespace MTGApro
                             lastime = writing.Key;
                         }
 
-                        parsedtill = lastime;
+                        //parsedtill = lastime;
 
                         foreach (double del in todelete)
                         {
@@ -1657,7 +1426,17 @@ namespace MTGApro
 
                         if (somethingnew && !playerswith)
                         {
-                            Sendlog(requestdict);
+                            if (Dispatchlog(requestdict))
+                            {
+                                parsedtill = lastime;
+                                errupload = false;
+                            }
+                            else
+                            {
+                                Showmsg(Colors.OrangeRed, @"Troubles with upload :-/", @"", false, @"icon" + appsettings.Icon.ToString());
+                                errupload = true;
+                            }
+
                             Dispatcher.BeginInvoke(new ThreadStart(delegate { SetAppData(); }));
                             if (manualresync)
                             {
@@ -1860,7 +1639,7 @@ namespace MTGApro
 
             menuitems[2].Click += delegate (object sender, EventArgs args)
             {
-                Uri link = new Uri(@"https://mtgarena.pro/decks/#my");
+                Uri link = new Uri(@"https://mtgarena.pro/decks/?my");
                 Process.Start(new ProcessStartInfo(link.AbsoluteUri));
             };
 
