@@ -38,6 +38,11 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.1.6.8 released 26/05/2019 (Quickfix)
+* Scan Old Logs issue resolved
+* Warning dialog about another trackers running disabled
+* Improved stability of long logs reading
+
 v.1.6.7 released 26/05/2019 (Stability Update)
 * "Can't parse date" issue fixed
 * Implemented more simplistic yet more stable data uploads method
