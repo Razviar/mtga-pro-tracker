@@ -38,20 +38,20 @@ namespace MTGApro
 
 
         public Window4 win4 = new Window4();
-        public static Parser[] indicators;
-        public static bool juststarted = true;
-        public static bool overlayactive = false;
-        public static int[] upltimers = { 5000, 7000, 9000, 10000 };
-        public static long loglen = 0;
-        public static bool isrestarting = false;
-        public static string tokeninput = "";
-        public static int version = 67;
-        public static bool hasnewmessage = false;
+        public static Parser[] indicators; //Indicators for log parsing recieved from server
+        public static bool juststarted = true; // indicator that app was just started and log is being parsed for first time
+        public static bool overlayactive = false; //is overlay active now?
+        public static int[] upltimers = { 5000, 7000, 9000, 10000 }; 
+        public static long loglen = 0; //current position in log file which was reached by parser. Always starts from 0 on app startup
+        public static bool isrestarting = false; //flag showing that app is being restarted. Used for single-instance management
+        public static string tokeninput = ""; 
+        public static int version = 68; // current version
+        public static bool hasnewmessage = false; 
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
-        public static int chunk = 50;
+        public static int chunk = 50; //maximal amount of files in one dispatch to server
         public static int upltimerOverride = 0;
-        public static bool needsupdate = false;
+        public static bool needsupdate = false; 
         public static bool manualresync = false;
         public static bool gamestarted = false;
         public static bool gamefocused = false;
@@ -84,6 +84,8 @@ namespace MTGApro
         public static bool uploadingfromstash = false;
         public static double lastime = 0;
         public static bool errupload = false;
+        public static int skipnlines = 0;
+        public static bool wasbrake = false;
 
         //-----
         public static Curmatch TheMatch = new Curmatch();
@@ -218,7 +220,7 @@ namespace MTGApro
                 }
                 else
                 {
-                    loginput = @"";
+                    Loginput = @"";
                 }
                 Needrunning = needrunning;
                 Addup = addup;
@@ -597,20 +599,32 @@ namespace MTGApro
                         string playerId = "";
                         string screenName = "";
                         string strdate = "";
+                        int linesskipped = 0;
                         Dictionary<double, StringBuilder[]> builders = new Dictionary<double, StringBuilder[]>();
 
                         while ((line = logFileReader.ReadLine()) != null)
                         {
-                            if (builders.Count <= chunk)
+
+                            if(wasbrake && linesskipped < skipnlines)
                             {
-                                loglen = logFileStream.Position;
+                                linesskipped++;
+                                continue;
+                            }else if(wasbrake && linesskipped == skipnlines)
+                            {
+                                wasbrake = false;
+                            }
+
+                            if (builders.Count >= chunk)
+                            {
+                                wasbrake = true;
+                                break;
                             }
                             else
                             {
-                                break;
+                                skipnlines++;
                             }
 
-                                if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 || line.IndexOf(@"[Client GRE]") > -1)
+                            if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 || line.IndexOf(@"[Client GRE]") > -1)
                             {
                                 strdate = line;
                             }
@@ -799,6 +813,12 @@ namespace MTGApro
                                     builders[timestamp][nowriting].Append(line);
                                 }
                             }
+                        }
+
+                        if (!wasbrake)
+                        {
+                            loglen = logFileStream.Length;
+                            skipnlines = 0;
                         }
 
                         if (playerId != @"" && screenName != @"")
@@ -1733,7 +1753,7 @@ namespace MTGApro
                     {
                         if (!uploadingfromstash)
                         {
-                            if (!trawarn)
+                            /*if (!trawarn)
                             {
                                 string[] enemies = { "LotusTracker", "MTGATracker", "MTG-Arena-Tool", "MTG Arena Tool" };
                                 bool warn = false;
@@ -1752,7 +1772,7 @@ namespace MTGApro
                                     MessageBox.Show("Another MTGA tracker detected! Simultaneous use of several trackers may cause all of them work inconsistently and/or break normal game log cleanup process leading to log file bloating. We recommend you to use only one tracker to make records more accurate and tracking process more safe. You can continue to use several trackers, but you have been warned. Any bugreports related to tracking software coexistence will be ignored.", "MTGA Pro Notice");
                                     trawarn = true;
                                 }
-                            }
+                            }*/
 
                             Process[] locator = Process.GetProcessesByName("MTGA");
 
@@ -2227,9 +2247,7 @@ namespace MTGApro
         {
             OpenFileDialog dlg = new OpenFileDialog
             {
-                DefaultExt = ".htm",
-                FileName = "Log*.htm",
-                Filter = "MTGA Logs|output_log.txt"
+                DefaultExt = ".htm"
             };
 
             string path = ProgramFilesx86();
