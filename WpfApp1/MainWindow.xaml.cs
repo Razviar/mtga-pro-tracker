@@ -41,17 +41,17 @@ namespace MTGApro
         public static Parser[] indicators; //Indicators for log parsing recieved from server
         public static bool juststarted = true; // indicator that app was just started and log is being parsed for first time
         public static bool overlayactive = false; //is overlay active now?
-        public static int[] upltimers = { 5000, 7000, 9000, 10000 }; 
+        public static int[] upltimers = { 5000, 7000, 9000, 10000 };
         public static long loglen = 0; //current position in log file which was reached by parser. Always starts from 0 on app startup
         public static bool isrestarting = false; //flag showing that app is being restarted. Used for single-instance management
-        public static string tokeninput = ""; 
-        public static int version = 68; // current version
-        public static bool hasnewmessage = false; 
+        public static string tokeninput = "";
+        public static int version = 69; // current version
+        public static bool hasnewmessage = false;
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
         public static int chunk = 50; //maximal amount of files in one dispatch to server
         public static int upltimerOverride = 0;
-        public static bool needsupdate = false; 
+        public static bool needsupdate = false;
         public static bool manualresync = false;
         public static bool gamestarted = false;
         public static bool gamefocused = false;
@@ -257,7 +257,7 @@ namespace MTGApro
 
         public static string tmstmp()
         {
-            Int32 unixTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            int unixTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             return unixTimestamp.ToString();
         }
 
@@ -333,7 +333,7 @@ namespace MTGApro
                         try
                         {
                             object pt = RkApp.GetValue("parsedtill");
-                            parsedtill = Double.Parse(RkApp.GetValue("parsedtill").ToString());
+                            parsedtill = double.Parse(RkApp.GetValue("parsedtill").ToString());
                         }
                         catch (Exception)
                         {
@@ -420,7 +420,7 @@ namespace MTGApro
                 }
                 catch (Exception)
                 {
-                    
+
                 }
             }
             else
@@ -436,13 +436,13 @@ namespace MTGApro
                         }
                         catch (Exception)
                         {
-                            
+
                         }
                     }
                 }
                 catch (Exception)
                 {
-                    
+
                 }
             }
         }
@@ -453,7 +453,7 @@ namespace MTGApro
         {
             try
             {
-                string formDataBoundary = String.Format("----------{0:N}", Guid.NewGuid());
+                string formDataBoundary = string.Format("----------{0:N}", Guid.NewGuid());
                 string contentType = "multipart/form-data; boundary=" + formDataBoundary;
 
                 byte[] formData = WriteMultipartForm(data, formDataBoundary);
@@ -498,7 +498,7 @@ namespace MTGApro
 
                     needsCLRF = true;
 
-                    if (param.Value is String)
+                    if (param.Value is string)
                     {
                         string postData = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"\r\n\r\n{2}", boundary, param.Key, param.Value);
                         formDataStream.Write(encoding.GetBytes(postData), 0, encoding.GetByteCount(postData));
@@ -605,11 +605,12 @@ namespace MTGApro
                         while ((line = logFileReader.ReadLine()) != null)
                         {
 
-                            if(wasbrake && linesskipped < skipnlines)
+                            if (wasbrake && linesskipped < skipnlines)
                             {
                                 linesskipped++;
                                 continue;
-                            }else if(wasbrake && linesskipped == skipnlines)
+                            }
+                            else if (wasbrake && linesskipped == skipnlines)
                             {
                                 wasbrake = false;
                             }
@@ -1162,7 +1163,7 @@ namespace MTGApro
         }
 
         //Handling log sending and local storage (if needed)
-        
+
 
         //Committing log sparses to server
 
@@ -1186,7 +1187,7 @@ namespace MTGApro
                     if (info.Status == @"ok")
                     {
                         Showmsg(Colors.Green, @"Game info found.", @"Last upload: " + DateTime.Now.ToString(), false, @"icon" + appsettings.Icon.ToString());
-                        
+
                         chunk = info.Chunk;
                         upltimerOverride = info.Timer;
 
@@ -1419,7 +1420,7 @@ namespace MTGApro
                             {
                                 if (writing.Value[j] != @"" && writing.Value[j] != null)
                                 {
-                                    if (indicators[j].Send && ((manualresync && indicators[j].Addup) || (writing.Key >= parsedtill && (indicators[j].Addup || (!indicators[j].Addup && writing.Value[j] != hashes[j])))) && (indicators[j].Needtohave == @"" || writing.Value[j].IndexOf(indicators[j].Needtohave) > -1))
+                                    if (indicators[j].Send && ((manualresync && indicators[j].Addup) || ((writing.Key >= parsedtill || wasbrake || juststarted) && (indicators[j].Addup || (!indicators[j].Addup && writing.Value[j] != hashes[j])))) && (indicators[j].Needtohave == @"" || writing.Value[j].IndexOf(indicators[j].Needtohave) > -1))
                                     {
                                         requestdict.Add(@"cm_uploadpack[" + writing.Key + "][" + j.ToString() + "]", Zip(writing.Value[j]));
                                         /*requestdict.Add(@"cm_matchespack[" + writing.Key + "][matchid]", Zip(writing.Value[j]));
@@ -1428,11 +1429,11 @@ namespace MTGApro
                                         if (!requestdict.ContainsKey(@"setdate")) requestdict.Add(@"setdate", tmstmp());
                                         somethingnew = true;
                                         hashes[j] = writing.Value[j];
+                                        lastime = writing.Key;
                                     }
                                 }
                             }
                             todelete.Add(writing.Key);
-                            lastime = writing.Key;
                         }
 
                         //parsedtill = lastime;
@@ -1751,158 +1752,135 @@ namespace MTGApro
                 {
                     try
                     {
-                        if (!uploadingfromstash)
+                        Process[] locator = Process.GetProcessesByName("MTGA");
+
+                        Dispatcher.BeginInvoke(new ThreadStart(delegate
                         {
-                            /*if (!trawarn)
+                            IntPtr activatedHandle = GetForegroundWindow();
+                            gamefocused = false;
+
+                            WindowInteropHelper wih = new WindowInteropHelper(win4);
+                            IntPtr Handle = wih.Handle;
+
+                            foreach (Process p in locator)
                             {
-                                string[] enemies = { "LotusTracker", "MTGATracker", "MTG-Arena-Tool", "MTG Arena Tool" };
-                                bool warn = false;
-                                for (int i = 0; i < enemies.Length; i++)
+                                if (activatedHandle == p.MainWindowHandle || activatedHandle == Handle)
                                 {
-                                    Process[] enemylocator = Process.GetProcessesByName(enemies[i]);
-                                    if (enemylocator.Length > 1)
-                                    {
-                                        warn = true;
-                                        break;
-                                    }
+                                    gamefocused = true;
                                 }
+                            }
+                        }));
 
-                                if (warn)
-                                {
-                                    MessageBox.Show("Another MTGA tracker detected! Simultaneous use of several trackers may cause all of them work inconsistently and/or break normal game log cleanup process leading to log file bloating. We recommend you to use only one tracker to make records more accurate and tracking process more safe. You can continue to use several trackers, but you have been warned. Any bugreports related to tracking software coexistence will be ignored.", "MTGA Pro Notice");
-                                    trawarn = true;
-                                }
-                            }*/
-
-                            Process[] locator = Process.GetProcessesByName("MTGA");
-
-                            Dispatcher.BeginInvoke(new ThreadStart(delegate
+                        if (locator.Length > 0)
+                        {
+                            if (gamestarted == false)
                             {
-                                IntPtr activatedHandle = GetForegroundWindow();
-                                gamefocused = false;
+                                juststarted = true;
+                                runtime = Convert.ToInt32(tmstmp());
+                            }
+                            gamestarted = true;
+                            Showmsg(Colors.YellowGreen, @"Awaiting for updates...", @"", false, @"icon" + appsettings.Icon.ToString());
 
-                                WindowInteropHelper wih = new WindowInteropHelper(win4);
-                                IntPtr Handle = wih.Handle;
-
-                                foreach (Process p in locator)
-                                {
-                                    if (activatedHandle == p.MainWindowHandle || activatedHandle == Handle)
-                                    {
-                                        gamefocused = true;
-                                    }
-                                }
-                            }));
-
-                            if (locator.Length > 0)
+                            if ((gamefocused || ovlsettings.Streamer) && overlayactive && (ovlsettings.Decklist || TheMatch.IsDrafting || TheMatch.IsFighting))
                             {
-                                if (gamestarted == false)
+                                Dispatcher.BeginInvoke(new ThreadStart(delegate
                                 {
-                                    juststarted = true;
-                                    runtime = Convert.ToInt32(tmstmp());
-                                }
-                                gamestarted = true;
-                                Showmsg(Colors.YellowGreen, @"Awaiting for updates...", @"", false, @"icon" + appsettings.Icon.ToString());
-
-                                if ((gamefocused || ovlsettings.Streamer) && overlayactive && (ovlsettings.Decklist || TheMatch.IsDrafting || TheMatch.IsFighting))
-                                {
-                                    Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                    try
                                     {
-                                        try
+                                        if (overlayactive && !juststarted && !Window4.windowhidden && (ovlsettings.Decklist || TheMatch.IsDrafting || TheMatch.IsFighting))
                                         {
-                                            if (overlayactive && !juststarted && !Window4.windowhidden && (ovlsettings.Decklist || TheMatch.IsDrafting || TheMatch.IsFighting))
+                                            if (win4.IsVisible == false)
                                             {
-                                                if (win4.IsVisible == false)
-                                                {
-                                                    win4.Show();
-                                                }
-                                                if (TheMatch.Hasnewdata || !Window4.wasshown) win4.updatelive();
-                                                TheMatch.Hasnewdata = false;
+                                                win4.Show();
                                             }
+                                            if (TheMatch.Hasnewdata || !Window4.wasshown) win4.updatelive();
+                                            TheMatch.Hasnewdata = false;
                                         }
-                                        catch (Exception ee)
-                                        {
-                                            ErrReport(ee);
-                                        }
-                                    }));
-                                }
-                                else
-                                {
-                                    Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                    }
+                                    catch (Exception ee)
                                     {
-                                        try
-                                        {
-                                            if (win4.IsVisible == true)
-                                            {
-                                                win4.Hide();
-                                            }
-                                        }
-                                        catch (Exception ee)
-                                        {
-                                            ErrReport(ee);
-                                        }
-                                    }));
-                                }
+                                        ErrReport(ee);
+                                    }
+                                }));
                             }
                             else
                             {
-                                if (runtime > 0)
+                                Dispatcher.BeginInvoke(new ThreadStart(delegate
                                 {
-                                    gamerunningtimer = (Convert.ToInt32(tmstmp()) - runtime);
-                                }
-                                runtime = 0;
-                                gamestarted = false;
-
-                                try
-                                {
-                                    FileInfo nfo = new FileInfo(GenPath(false));
-                                    long curloglen = nfo.Length;
-                                    if (curloglen > 314572800 && parsedtill > 0)
-                                    {
-                                        File.Delete(GenPath(false));
-                                        juststarted = false;
-                                    }
-                                }
-                                catch (Exception ee)
-                                {
-                                    //ErrReport(ee);
-                                }
-
-                                try
-                                {
-                                    Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                    try
                                     {
                                         if (win4.IsVisible == true)
                                         {
                                             win4.Hide();
                                         }
-                                    }));
-                                }
-                                catch (Exception ee)
-                                {
-                                    ErrReport(ee);
-                                }
-                                if (appsettings != null)
-                                {
-                                    Showmsg(Colors.Yellow, @"MTGA is not running!", @"CLR", false, @"icon" + appsettings.Icon.ToString());
-                                }
-                            }
-
-
-                            if (indicators != null)
-                            {
-                                if (!playerswith)
-                                {
-                                    if (juststarted || gamestarted)
-                                    {
-                                        Checklog();
                                     }
-                                }
-                            }
-                            else
-                            {
-                                Getindicators();
+                                    catch (Exception ee)
+                                    {
+                                        ErrReport(ee);
+                                    }
+                                }));
                             }
                         }
+                        else
+                        {
+                            if (runtime > 0)
+                            {
+                                gamerunningtimer = (Convert.ToInt32(tmstmp()) - runtime);
+                            }
+                            runtime = 0;
+                            gamestarted = false;
+
+                            try
+                            {
+                                FileInfo nfo = new FileInfo(GenPath(false));
+                                long curloglen = nfo.Length;
+                                if (curloglen > 314572800 && parsedtill > 0)
+                                {
+                                    File.Delete(GenPath(false));
+                                    juststarted = false;
+                                }
+                            }
+                            catch (Exception ee)
+                            {
+                                //ErrReport(ee);
+                            }
+
+                            try
+                            {
+                                Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                {
+                                    if (win4.IsVisible == true)
+                                    {
+                                        win4.Hide();
+                                    }
+                                }));
+                            }
+                            catch (Exception ee)
+                            {
+                                ErrReport(ee);
+                            }
+                            if (appsettings != null)
+                            {
+                                Showmsg(Colors.Yellow, @"MTGA is not running!", @"CLR", false, @"icon" + appsettings.Icon.ToString());
+                            }
+                        }
+
+
+                        if (indicators != null)
+                        {
+                            if (!playerswith)
+                            {
+                                if (juststarted || gamestarted || wasbrake)
+                                {
+                                    Checklog();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Getindicators();
+                        }
+
                     }
                     catch (Exception ee)
                     {
@@ -2235,7 +2213,7 @@ namespace MTGApro
         static string ProgramFilesx86()
         {
             if (8 == IntPtr.Size
-                || (!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"))))
+                || (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"))))
             {
                 return Environment.GetEnvironmentVariable("ProgramFiles(x86)");
             }
@@ -2325,7 +2303,7 @@ namespace MTGApro
             int at = 0;
             if (attempts != null)
             {
-                at = Int32.Parse(attempts);
+                at = int.Parse(attempts);
             }
 
             if (at <= 3)
