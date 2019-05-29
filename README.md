@@ -38,6 +38,9 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.1.6.9 released 26/05/2019 (Catch-Up Fix)
+* Issues with old logs uploads and syncing of data from gaming sessions without Tracker was running are fixed.
+
 v.1.6.8 released 26/05/2019 (Quickfix)
 * Scan Old Logs issue resolved
 * Warning dialog about another trackers running disabled
