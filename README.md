@@ -38,12 +38,10 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
-v.1.7.1 released 04/06/2019 (Time Globalization)
+v.1.7.2 released 04/06/2019 (Time Globalization)
+* Added custom time formats
 * New date formats can now be controlled from server, so no new releases after each new date format found. 
-
-v.1.7.0 released 04/06/2019 (Time Globalization)
 * Added tracking system which will help to collect all timestamp standards used in log.
-* Added support for Greek time format
 
 v.1.6.9 released 26/05/2019 (Catch-Up Fix)
 * Issues with old logs uploads and syncing of data from gaming sessions without Tracker was running are fixed.
