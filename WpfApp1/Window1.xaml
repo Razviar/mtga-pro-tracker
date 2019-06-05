@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MTGApro"
         mc:Ignorable="d"
-        Title="Settings" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" MinHeight="361" Height="451.92">
+        Title="Settings" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" MinHeight="361" Height="473.819">
     <Grid>
         <TabControl HorizontalAlignment="Left" Height="380" VerticalAlignment="Top" Width="258" Margin="0,0,-0.4,0">
-            <TabItem Header="General Settings">
+            <TabItem Header="General">
                 <Grid x:Name="General" Background="#FFE5E5E5">
                     <CheckBox x:Name="Minimizedchk" Content="Run minimized" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
                     <CheckBox x:Name="Startupchk" Content="Launch at Windows startup" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top"/>
@@ -101,7 +101,22 @@
                     <Button Content="Remove Token-Account Link" HorizontalAlignment="Left" Margin="10,121,0,0" VerticalAlignment="Top" Width="232" Click="Button_Click_2"/>
                 </Grid>
             </TabItem>
+            <TabItem Header="Date Format">
+                <Grid x:Name="DateFormat" Background="#FFE5E5E5">
+                    <TextBlock HorizontalAlignment="Left" Margin="10,319,0,6.2" TextWrapping="Wrap" Width="181">
+           <Hyperlink NavigateUri="https://mtgarena.pro/date-setting-manual/" RequestNavigate="Hyperlink_RequestNavigate">Tutorial on date format setting</Hyperlink></TextBlock>
+                    <Label x:Name="Sample_date"  Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,29,0,0" FontWeight="Bold" Width="232" Height="26" IsManipulationEnabled="True"/>
+                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0" Width="126" Height="19" Text="Sample Date from Log:"/>
+                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,67,0,0" Width="126" Height="19" Text="Format:"/>
+                    <TextBox x:Name="DateFormatInput" HorizontalAlignment="Left" Height="26" Margin="10,91,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="232" TextAlignment="Center" FontSize="16" FontWeight="Bold" Foreground="Black" TextChanged="DateFormatInput_TextChanged"/>
+                    <TextBlock x:Name="Verify" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,285,0,0" Width="232" Height="19" FontWeight="Bold"/>
+                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,135,0,0" Width="126" Height="19" Text="AM:"/>
+                    <TextBox x:Name="DateFormatInput_AM" HorizontalAlignment="Left" Height="26" Margin="10,159,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="232" TextAlignment="Center" FontSize="16" FontWeight="Bold" Foreground="Black" TextChanged="DateFormatInput_TextChanged"/>
+                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,207,0,0" Width="126" Height="19" Text="PM:"/>
+                    <TextBox x:Name="DateFormatInput_PM" HorizontalAlignment="Left" Height="25" Margin="10,231,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="232" TextAlignment="Center" FontSize="16" FontWeight="Bold" Foreground="Black" TextChanged="DateFormatInput_TextChanged"/>
+                </Grid>
+            </TabItem>
         </TabControl>
-        <Button Content="Save settings" HorizontalAlignment="Left" Margin="10,391,0,0" VerticalAlignment="Top" Width="234" Click="Button_Click"/>
+        <Button Content="Save settings" HorizontalAlignment="Left" Margin="10,385,0,0" VerticalAlignment="Top" Width="234" Click="Button_Click"/>
     </Grid>
 </Window>

@@ -40,14 +40,15 @@ namespace MTGApro
         public Window4 win4 = new Window4();
         public static Parser[] indicators; //Indicators for log parsing recieved from server
         public static string[] dateformats;
-        public static Dictionary<string,string> datereplacements;
+        public static string datesample = @"";
+        public static Dictionary<string, string> datereplacements;
         public static bool juststarted = true; // indicator that app was just started and log is being parsed for first time
         public static bool overlayactive = false; //is overlay active now?
         public static int[] upltimers = { 5000, 7000, 9000, 10000 };
         public static long loglen = 0; //current position in log file which was reached by parser. Always starts from 0 on app startup
         public static bool isrestarting = false; //flag showing that app is being restarted. Used for single-instance management
         public static string tokeninput = "";
-        public static int version = 71; // current version
+        public static int version = 72; // current version
         public static bool hasnewmessage = false;
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
@@ -673,6 +674,7 @@ namespace MTGApro
                                     {
                                         try
                                         {
+
                                             if (strdate.IndexOf(@"[UnityCrossThreadLogger]") > -1)
                                             {
                                                 strdate = Cut(strdate, @"[UnityCrossThreadLogger]", @">END", false);
@@ -682,40 +684,78 @@ namespace MTGApro
                                                 strdate = Cut(strdate, @"]", @": ", false);
                                             }
 
-                                            foreach(KeyValuePair<string, string> re in datereplacements)
-                                            {
-                                                strdate = strdate.Replace(re.Key, re.Value);
-                                            }
                                             DateTime d = new DateTime();
 
-                                            if (DateTime.TryParseExact(strdate, dateformats, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
-                                            {
 
-                                            }
-                                            else if (DateTime.TryParse(strdate, CultureInfo.CurrentCulture, DateTimeStyles.None, out d))
+                                            if (strdate != @"")
                                             {
+                                                datesample = strdate;
 
-                                            }
-                                            else if (DateTime.TryParse(strdate, out d))
-                                            {
+                                                if (appsettings.Dateformat != @"")
+                                                {
+                                                    if (appsettings.Dateformat_AM.Length > 0)
+                                                    {
+                                                        strdate = strdate.Replace(appsettings.Dateformat_AM, "AM");
+                                                    }
+                                                    if (appsettings.Dateformat_AM.Length > 0)
+                                                    {
+                                                        strdate = strdate.Replace(appsettings.Dateformat_PM, "PM");
+                                                    }
+                                                    if (DateTime.TryParseExact(strdate, appsettings.Dateformat, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
+                                                    {
 
+                                                    }
+                                                    else
+                                                    {
+                                                        Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
+                                                        MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
+                                                        Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
+
+                                                        continue;
+                                                    }
+                                                }
+                                                else
+                                                {
+
+                                                    foreach (KeyValuePair<string, string> re in datereplacements)
+                                                    {
+                                                        strdate = strdate.Replace(re.Key, re.Value);
+                                                    }
+
+                                                    if (DateTime.TryParseExact(strdate, dateformats, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
+                                                    {
+
+                                                    }
+                                                    else if (DateTime.TryParse(strdate, CultureInfo.CurrentCulture, DateTimeStyles.None, out d))
+                                                    {
+
+                                                    }
+                                                    else if (DateTime.TryParse(strdate, out d))
+                                                    {
+
+                                                    }
+                                                    else
+                                                    {
+
+                                                        Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
+                                                        MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
+                                                        Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
+
+                                                        continue;
+                                                    }
+                                                }
+                                                double tst = ConvertToUnixTimestamp(d);
+                                                if (laststamp != tst)
+                                                {
+                                                    laststamp = tst;
+                                                    increment = 0;
+                                                }
+                                                timestamp = (1000 * tst) + increment;
                                             }
                                             else
                                             {
-                                                if (strdate != @"")
-                                                {
-                                                    Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
-                                                    string responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
-                                                }
                                                 continue;
                                             }
-                                            double tst = ConvertToUnixTimestamp(d);
-                                            if (laststamp != tst)
-                                            {
-                                                laststamp = tst;
-                                                increment = 0;
-                                            }
-                                            timestamp = (1000 * tst) + increment;
                                         }
                                         catch (Exception ee)
                                         {
@@ -1256,7 +1296,7 @@ namespace MTGApro
                 {
                     indicators = Newtonsoft.Json.JsonConvert.DeserializeObject<Parser[]>(indic);
                     dateformats = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(datef);
-                    datereplacements= Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string,string>>(daterepl);
+                    datereplacements = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(daterepl);
                     hashes = new string[indicators.Length];
                 }
                 else

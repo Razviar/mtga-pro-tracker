@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 
 namespace MTGApro
 {
@@ -23,6 +25,7 @@ namespace MTGApro
         public static int selid = 0;
         public static string selectedacc = "0";
         public static string filename = @"";
+        public static bool dateok = false;
 
         public class AppSettingsStorage
         {
@@ -30,13 +33,19 @@ namespace MTGApro
             public int Upl { get; set; }
             public int Icon { get; set; }
             public string Path { get; set; }
+            public string Dateformat { get; set; }
+            public string Dateformat_AM { get; set; }
+            public string Dateformat_PM { get; set; }
 
-            public AppSettingsStorage(bool min = false, int up = 0, int ic = 0, string pa = @"")
+            public AppSettingsStorage(bool min = false, int up = 0, int ic = 0, string pa = @"", string df = @"", string df_am = @"", string df_pm = @"")
             {
                 Minimized = min;
                 Upl = up;
                 Icon = ic;
                 Path = pa;
+                Dateformat = df;
+                Dateformat_AM = df_am;
+                Dateformat_PM = df_pm;
             }
         }
 
@@ -114,6 +123,9 @@ namespace MTGApro
 
                 Uploads.SelectedIndex = appsettings.Upl;
                 Icoselector.SelectedIndex = appsettings.Icon;
+                DateFormatInput.Text = appsettings.Dateformat;
+                DateFormatInput_AM.Text = appsettings.Dateformat_AM;
+                DateFormatInput_PM.Text = appsettings.Dateformat_PM;
 
                 DigitsToShow_left.SelectedIndex = ovlsettings.Leftdigit;
                 DigitsToShow_right.SelectedIndex = ovlsettings.Rightdigit;
@@ -187,6 +199,8 @@ namespace MTGApro
                 RkTokens.Close();
             }
 
+            Sample_date.Content = MainWindow.datesample;
+
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -214,9 +228,17 @@ namespace MTGApro
             appsettings.Icon = Icoselector.SelectedIndex;
             appsettings.Path = filename;
 
+            if (dateok)
+            {
+                appsettings.Dateformat = DateFormatInput.Text;
+                appsettings.Dateformat_AM = DateFormatInput_AM.Text;
+                appsettings.Dateformat_PM = DateFormatInput_PM.Text;
+            }
+
             string output = Newtonsoft.Json.JsonConvert.SerializeObject(appsettings);
             RegistryKey RkTokens = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\\MTGAProtracker", true);
             RkTokens.SetValue("appsettings", output);
+
             //RkTokens.Close();
 
             ovlsettings.Leftdigit = DigitsToShow_left.SelectedIndex;
@@ -387,6 +409,40 @@ namespace MTGApro
                 selectedacc = "0";
             }
 
+        }
+
+        private void DateFormatInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (DateFormatInput.Text.Length > 10)
+            {
+                string strdate = DateFormatInput.Text;
+                string testdate = MainWindow.datesample;
+                if (DateFormatInput_AM.Text.Length > 0)
+                {
+                    testdate = testdate.Replace(DateFormatInput_AM.Text, "AM");
+                }
+                if (DateFormatInput_PM.Text.Length > 0)
+                {
+                    testdate = testdate.Replace(DateFormatInput_PM.Text, "PM");
+                }
+
+                if (DateTime.TryParseExact(testdate, strdate, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                {
+                    Verify.Text = "Date format is correctly set";
+                    dateok = true;
+                }
+                else
+                {
+                    Verify.Text = "ERROR! Check your template";
+                }
+            }
+        }
+
+        //Open link
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+            e.Handled = true;
         }
     }
 }
