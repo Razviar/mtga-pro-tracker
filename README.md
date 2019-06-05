@@ -38,7 +38,7 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
-v.1.7.2 released 04/06/2019 (Time Globalization)
+v.1.7.3 released 04/06/2019 (Time Globalization)
 * Added custom time formats
 * New date formats can now be controlled from server, so no new releases after each new date format found. 
 * Added tracking system which will help to collect all timestamp standards used in log.
