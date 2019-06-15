@@ -38,6 +38,9 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.1.7.6 released 15/06/2019 (Progress Bar)
+* Process of long logs reading was slow and confusing for many users. We added nice progress bar so you could see log reading process. 
+
 v.1.7.5 released 06/06/2019 (Time Globalization + Bugfixes)
 * Added custom time formats
 * New date formats can now be controlled from server, so no new releases after each new date format found. 
