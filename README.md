@@ -38,6 +38,10 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.1.7.7 released 18/06/2019 (Multiple Accounts Fix)
+* Long-lasting issue with multiple accounts support was finally fixed. At least, we hope so. We will keep closely monitor bug reports in this regard. 
+* Many tiny bugfixes and improvements for more stable tracking.
+
 v.1.7.6 released 15/06/2019 (Progress Bar)
 * Process of long logs reading was slow and confusing for many users. We added nice progress bar so you could see log reading process. 
 
