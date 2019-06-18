@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="MTGA Pro Tracker" Language="1033" Version="1.7.7.0" Manufacturer="Razviar" UpgradeCode="5134c97f-353e-4e39-8784-d0912955bc85">
+	<Product Id="*" Name="MTGA Pro Tracker" Language="1033" Version="1.7.8.0" Manufacturer="Razviar" UpgradeCode="5134c97f-353e-4e39-8784-d0912955bc85">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of MTGA Pro Tracker is already installed." />

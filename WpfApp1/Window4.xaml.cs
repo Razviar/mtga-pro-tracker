@@ -144,10 +144,10 @@ namespace MTGApro
                         string posX = RkApp.GetValue("posX").ToString();
                         string posY = RkApp.GetValue("posY").ToString();
                         rendering = true;
-                        if (!String.IsNullOrWhiteSpace(op)) Opacity = Convert.ToDouble(op);
-                        if (!String.IsNullOrWhiteSpace(size)) ScaleValue = Convert.ToDouble(op);
-                        if (!String.IsNullOrWhiteSpace(posX)) Left = Convert.ToDouble(posX);
-                        if (!String.IsNullOrWhiteSpace(posY)) Top = Convert.ToDouble(posY);
+                        if (!string.IsNullOrWhiteSpace(op)) Opacity = Convert.ToDouble(op);
+                        if (!string.IsNullOrWhiteSpace(size)) ScaleValue = Convert.ToDouble(op);
+                        if (!string.IsNullOrWhiteSpace(posX)) Left = Convert.ToDouble(posX);
+                        if (!string.IsNullOrWhiteSpace(posY)) Top = Convert.ToDouble(posY);
                         win5.Opacity = Opacity;
                         win5.ApplicationScaleTransform.ScaleX = ScaleValue;
                         win5.ApplicationScaleTransform.ScaleY = ScaleValue;
@@ -164,7 +164,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                MainWindow.ErrReport(ee,40167);
+                MainWindow.ErrReport(ee, 40167);
             }
         }
 
@@ -194,7 +194,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                MainWindow.ErrReport(ee,40197);
+                MainWindow.ErrReport(ee, 40197);
             }
         }
 
@@ -207,7 +207,7 @@ namespace MTGApro
             {
                 try
                 {
-                    var cards_db = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/wp-content/plugins/mtgarenapro/js/cards_db_app.js"), new Dictionary<string, object> { }, "GET");
+                    string cards_db = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/wp-content/plugins/mtgarenapro/js/cards_db_app.js"), new Dictionary<string, object> { }, "GET");
                     cdb = JsonConvert.DeserializeObject<Dictionary<int, Card>>(cards_db);
                     foreach (KeyValuePair<int, Card> cid in cdb)
                     {
@@ -227,7 +227,24 @@ namespace MTGApro
                 }
                 catch (Exception ee)
                 {
-                    MainWindow.ErrReport(ee,40224);
+                    try
+                    {
+                        Stream cardsdbstream = Application.GetResourceStream(new Uri(@"pack://application:,,,/CardsDB/cards_db_app.json")).Stream;
+                        using (StreamReader reader = new StreamReader(cardsdbstream))
+                        {
+                            string cards_db = reader.ReadToEnd();
+                            cdb = JsonConvert.DeserializeObject<Dictionary<int, Card>>(cards_db);
+                            foreach (KeyValuePair<int, Card> cid in cdb)
+                            {
+                                if (!cdb_mtga_id.ContainsKey(cid.Value.Mtga_id)) cdb_mtga_id.Add(cid.Value.Mtga_id, cid.Key);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    MainWindow.ErrReport(ee, 40224);
                 }
             }
         }
@@ -725,285 +742,306 @@ namespace MTGApro
             //Handling draft
             if (MainWindow.TheMatch.IsDrafting)
             {
-                string curdrft = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getlivedraft" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken }, { @"cardsquery", JsonConvert.SerializeObject(MainWindow.TheMatch.Draftdeck) } });
-                if (curdrft != @"ERRCONN")
+                try
                 {
-                    Dictionary<string, Dictionary<int, int>> curdrftparsed = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, int>>>(curdrft);
-                    collection = curdrftparsed["col"];
-                    PackOpening = MainWindow.TheMatch.DraftPack;
-                    PickMacking = MainWindow.TheMatch.DraftPick;
-                    overlayme.Children.Clear();
-                    topmargin[@"draft"] = 20;
-                    cnums[@"draft"].Clear();
-                    borders[@"draft"].Clear();
-                    try
+                    string curdrft = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getlivedraft" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken }, { @"cardsquery", JsonConvert.SerializeObject(MainWindow.TheMatch.Draftdeck) } });
+                    if (curdrft != @"ERRCONN")
                     {
-                        renderdeck(curdrftparsed["eval"], 0, @"draft");
-                    }
-                    catch (Exception ee)
-                    {
-                        MainWindow.ErrReport(ee);
-                    }
+                        Dictionary<string, Dictionary<int, int>> curdrftparsed = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, int>>>(curdrft);
+                        collection = curdrftparsed["col"];
+                        PackOpening = MainWindow.TheMatch.DraftPack;
+                        PickMacking = MainWindow.TheMatch.DraftPick;
+                        overlayme.Children.Clear();
+                        topmargin[@"draft"] = 20;
+                        cnums[@"draft"].Clear();
+                        borders[@"draft"].Clear();
+                        try
+                        {
+                            renderdeck(curdrftparsed["eval"], 0, @"draft");
+                        }
+                        catch (Exception ee)
+                        {
+                            MainWindow.ErrReport(ee,764);
+                        }
 
-                    melabel.Text = @"Pick: " + (PickMacking + 1).ToString();
-                    opponentlabel.Text = @"Pack: " + (PackOpening + 1).ToString();
-                    Setmode(@"draft");
-                    decksrendered = false;
+                        melabel.Text = @"Pick: " + (PickMacking + 1).ToString();
+                        opponentlabel.Text = @"Pack: " + (PackOpening + 1).ToString();
+                        Setmode(@"draft");
+                        decksrendered = false;
+                    }
+                }
+                catch (Exception ee)
+                {
+                    MainWindow.ErrReport(ee, 774);
                 }
             }
             //Handling fight
             else if (MainWindow.TheMatch.IsFighting)
             {
-                string curbtl = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getlivematch" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken } });
-                if (curbtl != @"ERRCONN")
+                try
                 {
-                    Battle curbtlparsed = JsonConvert.DeserializeObject<Battle>(curbtl);
-                    string setmode = @"";
-                    curbtlparsed.Udecklive = MainWindow.TheMatch.Udeck;
-                    curbtlparsed.Edeck = MainWindow.TheMatch.Edeck;
-                    if (curbtlparsed.Edeckname != @"")
+                    string curbtl = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getlivematch" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken } });
+                    if (curbtl != @"ERRCONN")
                     {
-                        opponentdecklabel.Text = curbtlparsed.Edeckname;
-                    }
-                    if (curbtlparsed.Humanname != @"")
-                    {
-                        mydecklabel.Text = curbtlparsed.Humanname;
-                    }
-                    int ncards = curbtlparsed.Deckstruct.Sum(x => x.Value) - curbtlparsed.Udecklive.Sum(x => x.Value);
-
-                    if (!(curbtlparsed.Udeck_fp == null))
-                    {
-                        if (matchplayingwe != MainWindow.TheMatch.Matchid)
+                        Battle curbtlparsed = JsonConvert.DeserializeObject<Battle>(curbtl);
+                        string setmode = @"";
+                        curbtlparsed.Udecklive = MainWindow.TheMatch.Udeck;
+                        curbtlparsed.Edeck = MainWindow.TheMatch.Edeck;
+                        if (curbtlparsed.Edeckname != @"")
                         {
-                            matchplayingwe = MainWindow.TheMatch.Matchid;
-                            deckplaying = curbtlparsed.Udeck_fp;
-                            overlayme.Children.Clear();
-                            topmargin[@"me"] = 20;
-                            cnums[@"me"].Clear();
-                            borders[@"me"].Clear();
-                            mydecklabel.Text = @"";
-                            oldUdecklive.Clear();
-                            try
-                            {
-                                renderdeck(curbtlparsed.Deckstruct, ncards, @"me", curbtlparsed.Udecklive);
-                                mode = "me";
-                                setmode = @"me";
-                            }
-                            catch (Exception ee)
-                            {
-                                MainWindow.ErrReport(ee,40788);
-                            }
+                            opponentdecklabel.Text = curbtlparsed.Edeckname;
                         }
-                        else
+                        if (curbtlparsed.Humanname != @"")
                         {
-                            foreach (KeyValuePair<int, int> ucard in curbtlparsed.Deckstruct)
+                            mydecklabel.Text = curbtlparsed.Humanname;
+                        }
+                        int ncards = curbtlparsed.Deckstruct.Sum(x => x.Value) - curbtlparsed.Udecklive.Sum(x => x.Value);
+
+                        if (!(curbtlparsed.Udeck_fp == null))
+                        {
+                            if (matchplayingwe != MainWindow.TheMatch.Matchid)
                             {
-                                if (ucard.Key != -1)
+                                matchplayingwe = MainWindow.TheMatch.Matchid;
+                                deckplaying = curbtlparsed.Udeck_fp;
+                                overlayme.Children.Clear();
+                                topmargin[@"me"] = 20;
+                                cnums[@"me"].Clear();
+                                borders[@"me"].Clear();
+                                mydecklabel.Text = @"";
+                                oldUdecklive.Clear();
+                                try
                                 {
-                                    int nc = 0;
-                                    bool needanimate = false;
-                                    string output = @"";
-                                    switch (MainWindow.ovlsettings.Leftdigit)
-                                    {
-                                        case 0:
-                                            nc = ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0);
-                                            output += nc.ToString();
-                                            break;
-                                        case 1:
-                                            nc = ucard.Value;
-                                            output += nc.ToString();
-                                            break;
-                                        case 2:
-                                            nc = (int)Math.Round((double)100 * (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0)) / ncards);
-                                            output += nc.ToString() + @"%";
-                                            break;
-                                        case 3:
-                                            output += "";
-                                            break;
-                                    }
-
-                                    if (output != "") output += "  ";
-
-                                    switch (MainWindow.ovlsettings.Rightdigit)
-                                    {
-                                        case 0:
-                                            output += (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0)).ToString();
-                                            break;
-                                        case 1:
-                                            output += ucard.Value;
-                                            break;
-                                        case 2:
-                                            output += Convert.ToString(Math.Round((double)100 * (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0)) / ncards)) + @"%";
-                                            break;
-                                        case 3:
-                                            output += "";
-                                            break;
-                                    }
-
-                                    if (borders[@"me"].ContainsKey(ucard.Key))
-                                    {
-                                        borders[@"me"][ucard.Key].Opacity = 1;
-                                    }
-
-                                    if (cnums[@"me"].ContainsKey(ucard.Key))
-                                    {
-                                        cnums[@"me"][ucard.Key].Text = output;
-                                    }
-
-                                    if (curbtlparsed.Udecklive.ContainsKey(ucard.Key))
-                                    {
-
-                                        if (!oldUdecklive.ContainsKey(ucard.Key))
-                                        {
-                                            needanimate = true;
-                                            oldUdecklive.Add(ucard.Key, curbtlparsed.Udecklive[ucard.Key]);
-                                        }
-                                        else if (oldUdecklive[ucard.Key] != curbtlparsed.Udecklive[ucard.Key])
-                                        {
-                                            oldUdecklive[ucard.Key] = curbtlparsed.Udecklive[ucard.Key];
-                                            needanimate = true;
-                                        }
-                                    }
-
-                                    if (needanimate)
-                                    {
-
-                                        ColorAnimation animation = new ColorAnimation()
-                                        {
-                                            To = (Color)ColorConverter.ConvertFromString("#f9f5ec"),
-                                            Duration = TimeSpan.FromSeconds(0.4),
-                                            AutoReverse = true,
-                                        };
-
-                                        /*animation.Completed += (s, e) =>
-                                        {
-                                            borders[@"me"][ucard.Key].Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#36221e"));
-                                        };
-                                        borders[@"me"][ucard.Key].Background = new SolidColorBrush()
-                                        {
-                                            Color = (Color)ColorConverter.ConvertFromString(@"#" + colors[cdb[ucard.Key].Colorindicator])
-                                        };*/
-                                        borders[@"me"][ucard.Key].Background.BeginAnimation(SolidColorBrush.ColorProperty, animation);
-                                        setmode = @"me";
-                                    }
-                                    if (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0) == 0)
-                                    {
-                                        borders[@"me"][ucard.Key].Opacity = 0.6;
-                                    }
+                                    renderdeck(curbtlparsed.Deckstruct, ncards, @"me", curbtlparsed.Udecklive);
+                                    mode = "me";
+                                    setmode = @"me";
+                                }
+                                catch (Exception ee)
+                                {
+                                    MainWindow.ErrReport(ee, 40788);
                                 }
                             }
-                        }
-                    }
-
-
-                    if (!curbtlparsed.Edeck.ContainsKey(-1))
-                    {
-                        if (matchplayingthey != MainWindow.TheMatch.Matchid)
-                        {
-                            matchplayingthey = MainWindow.TheMatch.Matchid;
-                            overlayopp.Children.Clear();
-                            cnums[@"opponent"].Clear();
-                            borders[@"opponent"].Clear();
-                            topmargin[@"opponent"] = 20;
-                            opponentdecklabel.Text = @"";
-                            try
+                            else
                             {
-                                renderdeck(curbtlparsed.Edeck, 0, @"opponent");
-                            }
-                            catch (Exception ee)
-                            {
-                                MainWindow.ErrReport(ee,40909);
-                            }
-                            setmode = "opponent";
-                        }
-                        else
-                        {
-                            foreach (KeyValuePair<int, int> ucard in curbtlparsed.Edeck)
-                            {
-                                if (ucard.Key != -1)
+                                foreach (KeyValuePair<int, int> ucard in curbtlparsed.Deckstruct)
                                 {
-                                    int highlight = 0;
-                                    if (!cnums[@"opponent"].ContainsKey(ucard.Key))
+                                    if (ucard.Key != -1)
                                     {
-                                        try
+                                        int nc = 0;
+                                        bool needanimate = false;
+                                        string output = @"";
+                                        switch (MainWindow.ovlsettings.Leftdigit)
                                         {
-                                            renderdeck(new Dictionary<int, int>() { { ucard.Key, ucard.Value } }, 0, @"opponent");
+                                            case 0:
+                                                nc = ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0);
+                                                output += nc.ToString();
+                                                break;
+                                            case 1:
+                                                nc = ucard.Value;
+                                                output += nc.ToString();
+                                                break;
+                                            case 2:
+                                                nc = (int)Math.Round((double)100 * (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0)) / ncards);
+                                                output += nc.ToString() + @"%";
+                                                break;
+                                            case 3:
+                                                output += "";
+                                                break;
                                         }
-                                        catch (Exception ee)
+
+                                        if (output != "") output += "  ";
+
+                                        switch (MainWindow.ovlsettings.Rightdigit)
                                         {
-                                            MainWindow.ErrReport(ee,40928);
+                                            case 0:
+                                                output += (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0)).ToString();
+                                                break;
+                                            case 1:
+                                                output += ucard.Value;
+                                                break;
+                                            case 2:
+                                                output += Convert.ToString(Math.Round((double)100 * (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0)) / ncards)) + @"%";
+                                                break;
+                                            case 3:
+                                                output += "";
+                                                break;
                                         }
-                                        highlight = ucard.Key;
-                                    }
 
-                                    string oldtext = cnums[@"opponent"][ucard.Key].Text;
+                                        if (borders[@"me"].ContainsKey(ucard.Key))
+                                        {
+                                            borders[@"me"][ucard.Key].Opacity = 1;
+                                        }
 
-                                    cnums[@"opponent"][ucard.Key].Text = ucard.Value.ToString();
-                                    if (oldtext != ucard.Value.ToString() || highlight == ucard.Key)
-                                    {
-                                        Brush oldbg = borders[@"opponent"][ucard.Key].Background;
-                                        ColorAnimation animation = new ColorAnimation()
+                                        if (cnums[@"me"].ContainsKey(ucard.Key))
                                         {
-                                            To = (Color)ColorConverter.ConvertFromString("#f9f5ec"),
-                                            Duration = TimeSpan.FromSeconds(0.4),
-                                            AutoReverse = true,
-                                        };
+                                            cnums[@"me"][ucard.Key].Text = output;
+                                        }
 
-                                        animation.Completed += (s, e) =>
+                                        if (curbtlparsed.Udecklive.ContainsKey(ucard.Key))
                                         {
-                                            borders[@"opponent"][ucard.Key].Background = oldbg;
-                                        };
-                                        borders[@"opponent"][ucard.Key].Background = new SolidColorBrush()
+
+                                            if (!oldUdecklive.ContainsKey(ucard.Key))
+                                            {
+                                                needanimate = true;
+                                                oldUdecklive.Add(ucard.Key, curbtlparsed.Udecklive[ucard.Key]);
+                                            }
+                                            else if (oldUdecklive[ucard.Key] != curbtlparsed.Udecklive[ucard.Key])
+                                            {
+                                                oldUdecklive[ucard.Key] = curbtlparsed.Udecklive[ucard.Key];
+                                                needanimate = true;
+                                            }
+                                        }
+
+                                        if (needanimate)
                                         {
-                                            Color = (Color)ColorConverter.ConvertFromString(@"#" + colors[cdb[ucard.Key].Colorindicator])
-                                        };
-                                        borders[@"opponent"][ucard.Key].Background.BeginAnimation(SolidColorBrush.ColorProperty, animation);
-                                        setmode = @"opponent";
+
+                                            ColorAnimation animation = new ColorAnimation()
+                                            {
+                                                To = (Color)ColorConverter.ConvertFromString("#f9f5ec"),
+                                                Duration = TimeSpan.FromSeconds(0.4),
+                                                AutoReverse = true,
+                                            };
+
+                                            /*animation.Completed += (s, e) =>
+                                            {
+                                                borders[@"me"][ucard.Key].Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#36221e"));
+                                            };
+                                            borders[@"me"][ucard.Key].Background = new SolidColorBrush()
+                                            {
+                                                Color = (Color)ColorConverter.ConvertFromString(@"#" + colors[cdb[ucard.Key].Colorindicator])
+                                            };*/
+                                            borders[@"me"][ucard.Key].Background.BeginAnimation(SolidColorBrush.ColorProperty, animation);
+                                            setmode = @"me";
+                                        }
+                                        if (ucard.Value - (curbtlparsed.Udecklive.ContainsKey(ucard.Key) ? curbtlparsed.Udecklive[ucard.Key] : 0) == 0)
+                                        {
+                                            borders[@"me"][ucard.Key].Opacity = 0.6;
+                                        }
                                     }
                                 }
                             }
                         }
 
-                    }
+
+                        if (!curbtlparsed.Edeck.ContainsKey(-1))
+                        {
+                            if (matchplayingthey != MainWindow.TheMatch.Matchid)
+                            {
+                                matchplayingthey = MainWindow.TheMatch.Matchid;
+                                overlayopp.Children.Clear();
+                                cnums[@"opponent"].Clear();
+                                borders[@"opponent"].Clear();
+                                topmargin[@"opponent"] = 20;
+                                opponentdecklabel.Text = @"";
+                                try
+                                {
+                                    renderdeck(curbtlparsed.Edeck, 0, @"opponent");
+                                }
+                                catch (Exception ee)
+                                {
+                                    MainWindow.ErrReport(ee, 40909);
+                                }
+                                setmode = "opponent";
+                            }
+                            else
+                            {
+                                foreach (KeyValuePair<int, int> ucard in curbtlparsed.Edeck)
+                                {
+                                    if (ucard.Key != -1)
+                                    {
+                                        int highlight = 0;
+                                        if (!cnums[@"opponent"].ContainsKey(ucard.Key))
+                                        {
+                                            try
+                                            {
+                                                renderdeck(new Dictionary<int, int>() { { ucard.Key, ucard.Value } }, 0, @"opponent");
+                                            }
+                                            catch (Exception ee)
+                                            {
+                                                MainWindow.ErrReport(ee, 40928);
+                                            }
+                                            highlight = ucard.Key;
+                                        }
+
+                                        string oldtext = cnums[@"opponent"][ucard.Key].Text;
+
+                                        cnums[@"opponent"][ucard.Key].Text = ucard.Value.ToString();
+                                        if (oldtext != ucard.Value.ToString() || highlight == ucard.Key)
+                                        {
+                                            Brush oldbg = borders[@"opponent"][ucard.Key].Background;
+                                            ColorAnimation animation = new ColorAnimation()
+                                            {
+                                                To = (Color)ColorConverter.ConvertFromString("#f9f5ec"),
+                                                Duration = TimeSpan.FromSeconds(0.4),
+                                                AutoReverse = true,
+                                            };
+
+                                            animation.Completed += (s, e) =>
+                                            {
+                                                borders[@"opponent"][ucard.Key].Background = oldbg;
+                                            };
+                                            borders[@"opponent"][ucard.Key].Background = new SolidColorBrush()
+                                            {
+                                                Color = (Color)ColorConverter.ConvertFromString(@"#" + colors[cdb[ucard.Key].Colorindicator])
+                                            };
+                                            borders[@"opponent"][ucard.Key].Background.BeginAnimation(SolidColorBrush.ColorProperty, animation);
+                                            setmode = @"opponent";
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
 
 
-                    if (setmode != @"" && MainWindow.ovlsettings.Autoswitch)
-                    {
-                        Setmode(setmode);
+                        if (setmode != @"" && MainWindow.ovlsettings.Autoswitch)
+                        {
+                            Setmode(setmode);
+                        }
+                        else
+                        {
+                            bottommenu.Visibility = Visibility.Visible;
+                            bottommenu.Margin = new Thickness(0, topmargin[mode], 0, 0);
+                        }
+                        decksrendered = false;
                     }
-                    else
-                    {
-                        bottommenu.Visibility = Visibility.Visible;
-                        bottommenu.Margin = new Thickness(0, topmargin[mode], 0, 0);
-                    }
-                    decksrendered = false;
+                }
+                catch (Exception ee)
+                {
+                    MainWindow.ErrReport(ee, 1010);
                 }
             }
             else
             {
                 //Handling decks list rendering
-                string decks = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getuserdecks" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken } });
-                if (decks != @"ERRCONN")
+                try
                 {
-                    Deck[] decksparsed = JsonConvert.DeserializeObject<Deck[]>(decks);
-                    if (decksparsed.Length > 0)
+                    string decks = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_getuserdecks" }, { @"uid", MainWindow.ouruid }, { @"token", MainWindow.Usertoken } });
+                    if (decks != @"ERRCONN")
                     {
-                        overlayme.Children.Clear();
-                        topmargin[@"decks"] = 20;
-                        cnums[@"decks"].Clear();
-                        borders[@"decks"].Clear();
-                        try
+                        Deck[] decksparsed = JsonConvert.DeserializeObject<Deck[]>(decks);
+                        if (decksparsed.Length > 0)
                         {
-                            renderdecklist(decksparsed, @"decks");
+                            overlayme.Children.Clear();
+                            topmargin[@"decks"] = 20;
+                            cnums[@"decks"].Clear();
+                            borders[@"decks"].Clear();
+                            try
+                            {
+                                renderdecklist(decksparsed, @"decks");
+                            }
+                            catch (Exception ee)
+                            {
+                                MainWindow.ErrReport(ee, 40995);
+                            }
+                            decksrendered = true;
                         }
-                        catch (Exception ee)
-                        {
-                            MainWindow.ErrReport(ee,40995);
-                        }
-                        decksrendered = true;
-                    }
 
-                    Setmode(@"decks");
+                        Setmode(@"decks");
+                    }
+                }
+                catch (Exception ee)
+                {
+                    MainWindow.ErrReport(ee, 1044);
                 }
             }
         }
@@ -1065,31 +1103,39 @@ namespace MTGApro
             Point ourwindow_target = source.CompositionTarget.TransformFromDevice.Transform(ourwindow);
             double winbottom = ourwindow_target.Y + ActualHeight * ScaleValue;
             FileInfo nfo = new FileInfo(path + @"\Cards\" + cardname);
+            if (!Directory.Exists(path + @"\Cards\"))
+            {
+                Directory.CreateDirectory(path + @"\Cards\");
+            }
+
             if (!nfo.Exists)
             {
-                if (nfo.Length > 0)
+                using (WebClient myWebClient = new WebClient())
                 {
-                    if (!Directory.Exists(path + @"\Cards\"))
+                    try
                     {
-                        Directory.CreateDirectory(path + @"\Cards\");
+                        myWebClient.DownloadFileAsync(new Uri(@"https://mtgarena.pro/mtg/pict/" + cardname), path + @"\Cards\" + cardname);
+                        myWebClient.DownloadFileCompleted += MyWebClient_DownloadCardCompleted;
                     }
-
-                    using (WebClient myWebClient = new WebClient())
+                    catch (Exception ee)
                     {
-                        try
-                        {
-                            myWebClient.DownloadFileAsync(new Uri(@"https://mtgarena.pro/mtg/pict/" + cardname), path + @"\Cards\" + cardname);
-                            myWebClient.DownloadFileCompleted += MyWebClient_DownloadCardCompleted;
-                        }
-                        catch (Exception ee)
-                        {
-                            MainWindow.ErrReport(ee, 401078);
-                        }
+                        MainWindow.ErrReport(ee, 401078);
                     }
                 }
-                else
+            }
+            else if (nfo.Length == 0)
+            {
+                using (WebClient myWebClient = new WebClient())
                 {
-                    MyWebClient_DownloadCardCompleted(null, null);
+                    try
+                    {
+                        myWebClient.DownloadFileAsync(new Uri(@"https://mtgarena.pro/mtg/pict/" + cardname), path + @"\Cards\" + cardname);
+                        myWebClient.DownloadFileCompleted += MyWebClient_DownloadCardCompleted;
+                    }
+                    catch (Exception ee)
+                    {
+                        MainWindow.ErrReport(ee, 401078);
+                    }
                 }
             }
             else
@@ -1323,7 +1369,7 @@ namespace MTGApro
                         }
                         catch (Exception ee)
                         {
-                            MainWindow.ErrReport(ee,401313);
+                            MainWindow.ErrReport(ee, 401313);
                         }
                     }
                     Thread.Sleep(500);
