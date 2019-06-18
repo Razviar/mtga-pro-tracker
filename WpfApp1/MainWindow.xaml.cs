@@ -48,7 +48,7 @@ namespace MTGApro
         public static long loglen = 0; //current position in log file which was reached by parser. Always starts from 0 on app startup
         public static bool isrestarting = false; //flag showing that app is being restarted. Used for single-instance management
         public static string tokeninput = "";
-        public static int version = 72; // current version
+        public static int version = 77; // current version
         public static bool hasnewmessage = false;
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
@@ -89,6 +89,7 @@ namespace MTGApro
         public static bool errupload = false;
         public static int skipnlines = 0;
         public static bool wasbrake = false;
+        public static bool warnedtoken = false;
 
         //-----
         public static Curmatch TheMatch = new Curmatch();
@@ -350,7 +351,7 @@ namespace MTGApro
                     }
                     catch (Exception ee)
                     {
-                        ErrReport(ee);
+                        ErrReport(ee, 353);
                     }
 
                     RkApp.Close();
@@ -358,7 +359,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 361);
             }
         }
 
@@ -392,19 +393,19 @@ namespace MTGApro
                 }
                 catch (Exception ee)
                 {
-                    ErrReport(ee);
+                    ErrReport(ee, 395);
                 }
                 RkApp.Close();
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 401);
             }
         }
 
         //Better error reporter
 
-        public static void ErrReport(Exception e)
+        public static void ErrReport(Exception e, int linemanual = 0)
         {
             StackTrace st = new StackTrace(e, true);
             StackFrame frame = st.GetFrame(st.FrameCount - 1);
@@ -413,7 +414,7 @@ namespace MTGApro
             string func = frame.GetMethod().Name;
             string file = frame.GetFileName();
 
-            Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", e.Message + "///" + e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + e.TargetSite + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor + "///" + e.ToString() } };
+            Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", "!!!" + linemanual.ToString() + "!!!" + e.Message + "///" + e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + e.TargetSite + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor + "///" + e.ToString() } };
             string responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), report);
             if (responseString == "ERRCONN")
             {
@@ -452,7 +453,7 @@ namespace MTGApro
 
         //remote server request conductor
 
-        public static string MakeRequest(Uri uri, Dictionary<string, object> data)
+        public static string MakeRequest(Uri uri, Dictionary<string, object> data, string method = "POST")
         {
             try
             {
@@ -462,16 +463,19 @@ namespace MTGApro
                 byte[] formData = WriteMultipartForm(data, formDataBoundary);
 
                 HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
-                httpWebRequest.ContentType = "multipart/form-data; boundary=" + formDataBoundary;
-                httpWebRequest.Method = "POST";
-                httpWebRequest.ContentLength = formData.Length;
+                httpWebRequest.Method = method;
 
-                using (Stream requestStream = httpWebRequest.GetRequestStream())
+                if (method == "POST")
                 {
-                    requestStream.Write(formData, 0, formData.Length);
-                    requestStream.Close();
-                }
+                    httpWebRequest.ContentType = "multipart/form-data; boundary=" + formDataBoundary;
+                    httpWebRequest.ContentLength = formData.Length;
 
+                    using (Stream requestStream = httpWebRequest.GetRequestStream())
+                    {
+                        requestStream.Write(formData, 0, formData.Length);
+                        requestStream.Close();
+                    }
+                }
                 HttpWebResponse response = (HttpWebResponse)httpWebRequest.GetResponse();
                 string responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
                 response.Close();
@@ -536,7 +540,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 539);
                 return null;
             }
         }
@@ -587,6 +591,22 @@ namespace MTGApro
                         logFileStream.Position = loglen;
                     }
 
+                    try
+                    {
+                        if (skipnlines > 0 && logFileStream.CanRead)
+                        {
+                            float totallines = logFileStream.Length / 28;
+                            float percent = skipnlines / totallines;
+                            Dispatcher.BeginInvoke(new ThreadStart(delegate
+                            {
+                                Uplprogress.Value = (int)(100 * percent);
+                            }));
+                        }
+                    }catch(Exception ee)
+                    {
+                        ErrReport(ee, 607);
+                    }
+
                     //loglen = 0;
 
                     using (StreamReader logFileReader = new StreamReader(logFileStream))
@@ -603,6 +623,7 @@ namespace MTGApro
                         string screenName = "";
                         string strdate = "";
                         int linesskipped = 0;
+                        bool newmatch = false;
                         Dictionary<double, StringBuilder[]> builders = new Dictionary<double, StringBuilder[]>();
 
                         while ((line = logFileReader.ReadLine()) != null)
@@ -633,7 +654,7 @@ namespace MTGApro
                                 strdate = line;
                             }
 
-                            if (line.IndexOf("\"playerId\":") > -1 && line.IndexOf("null") == -1 && playerId == "")
+                            if (line.IndexOf("\"playerId\":") > -1 && line.IndexOf("null") == -1)
                             {
                                 playerId = Cut(line, "\"playerId\": \"", "\"", false);
                             }
@@ -646,6 +667,7 @@ namespace MTGApro
                                     if (screenName != ParsedCreds[@"screenName"])
                                     {
                                         builders.Clear();
+                                        break;
                                     }
                                 }
                             }
@@ -657,13 +679,25 @@ namespace MTGApro
 
                             if (line.IndexOf("\"matchId\": \"") > -1)
                             {
-                                TheMatch.Matchid = Cut(line, "\"matchId\": \"", "\"", false);
+                                string newmatchid = Cut(line, "\"matchId\": \"", "\"", false);
+                                if (newmatchid != TheMatch.Matchid && TheMatch.Matchid!="")
+                                {
+                                    newmatch = true;
+                                }
+                                TheMatch.Matchid = newmatchid;
                             }
 
                             if (line.IndexOf("MatchState_MatchComplete") > -1)
                             {
                                 TheMatch = new Curmatch();
                                 TheMatch.Hasnewdata = true;
+                            }
+
+                            if(nowriting==-1 && newmatch)
+                            {
+                                wasbrake = true;
+                                newmatch = false;
+                                break;
                             }
 
                             if (nowriting == -1)
@@ -686,62 +720,106 @@ namespace MTGApro
 
                                             DateTime d = new DateTime();
 
-
-                                            if (strdate != @"")
+                                            if (strdate != @"" && strdate != null && strdate != @"NULL")
                                             {
-                                                datesample = strdate;
-
-                                                if (appsettings.Dateformat != @"")
+                                                try
                                                 {
-                                                    if (appsettings.Dateformat_AM.Length > 0)
-                                                    {
-                                                        strdate = strdate.Replace(appsettings.Dateformat_AM, "AM");
-                                                    }
-                                                    if (appsettings.Dateformat_AM.Length > 0)
-                                                    {
-                                                        strdate = strdate.Replace(appsettings.Dateformat_PM, "PM");
-                                                    }
-                                                    if (DateTime.TryParseExact(strdate, appsettings.Dateformat, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
-                                                    {
+                                                    datesample = strdate;
+                                                }
+                                                catch (Exception ee)
+                                                {
+                                                    Showmsg(Colors.Red, @"Error reading log! (712)", @"CLR", false, @"attention");
+                                                    ErrReport(ee, 731);
+                                                }
 
-                                                    }
-                                                    else
+                                                bool dfmtcheck = false;
+                                                if(appsettings.Dateformat != null)
+                                                {
+                                                    if(appsettings.Dateformat.Length > 0)
                                                     {
-                                                        Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
-                                                        MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
-                                                        Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
-
-                                                        continue;
+                                                        dfmtcheck = true;
                                                     }
+                                                }
+
+                                                if (dfmtcheck)
+                                                {
+                                                    try
+                                                    {
+                                                        if (appsettings.Dateformat_AM != null && appsettings.Dateformat_PM != null)
+                                                        {
+                                                            if (appsettings.Dateformat_AM.Length > 0)
+                                                            {
+                                                                strdate = strdate.Replace(appsettings.Dateformat_AM, @"AM");
+                                                            }
+                                                            if (appsettings.Dateformat_PM.Length > 0)
+                                                            {
+                                                                strdate = strdate.Replace(appsettings.Dateformat_PM, @"PM");
+                                                            }
+                                                        }
+                                                    }
+                                                    catch (Exception ee)
+                                                    {
+                                                        Showmsg(Colors.Red, @"Error reading log!  (743)", @"CLR", false, @"attention");
+                                                        ErrReport(ee, 763);
+                                                    }
+
+                                                    try
+                                                    {
+                                                        if (DateTime.TryParseExact(strdate, appsettings.Dateformat, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
+                                                        {
+
+                                                        }
+                                                        else
+                                                        {
+                                                            Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
+                                                            _ = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
+                                                            Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
+                                                            continue;
+                                                        }
+                                                    }
+                                                    catch (Exception ee)
+                                                    {
+                                                        Showmsg(Colors.Red, @"Error reading log!  (763)", @"CLR", false, @"attention");
+                                                        ErrReport(ee, 783);
+                                                    }
+
                                                 }
                                                 else
                                                 {
-
-                                                    foreach (KeyValuePair<string, string> re in datereplacements)
+                                                    try
                                                     {
-                                                        strdate = strdate.Replace(re.Key, re.Value);
+
+                                                        foreach (KeyValuePair<string, string> re in datereplacements)
+                                                        {
+                                                            strdate = strdate.Replace(re.Key, re.Value);
+                                                        }
+
+                                                        if (DateTime.TryParseExact(strdate, dateformats, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
+                                                        {
+
+                                                        }
+                                                        else if (DateTime.TryParse(strdate, CultureInfo.CurrentCulture, DateTimeStyles.None, out d))
+                                                        {
+
+                                                        }
+                                                        else if (DateTime.TryParse(strdate, out d))
+                                                        {
+
+                                                        }
+                                                        else
+                                                        {
+
+                                                            Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
+                                                            MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
+                                                            Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
+
+                                                            continue;
+                                                        }
                                                     }
-
-                                                    if (DateTime.TryParseExact(strdate, dateformats, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
+                                                    catch (Exception ee)
                                                     {
-
-                                                    }
-                                                    else if (DateTime.TryParse(strdate, CultureInfo.CurrentCulture, DateTimeStyles.None, out d))
-                                                    {
-
-                                                    }
-                                                    else if (DateTime.TryParse(strdate, out d))
-                                                    {
-
-                                                    }
-                                                    else
-                                                    {
-
-                                                        Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
-                                                        MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
-                                                        Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
-
-                                                        continue;
+                                                        Showmsg(Colors.Red, @"Error reading log!  (802)", @"CLR", false, @"attention");
+                                                        ErrReport(ee, 775);
                                                     }
                                                 }
                                                 double tst = ConvertToUnixTimestamp(d);
@@ -759,7 +837,8 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            ErrReport(ee);
+                                            Showmsg(Colors.Red, @"Error reading log!  (821)", @"CLR", false, @"attention");
+                                            ErrReport(ee, 793);
                                         }
 
                                         if (!indicators[j].Addup)
@@ -865,6 +944,11 @@ namespace MTGApro
                         {
                             loglen = logFileStream.Length;
                             skipnlines = 0;
+                            Dispatcher.BeginInvoke(new ThreadStart(delegate
+                            {
+                                Uplprogress.Visibility = Visibility.Hidden;
+                                Uplprogress.Value = 0;
+                            }));
                         }
 
                         if (playerId != @"" && screenName != @"")
@@ -946,7 +1030,8 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            ErrReport(ee);
+                                            Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
+                                            ErrReport(ee, 962);
 
                                         }
                                     }
@@ -967,7 +1052,8 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            ErrReport(ee);
+                                            Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
+                                            ErrReport(ee, 983);
 
                                         }
                                     }
@@ -1000,7 +1086,8 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            ErrReport(ee);
+                                            Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
+                                            ErrReport(ee, 1016);
 
                                         }
                                     }
@@ -1018,7 +1105,7 @@ namespace MTGApro
 
                                                     if (stuff.gameObjects[irp].ownerSeatId == TheMatch.Teamid)
                                                     {
-                                                        if (!TheMatch.Udeckinst.ContainsKey((int)stuff.gameObjects[irp].instanceId) && stuff.gameObjects[irp].visibility == @"Visibility_Private")
+                                                        if (!TheMatch.Udeckinst.ContainsKey((int)stuff.gameObjects[irp].instanceId) && stuff.gameObjects[irp].visibility == @"Visibility_Private" && Window4.cdb_mtga_id.ContainsKey((int)stuff.gameObjects[irp].grpId))
                                                         {
                                                             if (!TheMatch.Udeck.ContainsKey(Window4.cdb_mtga_id[(int)stuff.gameObjects[irp].grpId]))
                                                             {
@@ -1033,7 +1120,7 @@ namespace MTGApro
                                                     }
                                                     else
                                                     {
-                                                        if (!TheMatch.Edeckinst.ContainsKey((int)stuff.gameObjects[irp].instanceId) && stuff.gameObjects[irp].visibility == @"Visibility_Public")
+                                                        if (!TheMatch.Edeckinst.ContainsKey((int)stuff.gameObjects[irp].instanceId) && stuff.gameObjects[irp].visibility == @"Visibility_Public" && Window4.cdb_mtga_id.ContainsKey((int)stuff.gameObjects[irp].grpId))
                                                         {
                                                             if (!TheMatch.Edeck.ContainsKey(Window4.cdb_mtga_id[(int)stuff.gameObjects[irp].grpId]))
                                                             {
@@ -1052,7 +1139,8 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            ErrReport(ee);
+                                            //Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
+                                            ErrReport(ee, 1068);
                                         }
                                     }
                                     else if ((index == 7 || index == 9) && parsed[output.Key][index] != @"")
@@ -1065,7 +1153,8 @@ namespace MTGApro
                                             TheMatch.Draftdeck.Clear();
                                             try
                                             {
-                                                for (int irp = 0; irp < stuff.draftPack.Count; irp++)
+                                                JArray dpack = (JArray)stuff.draftPack;
+                                                for (int irp = 0; irp < dpack.Count; irp++)
                                                 {
                                                     if (!TheMatch.Draftdeck.ContainsKey(Window4.cdb_mtga_id[(int)stuff.draftPack[irp]]))
                                                     {
@@ -1076,10 +1165,12 @@ namespace MTGApro
                                                         TheMatch.Draftdeck[Window4.cdb_mtga_id[(int)stuff.draftPack[irp]]]++;
                                                     }
                                                 }
+
                                             }
                                             catch (Exception ee)
                                             {
-                                                ErrReport(ee);
+                                                // Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
+                                                ErrReport(ee, 1095);
                                             }
                                             TheMatch.Hasnewdata = true;
                                             if (TheMatch.DraftPack == 2 && TheMatch.DraftPick == 14)
@@ -1093,7 +1184,8 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            ErrReport(ee);
+
+                                            ErrReport(ee, 1109);
                                             TheMatch.Hasnewdata = true;
                                             TheMatch.IsDrafting = false;
                                         }
@@ -1151,7 +1243,8 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
+                ErrReport(ee, 1167);
             }
         }
 
@@ -1277,7 +1370,7 @@ namespace MTGApro
                 }
                 catch (Exception ee)
                 {
-                    ErrReport(ee);
+                    ErrReport(ee, 1293);
                     return false;
                 }
             }
@@ -1306,7 +1399,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 1322);
             }
         }
 
@@ -1351,7 +1444,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 1367);
             }
         }
 
@@ -1365,7 +1458,18 @@ namespace MTGApro
 
                 if (File.Exists(GenPath(false)) && Usertoken != null)
                 {
-                    Showmsg(Colors.YellowGreen, @"Reading log...", @"", false, @"icon" + appsettings.Icon.ToString());
+                    if (skipnlines == 0)
+                    {
+                        Showmsg(Colors.YellowGreen, @"Reading log...", @"", false, @"icon" + appsettings.Icon.ToString());
+                    }
+                    else
+                    {
+                        Showmsg(Colors.YellowGreen, @"Reading long log...", @"", false, @"icon" + appsettings.Icon.ToString());
+                        Dispatcher.BeginInvoke(new ThreadStart(delegate
+                        {
+                            Uplprogress.Visibility = Visibility.Visible;
+                        }));
+                    }
                     Dispatcher.BeginInvoke(new ThreadStart(delegate
                     {
                         Resyncbut.IsEnabled = false;
@@ -1411,21 +1515,29 @@ namespace MTGApro
                                 Ingame_nick.Content = mtganick;
                             }));
 
-                            if (!Credentials.ContainsKey(ouruid) && !Credentials.ContainsValue(mtgauid))
+                            if (Credentials.Count==0 && ouruid != "")
                             {
                                 Usermtgaid.Add(ouruid, mtganick);
                                 Credentials.Add(ouruid, mtgauid);
+
                                 Dispatcher.BeginInvoke(new ThreadStart(delegate { SetAppData(); }));
                             }
 
                             playerswith = false;
+                            if (!Credentials.ContainsKey(ouruid))
+                            {
+                                playerswith = true;
+                            }else if(Credentials[ouruid] != mtgauid)
+                            {
+                                playerswith = true;
+                            }
 
-                            if (Credentials[ouruid] != mtgauid)
+                            if (playerswith)
                             {
                                 Usertoken = null;
                                 ouruid = "";
                                 credok = false;
-                                playerswith = true;
+                               
                                 needtoken = true;
 
                                 foreach (KeyValuePair<string, string> tkn in Credentials)
@@ -1437,7 +1549,7 @@ namespace MTGApro
 
                                         Dispatcher.BeginInvoke(new ThreadStart(delegate
                                         {
-                                            /*Token.Content = selnick;*/
+                                            //Token.Content = Utokens[ouruid];
                                             Token_msg.Text = @"Detected user: ";
                                             TokenInput.Text = Usertoken;
                                         }));
@@ -1445,6 +1557,7 @@ namespace MTGApro
                                         credok = true;
                                         needtoken = false;
                                         GetAppData();
+                                        break;
                                     }
                                 }
 
@@ -1492,7 +1605,10 @@ namespace MTGApro
                             parsed.Remove(del);
                         }
 
-                        Showmsg(Colors.YellowGreen, @"Awaiting for updates...", @"", false, @"icon" + appsettings.Icon.ToString());
+                        if (skipnlines == 0)
+                        {
+                            Showmsg(Colors.YellowGreen, @"Awaiting for updates...", @"", false, @"icon" + appsettings.Icon.ToString());
+                        }
 
                         if (somethingnew && !playerswith)
                         {
@@ -1503,7 +1619,7 @@ namespace MTGApro
                             }
                             else
                             {
-                                Showmsg(Colors.OrangeRed, @"Troubles with upload :-/", @"", false, @"icon" + appsettings.Icon.ToString());
+                                Showmsg(Colors.OrangeRed, @"Troubles with upload :-/ (1604)", @"", false, @"icon" + appsettings.Icon.ToString());
                                 errupload = true;
                             }
 
@@ -1527,7 +1643,11 @@ namespace MTGApro
                     else if (needtoken)
                     {
                         Showmsg(Colors.Red, @"Another MTGA User! Input different Token", @"CLR", false, @"attention");
-                        ToastShowCheck(@"Another MTGA User! Input different Token");
+                        if (!warnedtoken)
+                        {
+                            ToastShowCheck(@"Another MTGA User! Input different Token");
+                            warnedtoken = true;
+                        }
                     }
                     else if (playerswith)
                     {
@@ -1550,7 +1670,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 1566);
             }
         }
 
@@ -1671,7 +1791,7 @@ namespace MTGApro
                 }
                 catch (Exception ee)
                 {
-                    ErrReport(ee);
+                    ErrReport(ee, 1687);
                 }
 
                 try
@@ -1680,7 +1800,7 @@ namespace MTGApro
                 }
                 catch (Exception ee)
                 {
-                    ErrReport(ee);
+                    ErrReport(ee, 1696);
                 }
             }
 
@@ -1828,7 +1948,10 @@ namespace MTGApro
                                 runtime = Convert.ToInt32(tmstmp());
                             }
                             gamestarted = true;
-                            Showmsg(Colors.YellowGreen, @"Awaiting for updates...", @"", false, @"icon" + appsettings.Icon.ToString());
+                            if (skipnlines == 0)
+                            {
+                                Showmsg(Colors.YellowGreen, @"Awaiting for updates...", @"", false, @"icon" + appsettings.Icon.ToString());
+                            }
 
                             if ((gamefocused || ovlsettings.Streamer) && overlayactive && (ovlsettings.Decklist || TheMatch.IsDrafting || TheMatch.IsFighting))
                             {
@@ -1848,7 +1971,7 @@ namespace MTGApro
                                     }
                                     catch (Exception ee)
                                     {
-                                        ErrReport(ee);
+                                        ErrReport(ee, 1864);
                                     }
                                 }));
                             }
@@ -1865,7 +1988,7 @@ namespace MTGApro
                                     }
                                     catch (Exception ee)
                                     {
-                                        ErrReport(ee);
+                                        ErrReport(ee, 1881);
                                     }
                                 }));
                             }
@@ -1906,7 +2029,7 @@ namespace MTGApro
                             }
                             catch (Exception ee)
                             {
-                                ErrReport(ee);
+                                ErrReport(ee, 1922);
                             }
                             if (appsettings != null)
                             {
@@ -1917,13 +2040,12 @@ namespace MTGApro
 
                         if (indicators != null)
                         {
-                            if (!playerswith)
+
+                            if (juststarted || gamestarted || wasbrake)
                             {
-                                if (juststarted || gamestarted || wasbrake)
-                                {
-                                    Checklog();
-                                }
+                                Checklog();
                             }
+
                         }
                         else
                         {
@@ -1933,10 +2055,11 @@ namespace MTGApro
                     }
                     catch (Exception ee)
                     {
-                        ErrReport(ee);
+                        ErrReport(ee, 1949);
                     }
                     //Thread.Sleep(upltimers[appsettings.Upl]);
-                    Thread.Sleep(1000);
+
+                    Thread.Sleep((skipnlines == 0) ? 1000 : 100);
                 }
             }
             else
@@ -2011,7 +2134,7 @@ namespace MTGApro
                             }
                             catch (Exception ee)
                             {
-                                ErrReport(ee);
+                                ErrReport(ee, 2027);
                             }
                             Registry.CurrentUser.DeleteSubKey(@"SOFTWARE\\MTGAProtracker");
                             ni.Visible = false;
@@ -2021,7 +2144,7 @@ namespace MTGApro
                         }
                         catch (Exception ee)
                         {
-                            ErrReport(ee);
+                            ErrReport(ee, 2037);
                             ni.Visible = false;
                             ni.Dispose();
                             Process.Start(Application.ResourceAssembly.Location, "restarting");
@@ -2045,25 +2168,28 @@ namespace MTGApro
                     {
                         Usertoken = tokeninput;
                         ouruid = info.Data;
+
                         if (!Utokens.ContainsKey(ouruid))
                         {
                             Utokens.Add(ouruid, Usertoken);
-                            if (mtgauid != "")
-                            {
-                                Usermtgaid.Add(ouruid, mtganick);
-                                Credentials.Add(ouruid, mtgauid);
-                            }
+                            
                         }
                         else
                         {
                             Utokens[ouruid] = Usertoken;
                         }
 
-                        SetAppData();
+                        if (mtgauid != "" && mtganick!="" && !Usermtgaid.ContainsKey(ouruid))
+                        {
+                            Usermtgaid.Add(ouruid, mtganick);
+                            Credentials.Add(ouruid, mtgauid);
+                        }
+ 
                         playerswith = false;
 
                         Dispatcher.BeginInvoke(new ThreadStart(delegate
                         {
+                            SetAppData();
                             Token.Content = info.Status;
                             Token_msg.Width = 103;
                             Token.Width = 163;
@@ -2133,7 +2259,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 2149);
             }
         }
 
@@ -2154,7 +2280,7 @@ namespace MTGApro
                 }
                 catch (Exception ee)
                 {
-                    ErrReport(ee);
+                    ErrReport(ee, 2170);
                 }
                 Registry.CurrentUser.DeleteSubKey(@"SOFTWARE\\MTGAProtracker");
                 ni.Visible = false;
@@ -2178,7 +2304,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 2194);
             }
         }
 
@@ -2191,7 +2317,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 2207);
             }
         }
 
@@ -2218,7 +2344,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 2234);
             }
         }
 
@@ -2244,7 +2370,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 2260);
 
             }
         }
@@ -2312,7 +2438,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                ErrReport(ee);
+                ErrReport(ee, 2328);
             }
         }
 
@@ -2340,7 +2466,7 @@ namespace MTGApro
         {
             Exception ee = (Exception)args.ExceptionObject;
 
-            ErrReport(ee);
+            ErrReport(ee, -1);
 
             RegistryKey RkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\\MTGAProtracker", true);
             if (RkApp == null)

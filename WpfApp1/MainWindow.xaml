@@ -18,7 +18,7 @@
             </Grid>
         </Border>
         <Border Background="#ffffff" CornerRadius="5" BorderBrush="#FFAC3925" BorderThickness="2,2,2,2" Margin="0,69,0,0" Height="365" Width="289" VerticalAlignment="Top" Grid.RowSpan="4">
-            <Grid Width="288"  VerticalAlignment="Top" HorizontalAlignment="Left">
+            <Grid Width="288"  VerticalAlignment="Top" HorizontalAlignment="Left" Height="363" Margin="0,0,0,0">
                 <TextBlock HorizontalAlignment="Left" Margin="191,5,0,0" TextWrapping="Wrap" Text="and input it here:" VerticalAlignment="Top" Height="32" Width="95"/>
                 <TextBlock HorizontalAlignment="Left" Margin="7,5,0,321" TextWrapping="Wrap" Width="181">
            <Hyperlink NavigateUri="https://mtgarena.pro/mtga-pro-tracker/" RequestNavigate="Hyperlink_RequestNavigate">Get your token on MTGArena.pro</Hyperlink></TextBlock>
@@ -54,7 +54,7 @@
                     </StackPanel>
                 </Button>
                 <Label x:Name="Ingame_nick"  Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="119,96,0,0" FontWeight="Bold" Width="163" Height="26"/>
-                <TextBlock x:Name="Ingame_user"  Text="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="7,102,0,0" Width="103" Height="16"/>
+                <TextBlock x:Name="Ingame_user"  Text="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,102,0,0" Width="103" Height="16"/>
                 <Button x:Name="Updater" Content="Update Available!" HorizontalAlignment="Left" Margin="7,311,0,0" VerticalAlignment="Top" Width="270" Height="25" Foreground="Black" Background="#FFEB826C" FontWeight="Bold" ToolTip="Click to update" Click="Button_Click_4" Visibility="Hidden"  />
                 <Button x:Name="Messenger" Content="New Notification!" HorizontalAlignment="Left" Margin="7,311,0,0" VerticalAlignment="Top" Width="270" Height="25" Foreground="Black" Background="#FFEB826C" FontWeight="Bold" ToolTip="Click to read" Click="Messenger_Click" Visibility="Hidden" />
                 <Button x:Name="Resyncbut" HorizontalAlignment="Left" Margin="7,220,0,0" VerticalAlignment="Top" Width="136" Click="Button_Click_5" Height="25" ToolTip="Force app to upload all data from the latest log">

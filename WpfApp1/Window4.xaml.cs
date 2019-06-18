@@ -164,7 +164,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                MainWindow.ErrReport(ee);
+                MainWindow.ErrReport(ee,40167);
             }
         }
 
@@ -194,7 +194,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                MainWindow.ErrReport(ee);
+                MainWindow.ErrReport(ee,40197);
             }
         }
 
@@ -207,21 +207,27 @@ namespace MTGApro
             {
                 try
                 {
-                    Stream cardsdbstream = Application.GetResourceStream(new Uri(@"pack://application:,,,/CardsDB/cards_db_app.json")).Stream;
-                    using (StreamReader reader = new StreamReader(cardsdbstream))
+                    var cards_db = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/wp-content/plugins/mtgarenapro/js/cards_db_app.js"), new Dictionary<string, object> { }, "GET");
+                    cdb = JsonConvert.DeserializeObject<Dictionary<int, Card>>(cards_db);
+                    foreach (KeyValuePair<int, Card> cid in cdb)
                     {
-                        string cards_db = reader.ReadToEnd();
-                        cdb = JsonConvert.DeserializeObject<Dictionary<int, Card>>(cards_db);
-                        foreach (KeyValuePair<int, Card> cid in cdb)
-                        {
-                            if (!cdb_mtga_id.ContainsKey(cid.Value.Mtga_id)) cdb_mtga_id.Add(cid.Value.Mtga_id, cid.Key);
-                        }
+                        if (!cdb_mtga_id.ContainsKey(cid.Value.Mtga_id)) cdb_mtga_id.Add(cid.Value.Mtga_id, cid.Key);
                     }
+                    /* Stream cardsdbstream = Application.GetResourceStream(new Uri(@"pack://application:,,,/CardsDB/cards_db_app.json")).Stream;
+                     using (StreamReader reader = new StreamReader(cardsdbstream))
+                     {
+                         string cards_db = reader.ReadToEnd();
+                         cdb = JsonConvert.DeserializeObject<Dictionary<int, Card>>(cards_db);
+                         foreach (KeyValuePair<int, Card> cid in cdb)
+                         {
+                             if (!cdb_mtga_id.ContainsKey(cid.Value.Mtga_id)) cdb_mtga_id.Add(cid.Value.Mtga_id, cid.Key);
+                         }
+                     }*/
 
                 }
                 catch (Exception ee)
                 {
-                    MainWindow.ErrReport(ee);
+                    MainWindow.ErrReport(ee,40224);
                 }
             }
         }
@@ -785,7 +791,7 @@ namespace MTGApro
                             }
                             catch (Exception ee)
                             {
-                                MainWindow.ErrReport(ee);
+                                MainWindow.ErrReport(ee,40788);
                             }
                         }
                         else
@@ -906,7 +912,7 @@ namespace MTGApro
                             }
                             catch (Exception ee)
                             {
-                                MainWindow.ErrReport(ee);
+                                MainWindow.ErrReport(ee,40909);
                             }
                             setmode = "opponent";
                         }
@@ -925,7 +931,7 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            MainWindow.ErrReport(ee);
+                                            MainWindow.ErrReport(ee,40928);
                                         }
                                         highlight = ucard.Key;
                                     }
@@ -992,7 +998,7 @@ namespace MTGApro
                         }
                         catch (Exception ee)
                         {
-                            MainWindow.ErrReport(ee);
+                            MainWindow.ErrReport(ee,40995);
                         }
                         decksrendered = true;
                     }
@@ -1059,24 +1065,31 @@ namespace MTGApro
             Point ourwindow_target = source.CompositionTarget.TransformFromDevice.Transform(ourwindow);
             double winbottom = ourwindow_target.Y + ActualHeight * ScaleValue;
             FileInfo nfo = new FileInfo(path + @"\Cards\" + cardname);
-            if (!nfo.Exists || nfo.Length == 0)
+            if (!nfo.Exists)
             {
-                if (!Directory.Exists(path + @"\Cards\"))
+                if (nfo.Length > 0)
                 {
-                    Directory.CreateDirectory(path + @"\Cards\");
-                }
+                    if (!Directory.Exists(path + @"\Cards\"))
+                    {
+                        Directory.CreateDirectory(path + @"\Cards\");
+                    }
 
-                using (WebClient myWebClient = new WebClient())
+                    using (WebClient myWebClient = new WebClient())
+                    {
+                        try
+                        {
+                            myWebClient.DownloadFileAsync(new Uri(@"https://mtgarena.pro/mtg/pict/" + cardname), path + @"\Cards\" + cardname);
+                            myWebClient.DownloadFileCompleted += MyWebClient_DownloadCardCompleted;
+                        }
+                        catch (Exception ee)
+                        {
+                            MainWindow.ErrReport(ee, 401078);
+                        }
+                    }
+                }
+                else
                 {
-                    try
-                    {
-                        myWebClient.DownloadFileAsync(new Uri(@"https://mtgarena.pro/mtg/pict/" + cardname), path + @"\Cards\" + cardname);
-                        myWebClient.DownloadFileCompleted += MyWebClient_DownloadCardCompleted;
-                    }
-                    catch (Exception ee)
-                    {
-                        MainWindow.ErrReport(ee);
-                    }
+                    MyWebClient_DownloadCardCompleted(null, null);
                 }
             }
             else
@@ -1310,7 +1323,7 @@ namespace MTGApro
                         }
                         catch (Exception ee)
                         {
-                            MainWindow.ErrReport(ee);
+                            MainWindow.ErrReport(ee,401313);
                         }
                     }
                     Thread.Sleep(500);
