@@ -213,17 +213,6 @@ namespace MTGApro
                     {
                         if (!cdb_mtga_id.ContainsKey(cid.Value.Mtga_id)) cdb_mtga_id.Add(cid.Value.Mtga_id, cid.Key);
                     }
-                    /* Stream cardsdbstream = Application.GetResourceStream(new Uri(@"pack://application:,,,/CardsDB/cards_db_app.json")).Stream;
-                     using (StreamReader reader = new StreamReader(cardsdbstream))
-                     {
-                         string cards_db = reader.ReadToEnd();
-                         cdb = JsonConvert.DeserializeObject<Dictionary<int, Card>>(cards_db);
-                         foreach (KeyValuePair<int, Card> cid in cdb)
-                         {
-                             if (!cdb_mtga_id.ContainsKey(cid.Value.Mtga_id)) cdb_mtga_id.Add(cid.Value.Mtga_id, cid.Key);
-                         }
-                     }*/
-
                 }
                 catch (Exception ee)
                 {
@@ -253,25 +242,38 @@ namespace MTGApro
 
         private void renderdeck(Dictionary<int, int> carray, int ncards, string curmode, Dictionary<int, int> Udecklive = null)
         {
-            if (Udecklive == null)
+            try
             {
-                Udecklive = new Dictionary<int, int>();
+                if (Udecklive == null)
+                {
+                    Udecklive = new Dictionary<int, int>();
+                }
             }
+            catch (Exception ee)
+            {
+                MainWindow.ErrReport(ee, 40254);
+            }
+
 
             foreach (KeyValuePair<int, int> ucard in carray)
             {
-                if (ucard.Key != -1)
+                if (ucard.Key == -1 || !cdb.ContainsKey(ucard.Key))
                 {
-                    Dictionary<string, int> manaparsed = new Dictionary<string, int>();
-                    try
-                    {
-                        manaparsed = JsonConvert.DeserializeObject<Dictionary<string, int>>(cdb[ucard.Key].Mana);
-                    }
-                    catch (Exception ee)
-                    {
-                        // MainWindow.ErrReport(ee);
-                    }
+                    continue;
+                }
 
+                Dictionary<string, int> manaparsed = new Dictionary<string, int>();
+                try
+                {
+                    manaparsed = JsonConvert.DeserializeObject<Dictionary<string, int>>(cdb[ucard.Key].Mana);
+                }
+                catch (Exception ee)
+                {
+                    // MainWindow.ErrReport(ee);
+                }
+
+                try
+                {
                     DropShadowEffect myDropShadowEffect = new DropShadowEffect()
                     {
                         Color = (Color)ColorConverter.ConvertFromString(@"#FF000000"),
@@ -548,6 +550,10 @@ namespace MTGApro
                     if (MainWindow.ovlsettings.Showcard) borders[curmode][ucard.Key].MouseEnter += new MouseEventHandler(Mouse_overcard);
 
                 }
+                catch (Exception ee)
+                {
+                    MainWindow.ErrReport(ee, 40564);
+                }
             }
         }
 
@@ -558,152 +564,160 @@ namespace MTGApro
 
             foreach (Deck udeck in darray)
             {
-                Dictionary<string, int> manaparsed = new Dictionary<string, int>();
-                string Colorindicator = @"";
                 try
                 {
-                    manaparsed = JsonConvert.DeserializeObject<Dictionary<string, int>>(udeck.Classstruct);
-                    if (Colorindicator == @"")
+                    Dictionary<string, int> manaparsed = new Dictionary<string, int>();
+                    string Colorindicator = @"";
+                    try
                     {
-                        Colorindicator = manaparsed.Keys.First();
-                    }
-                }
-                catch (Exception e)
-                {
-                    /*string report = e.TargetSite + "//" + e.Message + "//" + e.InnerException + "//" + e.Source + "//" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
-                    var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report }, { @"version", MainWindow.version }, { @"function", @"manaparsed" } });*/
-                }
-
-                DropShadowEffect myDropShadowEffect = new DropShadowEffect()
-                {
-                    Color = (Color)ColorConverter.ConvertFromString(@"#FF000000"),
-                    BlurRadius = 1,
-                    ShadowDepth = 1,
-                    Direction = 320,
-                    Opacity = 0.9
-                };
-
-
-                TextBlock txt = new TextBlock()
-                {
-                    FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#JaceBeleren"),
-                    FontWeight = FontWeights.Bold,
-                    Text = udeck.Humanname,
-                    FontSize = 14,
-                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Margin = new Thickness(5, 0, 0, 0),
-                    Width = 150,
-                    TextTrimming = TextTrimming.CharacterEllipsis
-                };
-
-                if (Window1.ovlsettings.Font == 1)
-                {
-                    txt.FontFamily = new FontFamily(@"Segoe UI");
-                }
-                else
-                {
-                    txt.FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#JaceBeleren");
-                }
-
-                TextBlock manatext = new TextBlock()
-                {
-                    FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Mana"),
-                    HorizontalAlignment = HorizontalAlignment.Right,
-                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
-                    TextAlignment = TextAlignment.Right,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Width = 35,
-                    Margin = new Thickness(155, 2, 0, 0)
-                };
-
-                string output = "";
-
-
-                output = udeck.perswinratio.ToString() + @" | " + udeck.wlnratio.ToString();
-
-
-                cnums[curmode].Add(udeck.Id, new TextBlock()
-                {
-                    Name = @"cnum_" + udeck.Id.ToString(),
-                    Text = output,
-                    FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Beleren"),
-                    Effect = myDropShadowEffect,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    TextAlignment = TextAlignment.Center,
-                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#FFFFFFFF")),
-                    Width = 45,
-                    Margin = new Thickness(205, 0, 0, 0),
-                    Padding = new Thickness(0, 2, 2, 0)
-                });
-
-                int n = 0;
-                foreach (KeyValuePair<string, int> m in manaparsed)
-                {
-                    string[] mkeys = m.Key.Split('/');
-                    foreach (string mk in mkeys)
-                    {
-                        if (mk != "Colorless" && mk != "Multicolor")
+                        manaparsed = JsonConvert.DeserializeObject<Dictionary<string, int>>(udeck.Classstruct);
+                        if (Colorindicator == @"")
                         {
-                            if (icons_mana.ContainsKey(mk)) manatext.Text += icons_mana[mk];
+                            Colorindicator = manaparsed.Keys.First();
                         }
                     }
+                    catch (Exception e)
+                    {
+                        /*string report = e.TargetSite + "//" + e.Message + "//" + e.InnerException + "//" + e.Source + "//" + e.StackTrace + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor;
+                        var responseString = MainWindow.MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", MainWindow.Usertoken }, { @"cm_errreport", report }, { @"version", MainWindow.version }, { @"function", @"manaparsed" } });*/
+                    }
+
+                    DropShadowEffect myDropShadowEffect = new DropShadowEffect()
+                    {
+                        Color = (Color)ColorConverter.ConvertFromString(@"#FF000000"),
+                        BlurRadius = 1,
+                        ShadowDepth = 1,
+                        Direction = 320,
+                        Opacity = 0.9
+                    };
+
+
+                    TextBlock txt = new TextBlock()
+                    {
+                        FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#JaceBeleren"),
+                        FontWeight = FontWeights.Bold,
+                        Text = udeck.Humanname,
+                        FontSize = 14,
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(5, 0, 0, 0),
+                        Width = 150,
+                        TextTrimming = TextTrimming.CharacterEllipsis
+                    };
+
+                    if (Window1.ovlsettings.Font == 1)
+                    {
+                        txt.FontFamily = new FontFamily(@"Segoe UI");
+                    }
+                    else
+                    {
+                        txt.FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#JaceBeleren");
+                    }
+
+                    TextBlock manatext = new TextBlock()
+                    {
+                        FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Mana"),
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#BDffffff")),
+                        TextAlignment = TextAlignment.Right,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Width = 35,
+                        Margin = new Thickness(155, 2, 0, 0)
+                    };
+
+                    string output = "";
+
+
+                    output = udeck.perswinratio.ToString() + @" | " + udeck.wlnratio.ToString();
+
+
+                    cnums[curmode].Add(udeck.Id, new TextBlock()
+                    {
+                        Name = @"cnum_" + udeck.Id.ToString(),
+                        Text = output,
+                        FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Beleren"),
+                        Effect = myDropShadowEffect,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        TextAlignment = TextAlignment.Center,
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(@"#FFFFFFFF")),
+                        Width = 45,
+                        Margin = new Thickness(205, 0, 0, 0),
+                        Padding = new Thickness(0, 2, 2, 0)
+                    });
+
+                    int n = 0;
+                    foreach (KeyValuePair<string, int> m in manaparsed)
+                    {
+                        string[] mkeys = m.Key.Split('/');
+                        foreach (string mk in mkeys)
+                        {
+                            if (mk != "Colorless" && mk != "Multicolor")
+                            {
+                                if (icons_mana.ContainsKey(mk)) manatext.Text += icons_mana[mk];
+                            }
+                        }
+                    }
+
+
+
+                    LinearGradientBrush grbr = new LinearGradientBrush((Color)ColorConverter.ConvertFromString(@"#" + colors_light[Colorindicator]), (Color)ColorConverter.ConvertFromString(@"#" + colors_dark[Colorindicator]), 90);
+
+                    borders[curmode].Add(udeck.Id, new Border()
+                    {
+                        Name = @"C_" + udeck.Id.ToString(),
+                        Width = 252,
+                        Height = 27,
+                        Background = new SolidColorBrush()
+                        {
+                            Color = (Color)ColorConverter.ConvertFromString(@"#36221e")
+                        },
+                        BorderThickness = new Thickness(0, 0, 0, 0),
+                        CornerRadius = new CornerRadius(5),
+                        Margin = new Thickness(0, topmargin[curmode], 0, 0),
+                        Padding = new Thickness(2, 2, 2, 2),
+                        VerticalAlignment = VerticalAlignment.Top,
+                        HorizontalAlignment = HorizontalAlignment.Left
+                    });
+
+                    Border recinner = new Border()
+                    {
+                        Width = 200,
+                        Height = 22,
+                        Background = new SolidColorBrush()
+                        {
+                            Color = (Color)ColorConverter.ConvertFromString(@"#22FFFFFF")
+                        },
+                        BorderBrush = grbr,
+                        BorderThickness = new Thickness(2, 2, 2, 2),
+                        CornerRadius = new CornerRadius(5),
+                        Padding = new Thickness(2, 0, 0, 0),
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Left
+                    };
+
+                    Canvas cnvas = new Canvas();
+                    Canvas cnvas_outer = new Canvas();
+
+                    cnvas.Children.Add(txt);
+                    cnvas.Children.Add(manatext);
+                    recinner.Child = cnvas;
+
+                    cnvas_outer.Children.Add(recinner);
+                    cnvas_outer.Children.Add(cnums[curmode][udeck.Id]);
+
+                    borders[curmode][udeck.Id].Child = cnvas_outer;
+
+                    topmargin[curmode] += 27;
+
+                    overlayme.Children.Add(borders[curmode][udeck.Id]);
+                }
+                catch(Exception ee)
+                {
+                    MainWindow.ErrReport(ee, 40723);
                 }
 
-
-
-                LinearGradientBrush grbr = new LinearGradientBrush((Color)ColorConverter.ConvertFromString(@"#" + colors_light[Colorindicator]), (Color)ColorConverter.ConvertFromString(@"#" + colors_dark[Colorindicator]), 90);
-
-                borders[curmode].Add(udeck.Id, new Border()
-                {
-                    Name = @"C_" + udeck.Id.ToString(),
-                    Width = 252,
-                    Height = 27,
-                    Background = new SolidColorBrush()
-                    {
-                        Color = (Color)ColorConverter.ConvertFromString(@"#36221e")
-                    },
-                    BorderThickness = new Thickness(0, 0, 0, 0),
-                    CornerRadius = new CornerRadius(5),
-                    Margin = new Thickness(0, topmargin[curmode], 0, 0),
-                    Padding = new Thickness(2, 2, 2, 2),
-                    VerticalAlignment = VerticalAlignment.Top,
-                    HorizontalAlignment = HorizontalAlignment.Left
-                });
-
-                Border recinner = new Border()
-                {
-                    Width = 200,
-                    Height = 22,
-                    Background = new SolidColorBrush()
-                    {
-                        Color = (Color)ColorConverter.ConvertFromString(@"#22FFFFFF")
-                    },
-                    BorderBrush = grbr,
-                    BorderThickness = new Thickness(2, 2, 2, 2),
-                    CornerRadius = new CornerRadius(5),
-                    Padding = new Thickness(2, 0, 0, 0),
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Left
-                };
-
-                Canvas cnvas = new Canvas();
-                Canvas cnvas_outer = new Canvas();
-
-                cnvas.Children.Add(txt);
-                cnvas.Children.Add(manatext);
-                recinner.Child = cnvas;
-
-                cnvas_outer.Children.Add(recinner);
-                cnvas_outer.Children.Add(cnums[curmode][udeck.Id]);
-
-                borders[curmode][udeck.Id].Child = cnvas_outer;
-
-                topmargin[curmode] += 27;
-
-                overlayme.Children.Add(borders[curmode][udeck.Id]);
             }
         }
 
@@ -757,11 +771,14 @@ namespace MTGApro
                         borders[@"draft"].Clear();
                         try
                         {
-                            renderdeck(curdrftparsed["eval"], 0, @"draft");
+                            if (curdrftparsed.ContainsKey("eval"))
+                            {
+                                renderdeck(curdrftparsed["eval"], 0, @"draft");
+                            }
                         }
                         catch (Exception ee)
                         {
-                            MainWindow.ErrReport(ee,764);
+                            MainWindow.ErrReport(ee, 764);
                         }
 
                         melabel.Text = @"Pick: " + (PickMacking + 1).ToString();
@@ -772,7 +789,7 @@ namespace MTGApro
                 }
                 catch (Exception ee)
                 {
-                    MainWindow.ErrReport(ee, 774);
+                    MainWindow.ErrReport(ee, 40774);
                 }
             }
             //Handling fight
@@ -1119,7 +1136,7 @@ namespace MTGApro
                     }
                     catch (Exception ee)
                     {
-                        MainWindow.ErrReport(ee, 401078);
+                        MainWindow.ErrReport(ee, 401130);
                     }
                 }
             }
@@ -1134,7 +1151,7 @@ namespace MTGApro
                     }
                     catch (Exception ee)
                     {
-                        MainWindow.ErrReport(ee, 401078);
+                        MainWindow.ErrReport(ee, 401145);
                     }
                 }
             }
@@ -1182,12 +1199,6 @@ namespace MTGApro
             //e.Handled = false;
         }
 
-        private void Window_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            //   Close();
-            //double cursv = ScaleValue;
-            //ScaleValue = (double)OnCoerceScaleValue(OverlayWindow, (cursv - 0.1));
-        }
 
         #region ScaleValue Depdency Property
         public static readonly DependencyProperty ScaleValueProperty = DependencyProperty.Register("ScaleValue", typeof(double), typeof(Window4), new UIPropertyMetadata(1.0, new PropertyChangedCallback(OnScaleValueChanged), new CoerceValueCallback(OnCoerceScaleValue)));

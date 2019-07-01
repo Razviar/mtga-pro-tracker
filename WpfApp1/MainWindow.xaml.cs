@@ -48,7 +48,7 @@ namespace MTGApro
         public static long loglen = 0; //current position in log file which was reached by parser. Always starts from 0 on app startup
         public static bool isrestarting = false; //flag showing that app is being restarted. Used for single-instance management
         public static string tokeninput = "";
-        public static int version = 78; // current version
+        public static int version = 79; // current version
         public static bool hasnewmessage = false;
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
@@ -1154,23 +1154,26 @@ namespace MTGApro
                                             try
                                             {
                                                 JArray dpack = (JArray)stuff.draftPack;
-                                                for (int irp = 0; irp < dpack.Count; irp++)
+
+                                                if (stuff.draftPack.Type == JTokenType.Array)
                                                 {
-                                                    if (!TheMatch.Draftdeck.ContainsKey(Window4.cdb_mtga_id[(int)stuff.draftPack[irp]]))
+                                                    for (int irp = 0; irp < stuff.draftPack.Count; irp++)
                                                     {
-                                                        TheMatch.Draftdeck.Add(Window4.cdb_mtga_id[(int)stuff.draftPack[irp]], 1);
-                                                    }
-                                                    else
-                                                    {
-                                                        TheMatch.Draftdeck[Window4.cdb_mtga_id[(int)stuff.draftPack[irp]]]++;
+                                                        if (!TheMatch.Draftdeck.ContainsKey(Window4.cdb_mtga_id[(int)stuff.draftPack[irp]]))
+                                                        {
+                                                            TheMatch.Draftdeck.Add(Window4.cdb_mtga_id[(int)stuff.draftPack[irp]], 1);
+                                                        }
+                                                        else
+                                                        {
+                                                            TheMatch.Draftdeck[Window4.cdb_mtga_id[(int)stuff.draftPack[irp]]]++;
+                                                        }
                                                     }
                                                 }
-
                                             }
                                             catch (Exception ee)
                                             {
                                                 // Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
-                                                ErrReport(ee, 1095);
+                                                ErrReport(ee, 1176);
                                             }
                                             TheMatch.Hasnewdata = true;
                                             if (TheMatch.DraftPack == 2 && TheMatch.DraftPick == 14)

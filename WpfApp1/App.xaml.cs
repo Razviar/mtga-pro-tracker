@@ -90,6 +90,7 @@ namespace MTGApro
             Current.MainWindow.WindowState = WindowState.Normal;*/
             return true;
         }
+
     }
 
     /*[ClassInterface(ClassInterfaceType.None)]
