@@ -38,6 +38,10 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.1.8.2 released 28/07/2019 (Updated MTGA log format fixes)
+* Tracker is now able to parse new log format
+* Date-related issues are fixed
+
 v.1.7.9 released 19/06/2019 (M20 Preparation)
 * Added the tool to instantly get new cards when they are released
 * Fixed some bugs using telemetry code sanitizer. 
