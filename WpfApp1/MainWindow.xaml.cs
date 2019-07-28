@@ -48,7 +48,7 @@ namespace MTGApro
         public static long loglen = 0; //current position in log file which was reached by parser. Always starts from 0 on app startup
         public static bool isrestarting = false; //flag showing that app is being restarted. Used for single-instance management
         public static string tokeninput = "";
-        public static int version = 79; // current version
+        public static int version = 82; // current version
         public static bool hasnewmessage = false;
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
@@ -90,6 +90,7 @@ namespace MTGApro
         public static int skipnlines = 0;
         public static bool wasbrake = false;
         public static bool warnedtoken = false;
+        public static bool datedetectedfineonce = false;
 
         //-----
         public static Curmatch TheMatch = new Curmatch();
@@ -602,7 +603,8 @@ namespace MTGApro
                                 Uplprogress.Value = (int)(100 * percent);
                             }));
                         }
-                    }catch(Exception ee)
+                    }
+                    catch (Exception ee)
                     {
                         ErrReport(ee, 607);
                     }
@@ -624,6 +626,8 @@ namespace MTGApro
                         string strdate = "";
                         int linesskipped = 0;
                         bool newmatch = false;
+                        bool matchline = false;
+                        bool fisrtline = false;
                         Dictionary<double, StringBuilder[]> builders = new Dictionary<double, StringBuilder[]>();
 
                         while ((line = logFileReader.ReadLine()) != null)
@@ -649,7 +653,7 @@ namespace MTGApro
                                 skipnlines++;
                             }
 
-                            if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 || line.IndexOf(@"[Client GRE]") > -1)
+                            if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 && line.IndexOf(@":") > -1 && Regex.Matches(line, @"[\d]{1,2}[:./ ]{1,2}[\d]{1,2}").Count>0)
                             {
                                 strdate = line;
                             }
@@ -680,7 +684,7 @@ namespace MTGApro
                             if (line.IndexOf("\"matchId\": \"") > -1)
                             {
                                 string newmatchid = Cut(line, "\"matchId\": \"", "\"", false);
-                                if (newmatchid != TheMatch.Matchid && TheMatch.Matchid!="")
+                                if (newmatchid != TheMatch.Matchid && TheMatch.Matchid != "")
                                 {
                                     newmatch = true;
                                 }
@@ -693,7 +697,7 @@ namespace MTGApro
                                 TheMatch.Hasnewdata = true;
                             }
 
-                            if(nowriting==-1 && newmatch)
+                            if (nowriting == -1 && newmatch)
                             {
                                 wasbrake = true;
                                 newmatch = false;
@@ -709,13 +713,14 @@ namespace MTGApro
                                         try
                                         {
 
-                                            if (strdate.IndexOf(@"[UnityCrossThreadLogger]") > -1)
+                                            if (strdate.IndexOf(@"to Match") > -1 || strdate.IndexOf(@"Match to") > -1)
+                                            {
+                                                strdate = Cut(strdate, @"[UnityCrossThreadLogger]", @": ", false);
+                                                matchline = true;
+                                            }
+                                            else
                                             {
                                                 strdate = Cut(strdate, @"[UnityCrossThreadLogger]", @">END", false);
-                                            }
-                                            else if (strdate.IndexOf(@"[Client GRE]") > -1)
-                                            {
-                                                strdate = Cut(strdate, @"]", @": ", false);
                                             }
 
                                             DateTime d = new DateTime();
@@ -733,9 +738,9 @@ namespace MTGApro
                                                 }
 
                                                 bool dfmtcheck = false;
-                                                if(appsettings.Dateformat != null)
+                                                if (appsettings.Dateformat != null)
                                                 {
-                                                    if(appsettings.Dateformat.Length > 0)
+                                                    if (appsettings.Dateformat.Length > 0)
                                                     {
                                                         dfmtcheck = true;
                                                     }
@@ -765,15 +770,15 @@ namespace MTGApro
 
                                                     try
                                                     {
-                                                        if (DateTime.TryParseExact(strdate, appsettings.Dateformat, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
+                                                        if (DateTime.TryParseExact(strdate, appsettings.Dateformat, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out d))
                                                         {
-
+                                                            datedetectedfineonce = true;
                                                         }
                                                         else
                                                         {
-                                                            Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
+                                                            /*Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
                                                             _ = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
-                                                            Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
+                                                            Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");*/
                                                             continue;
                                                         }
                                                     }
@@ -794,24 +799,26 @@ namespace MTGApro
                                                             strdate = strdate.Replace(re.Key, re.Value);
                                                         }
 
-                                                        if (DateTime.TryParseExact(strdate, dateformats, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
-                                                        {
+                                                        CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
 
+                                                        if (DateTime.TryParseExact(strdate, dateformats, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out d))
+                                                        {
+                                                            datedetectedfineonce = true;
                                                         }
-                                                        else if (DateTime.TryParse(strdate, CultureInfo.CurrentCulture, DateTimeStyles.None, out d))
+                                                        else if (DateTime.TryParse(strdate, cultureInfo, DateTimeStyles.AllowWhiteSpaces, out d))
                                                         {
-
+                                                            datedetectedfineonce = true;
                                                         }
                                                         else if (DateTime.TryParse(strdate, out d))
                                                         {
-
+                                                            datedetectedfineonce = true;
                                                         }
                                                         else
                                                         {
 
-                                                            Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
-                                                            MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
-                                                            Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
+                                                            //Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
+                                                            //MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
+                                                            //Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
 
                                                             continue;
                                                         }
@@ -841,31 +848,20 @@ namespace MTGApro
                                             ErrReport(ee, 793);
                                         }
 
-                                        if (!indicators[j].Addup)
+                                        if (!matchline)
                                         {
-                                            foreach (KeyValuePair<double, StringBuilder[]> b in builders)
+
+                                            if (!indicators[j].Addup)
                                             {
-                                                if (b.Value[j].Length > 0)
+                                                foreach (KeyValuePair<double, StringBuilder[]> b in builders)
                                                 {
-                                                    builders[b.Key][j].Length = 0;
+                                                    if (b.Value[j].Length > 0)
+                                                    {
+                                                        builders[b.Key][j].Length = 0;
+                                                    }
                                                 }
                                             }
-                                        }
 
-                                        if (!builders.ContainsKey(timestamp))
-                                        {
-                                            builders.Add(timestamp, new StringBuilder[indicators.Length]);
-                                            for (int index = 0; index < indicators.Length; ++index)
-                                            {
-                                                builders[timestamp][index] = new StringBuilder();
-                                            }
-                                        }
-
-                                        int lll = builders[timestamp][j].Length;
-                                        while (lll > 0)
-                                        {
-                                            timestamp++;
-                                            increment++;
                                             if (!builders.ContainsKey(timestamp))
                                             {
                                                 builders.Add(timestamp, new StringBuilder[indicators.Length]);
@@ -874,70 +870,220 @@ namespace MTGApro
                                                     builders[timestamp][index] = new StringBuilder();
                                                 }
                                             }
-                                            lll = builders[timestamp][j].Length;
-                                        }
-                                        //builders[timestamp][j].Length=0;
 
+                                            int lll = builders[timestamp][j].Length;
+                                            while (lll > 0)
+                                            {
+                                                timestamp++;
+                                                increment++;
+                                                if (!builders.ContainsKey(timestamp))
+                                                {
+                                                    builders.Add(timestamp, new StringBuilder[indicators.Length]);
+                                                    for (int index = 0; index < indicators.Length; ++index)
+                                                    {
+                                                        builders[timestamp][index] = new StringBuilder();
+                                                    }
+                                                }
+                                                lll = builders[timestamp][j].Length;
+                                            }
+
+                                            if (line.IndexOf(@"{") > -1)
+                                            {
+                                                brackets++;
+                                            }
+
+                                            if (line.IndexOf(@"}") > -1)
+                                            {
+                                                brackets--;
+                                            }
+
+                                            if (line.IndexOf(@"[") > -1)
+                                            {
+                                                bracketssq++;
+                                            }
+
+                                            if (line.IndexOf(@"]") > -1)
+                                            {
+                                                bracketssq--;
+                                            }
+                                        }
                                         nowriting = j;
-
-                                        if (line.IndexOf(@"{") > -1)
-                                        {
-                                            brackets++;
-                                        }
-
-                                        if (line.IndexOf(@"}") > -1)
-                                        {
-                                            brackets--;
-                                        }
-
-                                        if (line.IndexOf(@"[") > -1)
-                                        {
-                                            bracketssq++;
-                                        }
-
-                                        if (line.IndexOf(@"]") > -1)
-                                        {
-                                            bracketssq--;
-                                        }
+                                        fisrtline = true;
+                                        break;
                                     }
                                 }
                             }
-                            else
+
+                            if (nowriting != -1)
                             {
-                                if (line.IndexOf(@"{") > -1)
+                                if (indicators[nowriting].Ignore != @"a" && fisrtline)
                                 {
-                                    brackets++;
+                                    fisrtline = false;
+                                    continue;
                                 }
 
-                                if (line.IndexOf(@"}") > -1)
+                                if (!matchline)
                                 {
-                                    brackets--;
-                                }
+                                    if (line.IndexOf(@"{") > -1)
+                                    {
+                                        brackets++;
+                                    }
 
-                                if (line.IndexOf(@"[") > -1)
-                                {
-                                    bracketssq++;
-                                }
+                                    if (line.IndexOf(@"}") > -1)
+                                    {
+                                        brackets--;
+                                    }
 
-                                if (line.IndexOf(@"]") > -1)
-                                {
-                                    bracketssq--;
-                                }
+                                    if (line.IndexOf(@"[") > -1)
+                                    {
+                                        bracketssq++;
+                                    }
 
-                                if (brackets == 0 && bracketssq == 0)
-                                {
-                                    if (line.IndexOf(indicators[nowriting].Stopper) == -1)
+                                    if (line.IndexOf(@"]") > -1)
+                                    {
+                                        bracketssq--;
+                                    }
+
+                                    if (brackets == 0 && bracketssq == 0)
+                                    {
+                                        if (line.IndexOf(indicators[nowriting].Stopper) == -1)
+                                        {
+                                            builders[timestamp][nowriting].Append(line);
+                                        }
+                                        write[nowriting] = false;
+                                        nowriting = -1;
+                                    }
+                                    else if (line != @"" && line != Environment.NewLine)
                                     {
                                         builders[timestamp][nowriting].Append(line);
                                     }
-                                    write[nowriting] = false;
+                                }
+                                else if ((line.IndexOf("{") > -1 && line.IndexOf("}") > -1) || (line.IndexOf("[") > -1 && line.IndexOf("]") > -1))
+                                {
+                                    for (int jj = 0; jj < indicators.Length; ++jj)
+                                    {
+                                        if ((line.IndexOf(indicators[jj].Indicators) > -1 && indicators[nowriting].Ignore == @"a") || (indicators[nowriting].Ignore != @"a" && nowriting==jj))
+                                        {
+                                            int occurances = Regex.Matches(line, indicators[jj].Indicators).Count;
+                                            if(occurances==0 && indicators[nowriting].Ignore != @"a" && nowriting == jj)
+                                            {
+                                                occurances = 1;
+                                            }
+
+                                            int pos = 0;
+                                            int posbr = 0;
+                                            int possq = 0;
+
+                                            for (int occurance = 0; occurance < occurances; occurance++)
+                                            {
+                                                string matchparseresult = @"";
+
+                                                if (indicators[jj].Ignore == @"a")
+                                                {
+                                                    pos = line.IndexOf(indicators[jj].Indicators, pos) + indicators[jj].Indicators.Length;
+                                                }
+                                                posbr = line.IndexOf(@"{", pos);
+                                                possq = line.IndexOf(@"[", pos);
+                                                if (posbr < possq)
+                                                {
+                                                    pos = posbr;
+                                                }
+                                                else if (possq < posbr && possq != -1)
+                                                {
+                                                    pos = possq;
+                                                }
+                                                for (int p = pos; p < line.Length; p++)
+                                                {
+                                                    try
+                                                    {
+                                                        char checkchar = line[p];
+                                                        if (checkchar.Equals('{'))
+                                                        {
+                                                            brackets++;
+                                                        }
+
+                                                        if (checkchar.Equals('}'))
+                                                        {
+                                                            brackets--;
+                                                        }
+
+                                                        if (checkchar.Equals('['))
+                                                        {
+                                                            bracketssq++;
+                                                        }
+
+                                                        if (checkchar.Equals(']'))
+                                                        {
+                                                            bracketssq--;
+                                                        }
+
+                                                        if (brackets == 0 && bracketssq == 0)
+                                                        {
+                                                            matchparseresult += line[p];
+                                                            break;
+                                                        }
+                                                        else
+                                                        {
+                                                            matchparseresult += line[p];
+                                                        }
+                                                    }
+                                                    catch (Exception ee)
+                                                    {
+
+                                                    }
+                                                }
+
+                                                if (!indicators[jj].Addup)
+                                                {
+                                                    foreach (KeyValuePair<double, StringBuilder[]> b in builders)
+                                                    {
+                                                        if (b.Value[jj].Length > 0)
+                                                        {
+                                                            builders[b.Key][jj].Length = 0;
+                                                        }
+                                                    }
+                                                }
+
+                                                if (!builders.ContainsKey(timestamp))
+                                                {
+                                                    builders.Add(timestamp, new StringBuilder[indicators.Length]);
+                                                    for (int index = 0; index < indicators.Length; ++index)
+                                                    {
+                                                        builders[timestamp][index] = new StringBuilder();
+                                                    }
+                                                }
+
+                                                int lll = builders[timestamp][jj].Length;
+                                                while (lll > 0)
+                                                {
+                                                    timestamp++;
+                                                    increment++;
+                                                    if (!builders.ContainsKey(timestamp))
+                                                    {
+                                                        builders.Add(timestamp, new StringBuilder[indicators.Length]);
+                                                        for (int index = 0; index < indicators.Length; ++index)
+                                                        {
+                                                            builders[timestamp][index] = new StringBuilder();
+                                                        }
+                                                    }
+                                                    lll = builders[timestamp][jj].Length;
+                                                }
+
+
+                                                builders[timestamp][jj].Append(matchparseresult);
+                                            }
+                                            write[jj] = false;
+                                            matchline = false;
+                                        }
+                                    }
                                     nowriting = -1;
                                 }
-                                else if (line != @"" && line != Environment.NewLine && (line.IndexOf(indicators[nowriting].Ignore) == -1 || indicators[nowriting].Ignore == @""))
-                                {
-                                    builders[timestamp][nowriting].Append(line);
-                                }
                             }
+                        }
+
+                        if (!datedetectedfineonce)
+                        {
+                            Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
                         }
 
                         if (!wasbrake)
@@ -1030,7 +1176,7 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
+                                            Showmsg(Colors.Red, @"Error reading log! (1084)", @"CLR", false, @"attention");
                                             ErrReport(ee, 962);
 
                                         }
@@ -1043,7 +1189,7 @@ namespace MTGApro
                                     {
                                         try
                                         {
-                                            string toparse = "{\"mulligan\":{" + parsed[output.Key][index].TrimEnd(',', '}', ' ') + @"}}";
+                                            string toparse = "{\"mulligan\": " + parsed[output.Key][index].TrimEnd(',', '}', ' ') + @"}}";
                                             dynamic stuff = JObject.Parse(toparse);
                                             if (stuff.Decision == 1)
                                             {
@@ -1052,7 +1198,7 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
+                                            Showmsg(Colors.Red, @"Error reading log! (1106)", @"CLR", false, @"attention");
                                             ErrReport(ee, 983);
 
                                         }
@@ -1061,7 +1207,7 @@ namespace MTGApro
                                     {
                                         try
                                         {
-                                            string toparse = "{\"gameInfo\":{" + parsed[output.Key][index].TrimEnd(',', '}', ' ') + @"}}";
+                                            string toparse = "{\"gameInfo\":" + parsed[output.Key][index].TrimEnd(',', '}', ' ') + @"}}}";
                                             dynamic stuff = JObject.Parse(toparse);
                                             if (stuff.gameInfo.matchState == @"MatchState_GameComplete" || stuff.gameInfo.matchState == @"MatchState_MatchComplete" || stuff.gameInfo.stage == @"GameStage_Start")
                                             {
@@ -1086,7 +1232,7 @@ namespace MTGApro
                                         }
                                         catch (Exception ee)
                                         {
-                                            Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
+                                            Showmsg(Colors.Red, @"Error reading log! (1140)", @"CLR", false, @"attention");
                                             ErrReport(ee, 1016);
 
                                         }
@@ -1095,7 +1241,7 @@ namespace MTGApro
                                     {
                                         try
                                         {
-                                            string toparse = "{\"gameObjects\":[" + parsed[output.Key][index].TrimEnd(',', ']', ' ') + @"]}";
+                                            string toparse = "{\"gameObjects\": " + parsed[output.Key][index].TrimEnd(',', ']', ' ') + @"]}";
                                             // char[] charsToTrim = { ']', ',', ' ' };
                                             dynamic stuff = JObject.Parse(toparse);
                                             for (int irp = 0; irp < stuff.gameObjects.Count; irp++)
@@ -1197,7 +1343,7 @@ namespace MTGApro
                                     {
                                         try
                                         {
-                                            string toparse = "{\"turnInfo\":{" + parsed[output.Key][index].TrimEnd(',', '}', ' ') + @"}}";
+                                            string toparse = "{\"turnInfo\": " + parsed[output.Key][index].TrimEnd(',', '}', ' ') + @"}}";
                                             dynamic stuff = JObject.Parse(toparse);
                                             TheMatch.DecisionPlayer = stuff.turnInfo.decisionPlayer;
                                             TheMatch.TurnNumber = stuff.turnInfo.turnNumber;
@@ -1246,7 +1392,7 @@ namespace MTGApro
             }
             catch (Exception ee)
             {
-                Showmsg(Colors.Red, @"Error reading log!", @"CLR", false, @"attention");
+                Showmsg(Colors.Red, @"Error reading log! (1300)", @"CLR", false, @"attention");
                 ErrReport(ee, 1167);
             }
         }
@@ -1498,7 +1644,7 @@ namespace MTGApro
                         runtime = Convert.ToInt32(tmstmp());
                     }
 
-                    Dictionary<string, object> requestdict = new Dictionary<string, object> { { @"cmd", @"cm_uploadpackfile" }, { @"uid", ouruid }, { @"token", Usertoken }, { @"version", version.ToString() }, { @"runtime", gamerunningtimer.ToString() }, { @"currentmatch", TheMatch.Matchid } };
+                    Dictionary<string, object> requestdict = new Dictionary<string, object> { { @"cmd", @"cm_uploadpackfile" }, { @"uid", ouruid }, { @"token", Usertoken }, { @"version", version.ToString() }, { @"runtime", gamerunningtimer.ToString() }, { @"currentmatch", TheMatch.Matchid }, { @"oldlog", (tmplog != "") ? @"1" : @"0" } };
 
                     if (ParsedCreds.ContainsKey(@"screenName"))
                     {
@@ -1518,7 +1664,7 @@ namespace MTGApro
                                 Ingame_nick.Content = mtganick;
                             }));
 
-                            if (Credentials.Count==0 && ouruid != "")
+                            if (Credentials.Count == 0 && ouruid != "")
                             {
                                 Usermtgaid.Add(ouruid, mtganick);
                                 Credentials.Add(ouruid, mtgauid);
@@ -1530,7 +1676,8 @@ namespace MTGApro
                             if (!Credentials.ContainsKey(ouruid))
                             {
                                 playerswith = true;
-                            }else if(Credentials[ouruid] != mtgauid)
+                            }
+                            else if (Credentials[ouruid] != mtgauid)
                             {
                                 playerswith = true;
                             }
@@ -1540,7 +1687,7 @@ namespace MTGApro
                                 Usertoken = null;
                                 ouruid = "";
                                 credok = false;
-                               
+
                                 needtoken = true;
 
                                 foreach (KeyValuePair<string, string> tkn in Credentials)
@@ -2175,19 +2322,19 @@ namespace MTGApro
                         if (!Utokens.ContainsKey(ouruid))
                         {
                             Utokens.Add(ouruid, Usertoken);
-                            
+
                         }
                         else
                         {
                             Utokens[ouruid] = Usertoken;
                         }
 
-                        if (mtgauid != "" && mtganick!="" && !Usermtgaid.ContainsKey(ouruid))
+                        if (mtgauid != "" && mtganick != "" && !Usermtgaid.ContainsKey(ouruid))
                         {
                             Usermtgaid.Add(ouruid, mtganick);
                             Credentials.Add(ouruid, mtgauid);
                         }
- 
+
                         playerswith = false;
 
                         Dispatcher.BeginInvoke(new ThreadStart(delegate
