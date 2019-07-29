@@ -48,7 +48,7 @@ namespace MTGApro
         public static long loglen = 0; //current position in log file which was reached by parser. Always starts from 0 on app startup
         public static bool isrestarting = false; //flag showing that app is being restarted. Used for single-instance management
         public static string tokeninput = "";
-        public static int version = 82; // current version
+        public static int version = 83; // current version
         public static bool hasnewmessage = false;
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
@@ -653,7 +653,7 @@ namespace MTGApro
                                 skipnlines++;
                             }
 
-                            if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 && line.IndexOf(@":") > -1 && Regex.Matches(line, @"[\d]{1,2}[:./ ]{1,2}[\d]{1,2}").Count>0)
+                            if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 && Regex.Matches(line, @"[\d]{1,2}[:./ ]{1,2}[\d]{1,2}").Count>0)
                             {
                                 strdate = line;
                             }
