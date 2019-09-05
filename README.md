@@ -38,6 +38,10 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.1.8.5 released 05/09/2019 (Updated MTGA log format fixes)
+* Tracker adapted to new logging system
+* Date manual setting removed
+
 v.1.8.3 released 29/07/2019 (Updated MTGA log format fixes)
 * Tracker is now able to parse new log format
 * Date-related issues are fixed
