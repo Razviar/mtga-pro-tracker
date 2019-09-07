@@ -76,6 +76,8 @@
                         <TextBlock x:Name="ovactbut" Text="Activate In-game overlay" HorizontalAlignment="Center" VerticalAlignment="Center" Width="139" Height="17" Margin="0,0,0,0" Padding="5,0,0,0"/>
                     </StackPanel>
                 </Button>
+                <TextBlock x:Name="detlogs" HorizontalAlignment="Center" Margin="10,316,0,9" TextWrapping="Wrap" Width="267" TextAlignment="Center" FontWeight="Bold" FontSize="14" Visibility="Hidden">
+           <Hyperlink NavigateUri="https://mtgarena.pro/mtga-pro-tracker/" RequestNavigate="Hyperlink_RequestNavigate">How to enable Detailed Logs?</Hyperlink></TextBlock>
             </Grid>
         </Border>
     </Grid>

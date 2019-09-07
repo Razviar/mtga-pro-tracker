@@ -48,7 +48,7 @@ namespace MTGApro
         public static long loglen = 0; //current position in log file which was reached by parser. Always starts from 0 on app startup
         public static bool isrestarting = false; //flag showing that app is being restarted. Used for single-instance management
         public static string tokeninput = "";
-        public static int version = 83; // current version
+        public static int version = 86; // current version
         public static bool hasnewmessage = false;
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
@@ -65,6 +65,8 @@ namespace MTGApro
         public static string mtgauid = "";
         public static string mtganick = "";
         public static bool updatenotified = false;
+        public static bool baddatenotified = false;
+        public static bool baddatenotifiedfromlog = false;
         public static string ouruid = "";
         public static string language = "";
         public static string tmplog = "";
@@ -91,6 +93,7 @@ namespace MTGApro
         public static bool wasbrake = false;
         public static bool warnedtoken = false;
         public static bool datedetectedfineonce = false;
+        public static bool logsdisabled = false;
 
         //-----
         public static Curmatch TheMatch = new Curmatch();
@@ -653,9 +656,42 @@ namespace MTGApro
                                 skipnlines++;
                             }
 
-                            if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 && Regex.Matches(line, @"[\d]{1,2}[:./ ]{1,2}[\d]{1,2}").Count>0)
+                            if (line.IndexOf(@"DETAILED LOGS: DISABLED") > -1)
+                            {
+                                logsdisabled = true;
+
+                                Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                {
+                                    detlogs.Visibility = Visibility.Visible;
+                                }));
+                                Showmsg(Colors.Red, @"Enable Detailed Logs!", @"CLR", true, @"attention");
+                                continue;
+                            }
+
+                            if (line.IndexOf(@"DETAILED LOGS: ENABLED") > -1)
+                            {
+                                logsdisabled = false;
+                                blkmsg = false;
+                                Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                {
+                                    detlogs.Visibility = Visibility.Hidden;
+                                }));
+                            }
+
+                            if (logsdisabled)
+                            {
+                                continue;
+                            }
+
+                            if (line.IndexOf(@"[UnityCrossThreadLogger]") > -1 && Regex.Matches(line, @"[\d]{1,2}[:./ ]{1,2}[\d]{1,2}").Count > 0)
                             {
                                 strdate = line;
+                            }
+
+                            if (line.IndexOf(@"[Client GRE]") > -1)
+                            {
+                                Showmsg(Colors.Red, @"Unsupported log format (OLD)", @"CLR", true, @"attention");
+                                break;
                             }
 
                             if (line.IndexOf("\"playerId\":") > -1 && line.IndexOf("null") == -1)
@@ -684,17 +720,16 @@ namespace MTGApro
                             if (line.IndexOf("\"matchId\": \"") > -1)
                             {
                                 string newmatchid = Cut(line, "\"matchId\": \"", "\"", false);
-                                if (newmatchid != TheMatch.Matchid && TheMatch.Matchid != "")
+                                if (newmatchid != TheMatch.Matchid && TheMatch.Matchid != "" && newmatchid != "")
                                 {
                                     newmatch = true;
+                                    TheMatch = new Curmatch();
+                                    TheMatch.Hasnewdata = true;
                                 }
-                                TheMatch.Matchid = newmatchid;
-                            }
-
-                            if (line.IndexOf("MatchState_MatchComplete") > -1)
-                            {
-                                TheMatch = new Curmatch();
-                                TheMatch.Hasnewdata = true;
+                                if (newmatchid != "")
+                                {
+                                    TheMatch.Matchid = newmatchid;
+                                }
                             }
 
                             if (nowriting == -1 && newmatch)
@@ -729,106 +764,36 @@ namespace MTGApro
                                             {
                                                 try
                                                 {
-                                                    datesample = strdate;
+                                                    CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
+
+                                                    if (DateTime.TryParseExact(strdate, dateformats, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out d))
+                                                    {
+                                                        datedetectedfineonce = true;
+                                                    }
+                                                    else if (DateTime.TryParse(strdate, cultureInfo, DateTimeStyles.AllowWhiteSpaces, out d))
+                                                    {
+                                                        datedetectedfineonce = true;
+                                                    }
+                                                    else if (DateTime.TryParse(strdate, out d))
+                                                    {
+                                                        datedetectedfineonce = true;
+                                                    }
+                                                    else
+                                                    {
+
+                                                        //Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
+                                                        //MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
+                                                        //Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
+
+                                                        continue;
+                                                    }
                                                 }
                                                 catch (Exception ee)
                                                 {
-                                                    Showmsg(Colors.Red, @"Error reading log! (712)", @"CLR", false, @"attention");
-                                                    ErrReport(ee, 731);
+                                                    Showmsg(Colors.Red, @"Error reading log!  (802)", @"CLR", false, @"attention");
+                                                    ErrReport(ee, 775);
                                                 }
 
-                                                bool dfmtcheck = false;
-                                                if (appsettings.Dateformat != null)
-                                                {
-                                                    if (appsettings.Dateformat.Length > 0)
-                                                    {
-                                                        dfmtcheck = true;
-                                                    }
-                                                }
-
-                                                if (dfmtcheck)
-                                                {
-                                                    try
-                                                    {
-                                                        if (appsettings.Dateformat_AM != null && appsettings.Dateformat_PM != null)
-                                                        {
-                                                            if (appsettings.Dateformat_AM.Length > 0)
-                                                            {
-                                                                strdate = strdate.Replace(appsettings.Dateformat_AM, @"AM");
-                                                            }
-                                                            if (appsettings.Dateformat_PM.Length > 0)
-                                                            {
-                                                                strdate = strdate.Replace(appsettings.Dateformat_PM, @"PM");
-                                                            }
-                                                        }
-                                                    }
-                                                    catch (Exception ee)
-                                                    {
-                                                        Showmsg(Colors.Red, @"Error reading log!  (743)", @"CLR", false, @"attention");
-                                                        ErrReport(ee, 763);
-                                                    }
-
-                                                    try
-                                                    {
-                                                        if (DateTime.TryParseExact(strdate, appsettings.Dateformat, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out d))
-                                                        {
-                                                            datedetectedfineonce = true;
-                                                        }
-                                                        else
-                                                        {
-                                                            /*Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
-                                                            _ = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
-                                                            Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");*/
-                                                            continue;
-                                                        }
-                                                    }
-                                                    catch (Exception ee)
-                                                    {
-                                                        Showmsg(Colors.Red, @"Error reading log!  (763)", @"CLR", false, @"attention");
-                                                        ErrReport(ee, 783);
-                                                    }
-
-                                                }
-                                                else
-                                                {
-                                                    try
-                                                    {
-
-                                                        foreach (KeyValuePair<string, string> re in datereplacements)
-                                                        {
-                                                            strdate = strdate.Replace(re.Key, re.Value);
-                                                        }
-
-                                                        CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
-
-                                                        if (DateTime.TryParseExact(strdate, dateformats, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out d))
-                                                        {
-                                                            datedetectedfineonce = true;
-                                                        }
-                                                        else if (DateTime.TryParse(strdate, cultureInfo, DateTimeStyles.AllowWhiteSpaces, out d))
-                                                        {
-                                                            datedetectedfineonce = true;
-                                                        }
-                                                        else if (DateTime.TryParse(strdate, out d))
-                                                        {
-                                                            datedetectedfineonce = true;
-                                                        }
-                                                        else
-                                                        {
-
-                                                            //Dictionary<string, object> reportdate = new Dictionary<string, object> { { @"cmd", @"cm_baddate" }, { @"date", strdate } };
-                                                            //MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), reportdate);
-                                                            //Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
-
-                                                            continue;
-                                                        }
-                                                    }
-                                                    catch (Exception ee)
-                                                    {
-                                                        Showmsg(Colors.Red, @"Error reading log!  (802)", @"CLR", false, @"attention");
-                                                        ErrReport(ee, 775);
-                                                    }
-                                                }
                                                 double tst = ConvertToUnixTimestamp(d);
                                                 if (laststamp != tst)
                                                 {
@@ -839,6 +804,7 @@ namespace MTGApro
                                             }
                                             else
                                             {
+                                                Showmsg(Colors.Yellow, @"Skipping some lines...", @"CLR", false, @"icon" + appsettings.Icon.ToString());
                                                 continue;
                                             }
                                         }
@@ -962,10 +928,10 @@ namespace MTGApro
                                 {
                                     for (int jj = 0; jj < indicators.Length; ++jj)
                                     {
-                                        if ((line.IndexOf(indicators[jj].Indicators) > -1 && indicators[nowriting].Ignore == @"a") || (indicators[nowriting].Ignore != @"a" && nowriting==jj))
+                                        if ((line.IndexOf(indicators[jj].Indicators) > -1 && indicators[nowriting].Ignore == @"a") || (indicators[nowriting].Ignore != @"a" && nowriting == jj))
                                         {
                                             int occurances = Regex.Matches(line, indicators[jj].Indicators).Count;
-                                            if(occurances==0 && indicators[nowriting].Ignore != @"a" && nowriting == jj)
+                                            if (occurances == 0 && indicators[nowriting].Ignore != @"a" && nowriting == jj)
                                             {
                                                 occurances = 1;
                                             }
@@ -1081,10 +1047,11 @@ namespace MTGApro
                             }
                         }
 
-                        if (!datedetectedfineonce)
+                        /*if (!datedetectedfineonce && !baddatenotifiedfromlog)
                         {
+                            baddatenotifiedfromlog = true;
                             Showmsg(Colors.Red, @"Set date format in settings!", @"CLR", true, @"attention");
-                        }
+                        }*/
 
                         if (!wasbrake)
                         {
@@ -1485,6 +1452,18 @@ namespace MTGApro
                             Process.Start(Application.ResourceAssembly.Location, "restarting");
                             Environment.Exit(0);
                         }
+                        else if (info.Data == "bad_date")
+                        {
+                            if (!baddatenotified)
+                            {
+                                baddatenotified = true;
+                                Dispatcher.BeginInvoke(new ThreadStart(delegate
+                                {
+                                    Updater.Visibility = Visibility.Visible;
+                                    ToastShowCheck("Date format error!");
+                                }));
+                            }
+                        }
                         else if (info.Data == "has_update")
                         {
                             if (!updatenotified)
@@ -1757,7 +1736,7 @@ namespace MTGApro
 
                         if (skipnlines == 0)
                         {
-                            Showmsg(Colors.YellowGreen, @"Awaiting for updates...", @"", false, @"icon" + appsettings.Icon.ToString());
+                            Showmsg(Colors.YellowGreen, @"Awaiting updates...", @"", false, @"icon" + appsettings.Icon.ToString());
                         }
 
                         if (somethingnew && !playerswith)
@@ -2100,7 +2079,7 @@ namespace MTGApro
                             gamestarted = true;
                             if (skipnlines == 0)
                             {
-                                Showmsg(Colors.YellowGreen, @"Awaiting for updates...", @"", false, @"icon" + appsettings.Icon.ToString());
+                                Showmsg(Colors.YellowGreen, @"Awaiting updates...", @"", false, @"icon" + appsettings.Icon.ToString());
                             }
 
                             if ((gamefocused || ovlsettings.Streamer) && overlayactive && (ovlsettings.Decklist || TheMatch.IsDrafting || TheMatch.IsFighting))
