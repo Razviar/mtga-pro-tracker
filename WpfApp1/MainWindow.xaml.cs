@@ -48,7 +48,7 @@ namespace MTGApro
         public static long loglen = 0; //current position in log file which was reached by parser. Always starts from 0 on app startup
         public static bool isrestarting = false; //flag showing that app is being restarted. Used for single-instance management
         public static string tokeninput = "";
-        public static int version = 86; // current version
+        public static int version = 87; // current version
         public static bool hasnewmessage = false;
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
@@ -424,7 +424,7 @@ namespace MTGApro
             {
                 try
                 {
-                    File.WriteAllText(@"upload_err_log.txt", Newtonsoft.Json.JsonConvert.SerializeObject(report));
+                    File.AppendAllText(@"upload_err_log.txt", Newtonsoft.Json.JsonConvert.SerializeObject(report));
                 }
                 catch (Exception)
                 {
@@ -440,7 +440,7 @@ namespace MTGApro
                     {
                         try
                         {
-                            File.WriteAllText(@"upload_err_log.txt", Newtonsoft.Json.JsonConvert.SerializeObject(report));
+                            File.AppendAllText(@"upload_err_log.txt", Newtonsoft.Json.JsonConvert.SerializeObject(report));
                         }
                         catch (Exception)
                         {
@@ -456,6 +456,10 @@ namespace MTGApro
         }
 
         //remote server request conductor
+        public static bool AcceptAllCertifications(object sender, System.Security.Cryptography.X509Certificates.X509Certificate certification, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
 
         public static string MakeRequest(Uri uri, Dictionary<string, object> data, string method = "POST")
         {
@@ -465,7 +469,7 @@ namespace MTGApro
                 string contentType = "multipart/form-data; boundary=" + formDataBoundary;
 
                 byte[] formData = WriteMultipartForm(data, formDataBoundary);
-
+                ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
                 HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
                 httpWebRequest.Method = method;
 
@@ -485,9 +489,17 @@ namespace MTGApro
                 response.Close();
                 return responseString;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //ErrReport(ee);
+                StackTrace st = new StackTrace(e, true);
+                StackFrame frame = st.GetFrame(st.FrameCount - 1);
+                int line = frame.GetFileLineNumber();
+                int col = frame.GetFileColumnNumber();
+                string func = frame.GetMethod().Name;
+                string file = frame.GetFileName();
+
+                Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", "!!!" + e.Message + "///" + e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + e.TargetSite + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor + "///" + e.ToString() } };
+                File.AppendAllText(@"network_err_log.txt", Newtonsoft.Json.JsonConvert.SerializeObject(report));
                 return "ERRCONN";
             }
         }
@@ -2226,6 +2238,49 @@ namespace MTGApro
             DateTime currentDate = DateTime.Now;
             string currentOffset = localZone.GetUtcOffset(currentDate).TotalSeconds.ToString();
 
+
+            try
+            {
+                string[] files = Directory.GetFiles(@"C:\Program Files (x86)\Wizards of the Coast\MTGA\MTGA_Data\Downloads\Data", "data_cards_*");
+                string checkcardsmd5 = @"";
+                string md5 = @"";
+
+                using (FileStream cardstream = new FileStream(files[0], FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 32768))
+                {
+                    MD5CryptoServiceProvider hasher = new MD5CryptoServiceProvider();
+                    byte[] hash = hasher.ComputeHash(cardstream);
+                    StringBuilder result = new StringBuilder(hash.Length * 2);
+                    for (int i = 0; i < hash.Length; i++)
+                        result.Append(hash[i].ToString("x2"));
+                    md5 = result.ToString();
+                    checkcardsmd5 = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/uploadcards.php"), new Dictionary<string, object> { { @"checkmd5", md5 } });
+                    cardstream.Close();
+                    cardstream.Dispose();
+                }
+
+                if (checkcardsmd5 == @"UPDATE")
+                {
+                    //files = Directory.GetFiles(@"C:\Program Files (x86)\Wizards of the Coast\MTGA\MTGA_Data\Downloads\Data", "data_loc_*");
+                    try
+                    {
+                        Dictionary<string, object> cardsDataReq = new Dictionary<string, object> { { @"md5", md5 }, { @"cards", Zip(File.ReadAllText(files[0])) } };
+                        files = Directory.GetFiles(@"C:\Program Files (x86)\Wizards of the Coast\MTGA\MTGA_Data\Downloads\Data", "data_loc_*");
+                        cardsDataReq.Add(@"loc", Zip(File.ReadAllText(files[0])));
+                        string response = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/uploadcards.php"), cardsDataReq);
+                        cardsDataReq.Clear();
+                        cardsDataReq = default(Dictionary<string, object>);
+                    }
+                    catch (Exception ee)
+                    {
+
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+
             string responseString = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/donew.php"), new Dictionary<string, object> { { @"cmd", @"cm_userbytokenid" }, { @"cm_userbytokenid", tokeninput }, { @"version", version.ToString() }, { @"usertime", currentOffset } });
             if (responseString != @"ERRCONN")
             {
@@ -2334,7 +2389,7 @@ namespace MTGApro
             {
                 Dispatcher.BeginInvoke(new ThreadStart(delegate
                 {
-                    Token_msg.Text = @"Error validating token";
+                    Token_msg.Text = @"Network Error";
                     Token_msg.Width = 200;
                     Token.Content = "";
                     Stream iconStream = Application.GetResourceStream(new Uri(@"pack://application:,,,/Resources/attention.ico")).Stream;
@@ -2506,12 +2561,19 @@ namespace MTGApro
 
         private void Button_Click_5(object sender, RoutedEventArgs e)
         {
-            juststarted = true;
-            hashes = new string[indicators.Length];
-            loglen = 0;
-            parsedtill = 0;
-            manualresync = true;
-            Showmsg(Colors.Green, @"Launching re-sync...", @"", false, @"icon" + appsettings.Icon.ToString());
+            try
+            {
+                juststarted = true;
+                hashes = new string[indicators.Length];
+                loglen = 0;
+                parsedtill = 0;
+                manualresync = true;
+                Showmsg(Colors.Green, @"Launching re-sync...", @"", false, @"icon" + appsettings.Icon.ToString());
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
         static string ProgramFilesx86()
