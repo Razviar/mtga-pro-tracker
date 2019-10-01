@@ -48,7 +48,7 @@ namespace MTGApro
         public static long loglen = 0; //current position in log file which was reached by parser. Always starts from 0 on app startup
         public static bool isrestarting = false; //flag showing that app is being restarted. Used for single-instance management
         public static string tokeninput = "";
-        public static int version = 87; // current version
+        public static int version = 89; // current version
         public static bool hasnewmessage = false;
         public static int gamerunningtimer = 0;
         public static int runtime = 0;
@@ -461,6 +461,34 @@ namespace MTGApro
             return true;
         }
 
+        public static Dictionary<string,string> checkmd5(string dir, string pattern)
+        {
+            string[] files = Directory.GetFiles(dir, pattern);
+            Dictionary<string, string> output=new Dictionary<string, string>();
+            try
+            {
+                using (FileStream cardstream = new FileStream(files[0], FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 32768))
+                {
+                    MD5CryptoServiceProvider hasher = new MD5CryptoServiceProvider();
+                    byte[] hash = hasher.ComputeHash(cardstream);
+                    StringBuilder result = new StringBuilder(hash.Length * 2);
+                    for (int i = 0; i < hash.Length; i++)
+                        result.Append(hash[i].ToString("x2"));
+                    string md5 = result.ToString();
+                    output.Add(@"result", MakeRequest(new Uri(@"https://mtgarena.pro/mtg/uploadcards.php"), new Dictionary<string, object> { { @"checkmd5", md5 } }));
+                    output.Add(@"file", files[0]);
+                    output.Add(@"md5", md5);
+                    cardstream.Close();
+                    cardstream.Dispose();
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            return output;
+        }
+
         public static string MakeRequest(Uri uri, Dictionary<string, object> data, string method = "POST")
         {
             try
@@ -491,15 +519,22 @@ namespace MTGApro
             }
             catch (Exception e)
             {
-                StackTrace st = new StackTrace(e, true);
-                StackFrame frame = st.GetFrame(st.FrameCount - 1);
-                int line = frame.GetFileLineNumber();
-                int col = frame.GetFileColumnNumber();
-                string func = frame.GetMethod().Name;
-                string file = frame.GetFileName();
+                try
+                {
+                    StackTrace st = new StackTrace(e, true);
+                    StackFrame frame = st.GetFrame(st.FrameCount - 1);
+                    int line = frame.GetFileLineNumber();
+                    int col = frame.GetFileColumnNumber();
+                    string func = frame.GetMethod().Name;
+                    string file = frame.GetFileName();
 
-                Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", "!!!" + e.Message + "///" + e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + e.TargetSite + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor + "///" + e.ToString() } };
-                File.AppendAllText(@"network_err_log.txt", Newtonsoft.Json.JsonConvert.SerializeObject(report));
+                    Dictionary<string, object> report = new Dictionary<string, object> { { @"cmd", @"cm_errreport" }, { @"token", Usertoken }, { @"function", func }, { @"line", line.ToString() }, { @"col", col.ToString() }, { @"file", file }, { @"errmsg", e.Message }, { @"version", version.ToString() }, { @"cm_errreport", "!!!" + e.Message + "///" + e.InnerException + "///" + e.Source + "///" + e.StackTrace + "///" + e.TargetSite + "///" + Environment.OSVersion.Version.Major + "///" + Environment.OSVersion.Version.Minor + "///" + e.ToString() } };
+                    File.AppendAllText(@"network_err_log.txt", Newtonsoft.Json.JsonConvert.SerializeObject(report));
+                }
+                catch (Exception)
+                {
+
+                }
                 return "ERRCONN";
             }
         }
@@ -2238,35 +2273,35 @@ namespace MTGApro
             DateTime currentDate = DateTime.Now;
             string currentOffset = localZone.GetUtcOffset(currentDate).TotalSeconds.ToString();
 
-
             try
             {
-                string[] files = Directory.GetFiles(@"C:\Program Files (x86)\Wizards of the Coast\MTGA\MTGA_Data\Downloads\Data", "data_cards_*");
-                string checkcardsmd5 = @"";
-                string md5 = @"";
+                Dictionary<string, string> checkcardsmd5 = checkmd5(@"C:\Program Files (x86)\Wizards of the Coast\MTGA\MTGA_Data\Downloads\Data", "data_cards_*");
 
-                using (FileStream cardstream = new FileStream(files[0], FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 32768))
+                if (checkcardsmd5[@"result"] == @"UPDATE")
                 {
-                    MD5CryptoServiceProvider hasher = new MD5CryptoServiceProvider();
-                    byte[] hash = hasher.ComputeHash(cardstream);
-                    StringBuilder result = new StringBuilder(hash.Length * 2);
-                    for (int i = 0; i < hash.Length; i++)
-                        result.Append(hash[i].ToString("x2"));
-                    md5 = result.ToString();
-                    checkcardsmd5 = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/uploadcards.php"), new Dictionary<string, object> { { @"checkmd5", md5 } });
-                    cardstream.Close();
-                    cardstream.Dispose();
-                }
-
-                if (checkcardsmd5 == @"UPDATE")
-                {
-                    //files = Directory.GetFiles(@"C:\Program Files (x86)\Wizards of the Coast\MTGA\MTGA_Data\Downloads\Data", "data_loc_*");
                     try
                     {
-                        Dictionary<string, object> cardsDataReq = new Dictionary<string, object> { { @"md5", md5 }, { @"cards", Zip(File.ReadAllText(files[0])) } };
-                        files = Directory.GetFiles(@"C:\Program Files (x86)\Wizards of the Coast\MTGA\MTGA_Data\Downloads\Data", "data_loc_*");
+                        Dictionary<string, object> cardsDataReq = new Dictionary<string, object> { { @"md5", checkcardsmd5[@"md5"] }, { @"cards", Zip(File.ReadAllText(checkcardsmd5[@"file"])) } };
+                        string[] files = Directory.GetFiles(@"C:\Program Files (x86)\Wizards of the Coast\MTGA\MTGA_Data\Downloads\Data", "data_loc_*");
                         cardsDataReq.Add(@"loc", Zip(File.ReadAllText(files[0])));
                         string response = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/uploadcards.php"), cardsDataReq);
+                        cardsDataReq.Clear();
+                        cardsDataReq = default(Dictionary<string, object>);
+                    }
+                    catch (Exception ee)
+                    {
+
+                    }
+                }
+
+                Dictionary<string, string> checklocmd5 = checkmd5(@"C:\Program Files (x86)\Wizards of the Coast\MTGA\MTGA_Data\Downloads\Loc", "loc_Events_*");
+
+                if (checklocmd5[@"result"] == @"UPDATE")
+                {
+                    try
+                    {
+                        Dictionary<string, object> cardsDataReq = new Dictionary<string, object> { { @"md5", checklocmd5[@"md5"] }, { @"loc", Zip(File.ReadAllText(checklocmd5[@"file"])) } };
+                        string response = MakeRequest(new Uri(@"https://mtgarena.pro/mtg/mtgalocloader.php"), cardsDataReq);
                         cardsDataReq.Clear();
                         cardsDataReq = default(Dictionary<string, object>);
                     }
