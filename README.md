@@ -38,6 +38,17 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 5. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.1.8.9 released 01/10/2019
+* ELD final preparations
+
+v.1.8.7 released 13/09/2019
+* Automated Cards Uploads
+* Now new cards appearing in the game will be automatically uploaded into database.
+
+v.1.8.6 released 07/09/2019
+* Opponent Cards Tracking Fixed
+* Also added more prominent link about detailed logging.
+
 v.1.8.5 released 05/09/2019 (Updated MTGA log format fixes)
 * Tracker adapted to new logging system
 * Date manual setting removed
