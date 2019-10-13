@@ -63,7 +63,7 @@
                         <TextBlock Text="Manual Re-Sync" HorizontalAlignment="Center" VerticalAlignment="Center" Width="92" Height="17" Margin="0,0,0,0" Padding="5,0,0,0"/>
                     </StackPanel>
                 </Button>
-                <Button x:Name="Scanbut" HorizontalAlignment="Left" Margin="149,220,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click_6" Height="25" ToolTip="Upload informaion from old log files stored by MTGA. You can select only one log at a time">
+                <Button x:Name="Scanbut" HorizontalAlignment="Left" Margin="149,220,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click_6" Height="25" ToolTip="Upload information from old log files stored by MTGA. You can select only one log at a time">
                     <StackPanel Width="110" Orientation="Horizontal">
                         <Image Source="Resources/backtime.png" Width="18" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" />
                         <TextBlock Text="Scan Old Logs..." HorizontalAlignment="Center" VerticalAlignment="Center" Width="92" Height="17" Margin="0,0,0,0" Padding="5,0,0,0"/>
