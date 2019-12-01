@@ -2083,6 +2083,19 @@ namespace MTGApro
                 ShowInTaskbar = true;
                 WindowState = WindowState.Minimized;
             }
+
+            var windowTop = Properties.Settings.Default.Top;
+            var windowLeft = Properties.Settings.Default.Left;
+            if (windowTop == -1 && windowLeft == -1)
+            {
+                this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            } else
+            {
+                this.WindowStartupLocation = WindowStartupLocation.Manual;
+                this.Top = windowTop;
+                this.Left = windowLeft;
+            }
+            
         }
 
         //Operations conducted every 2 seconds
@@ -2759,5 +2772,12 @@ namespace MTGApro
         }
 
         #endregion
+
+        private void Window_LocationChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Top = this.Top;
+            Properties.Settings.Default.Left = this.Left;
+            Properties.Settings.Default.Save();
+        }
     }
 }
